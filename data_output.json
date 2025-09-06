@@ -1,0 +1,126 @@
+{
+    "project_info": {
+      "name": "AI Chatbot Test Dataset",
+      "version": "1.0",
+      "description": "Test data collection for AI chatbot features",
+      "last_updated": "2025-01-06"
+    },
+    "features": {
+      "text_to_text": {
+        "name": "Chat Text to Text",
+        "description": "Basic text conversation testing",
+        "test_cases": [
+          {
+            "id": "t2t_001",
+            "category": "general_conversation",
+            "input": "Hello, how are you?",
+            "expected_output": "Greeting response with friendly tone",
+            "tags": ["greeting", "basic"],
+            "priority": "high"
+          },
+          {
+            "id": "t2t_002", 
+            "category": "complex_query",
+            "input": "Explain quantum computing in simple terms",
+            "expected_output": "Clear explanation with examples",
+            "tags": ["technical", "explanation"],
+            "priority": "medium"
+          }
+        ]
+      },
+      "text_to_image": {
+        "name": "Text to Image Generation",
+        "description": "AI image generation from text prompts",
+        "test_cases": [
+          {
+            "id": "t2i_001",
+            "category": "simple_object",
+            "input": "A red apple on a wooden table",
+            "parameters": {
+              "style": "photorealistic",
+              "aspect_ratio": "1:1",
+              "quality": "high"
+            },
+            "expected_criteria": ["clear apple shape", "red color", "wooden texture visible"],
+            "tags": ["object", "simple"],
+            "priority": "high"
+          }
+        ]
+      },
+      "image_to_image": {
+        "name": "Image to Image Transformation",
+        "description": "Image editing and transformation",
+        "test_cases": [
+          {
+            "id": "i2i_001",
+            "category": "style_transfer",
+            "input_image": "images/original_photo.jpg",
+            "prompt": "Convert to cartoon style",
+            "expected_output": "Cartoon version maintaining original composition",
+            "tags": ["style_transfer", "artistic"],
+            "priority": "medium"
+          }
+        ]
+      },
+      "image_to_text": {
+        "name": "Image Analysis & Description",
+        "description": "Extract text and describe images",
+        "test_cases": [
+          {
+            "id": "i2t_001",
+            "category": "object_recognition",
+            "input_image": "images/test_scene.JPG",
+            "expected_elements": ["person", "car", "building"],
+            "expected_text": "A person standing next to a car in front of a building",
+            "tags": ["description", "scene_analysis"],
+            "priority": "high"
+          }
+        ]
+      },
+      "web_chat": {
+        "name": "Chat with Web",
+        "description": "Real-time web information integration",
+        "test_cases": [
+          {
+            "id": "web_001",
+            "category": "current_events",
+            "input": "What's the latest news about AI developments?",
+            "expected_behavior": "Search recent news and provide summary with sources",
+            "validation_criteria": ["recent timestamps", "credible sources", "relevant content"],
+            "tags": ["news", "real_time"],
+            "priority": "high"
+          }
+        ]
+      },
+      "deep_research": {
+        "name": "Deep Research",
+        "description": "Comprehensive research on topics",
+        "test_cases": [
+          {
+            "id": "research_001",
+            "category": "academic_topic",
+            "input": "Research the impact of climate change on agriculture",
+            "expected_output": "Detailed report with multiple sources, statistics, and analysis",
+            "validation_criteria": ["multiple sources", "statistical data", "balanced perspective"],
+            "tags": ["research", "academic"],
+            "priority": "medium"
+          }
+        ]
+      },
+      "realtime_search": {
+        "name": "Realtime Search",
+        "description": "Live search and information retrieval",
+        "test_cases": [
+          {
+            "id": "search_001",
+            "category": "fact_checking",
+            "input": "What's the current price of Bitcoin?",
+            "expected_behavior": "Return current price with timestamp and source",
+            "validation_criteria": ["current data", "reliable source", "timestamp"],
+            "tags": ["finance", "real_time"],
+            "priority": "high"
+          }
+        ]
+      }
+    }
+  }

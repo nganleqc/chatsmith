@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QE Datasets - Chat Smith Testing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 50px;
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        h1 {
+            color: #2d3748;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        p {
+            color: #718096;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .datasets-grid {
+            display: grid;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .dataset-card {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .dataset-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+        }
+        
+        .dataset-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        
+        .dataset-description {
+            color: #718096;
+            font-size: 14px;
+        }
+        
+        .coming-soon {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .coming-soon:hover {
+            transform: none;
+            border-color: #e2e8f0;
+            box-shadow: none;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .coming-soon .badge {
+            background: #ed8936;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 QE Datasets</h1>
+        <p>Test datasets collection for AI Chatbot features validation and quality assurance</p>
+        
+        <div class="datasets-grid">
+            <a href="./chatbot_test_dataset.html" class="dataset-card">
+                <div class="badge">Available</div>
+                <div class="dataset-title">AI Chatbot Test Dataset</div>
+                <div class="dataset-description">
+                    Comprehensive test cases for text-to-text, text-to-image, image processing, web chat, research, and real-time search features
+                </div>
+            </a>
+            
+            <div class="dataset-card coming-soon">
+                <div class="badge">Coming Soon</div>
+                <div class="dataset-title">Performance Benchmarks</div>
+                <div class="dataset-description">
+                    Response time and accuracy benchmarks across different AI models and feature sets
+                </div>
+            </div>
+            
+            <div class="dataset-card coming-soon">
+                <div class="badge">Coming Soon</div>
+                <div class="dataset-title">Edge Case Scenarios</div>
+                <div class="dataset-description">
+                    Specialized test cases for error handling, limitations testing, and boundary conditions
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

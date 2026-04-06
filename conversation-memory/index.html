@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Conversation Memory Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --purple:       #667eea;
+            --purple-dark:  #5a67d8;
+            --green:        #48bb78;
+            --green-dark:   #38a169;
+            --amber:        #ed8936;
+            --amber-dark:   #dd6b20;
+            --bg:           #f8fafc;
+            --card:         #ffffff;
+            --border:       #e2e8f0;
+            --text:         #2d3748;
+            --text-muted:   #718096;
+            --text-sm:      #4a5568;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* ── LOADING ─────────────────────────────────────────── */
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            gap: 16px;
+            color: var(--text-muted);
+        }
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--purple);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── LIST VIEW ───────────────────────────────────────── */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 20px 18px;
+        }
+        .page-header-top {
+            margin-bottom: 10px;
+        }
+        .back-link {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: white; }
+        .page-header h1 {
+            font-size: 1.55em;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .page-header .stats {
+            font-size: 13px;
+            opacity: 0.85;
+        }
+
+        .filter-bar {
+            background: white;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .filter-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 10px;
+        }
+        .filter-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+        .filter-pill {
+            padding: 6px 13px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border);
+            background: white;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            min-height: 34px;
+        }
+        .filter-pill:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+        .filter-pill.active {
+            background: var(--purple);
+            border-color: var(--purple);
+            color: white;
+        }
+
+        .cases-list {
+            padding: 16px 20px;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        .case-card {
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .case-card:hover {
+            border-color: var(--purple);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.13);
+            transform: translateY(-1px);
+        }
+        .case-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        .case-id-badge {
+            background: var(--purple);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .run-btn {
+            background: var(--green);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+            min-height: 36px;
+        }
+        .run-btn:hover { background: var(--green-dark); }
+
+        .case-scenario {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: monospace;
+            background: var(--bg);
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+        .case-query {
+            font-size: 14px;
+            color: var(--text);
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .case-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .meta-tag {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .tag-steps        { background: #ebf4ff; color: #2b6cb0; }
+        .tag-rewrite      { background: #fef3c7; color: #92400e; }
+        .tag-short-term   { background: #d1fae5; color: #065f46; }
+        .tag-long-term    { background: #ede9fe; color: #4c1d95; }
+        .tag-both-memory  { background: #fee2e2; color: #7f1d1d; }
+        .tag-edge         { background: #f3f4f6; color: #374151; }
+        .tag-context      { background: #fce7f3; color: #831843; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+
+        /* ── TEST RUNNER VIEW ────────────────────────────────── */
+        .runner-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 20px 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .runner-header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .runner-back {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .runner-back:hover { background: rgba(255,255,255,0.3); }
+        .runner-case-id {
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .step-counter {
+            font-size: 13px;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+        .progress-bar-track {
+            background: rgba(255,255,255,0.25);
+            border-radius: 4px;
+            height: 5px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            background: white;
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .runner-body {
+            padding: 20px;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        /* Message card */
+        .message-card {
+            background: white;
+            border-radius: 16px;
+            padding: 26px 22px;
+            margin-bottom: 18px;
+            border: 2px solid var(--border);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+        .message-card.is-final {
+            border-color: var(--amber);
+            box-shadow: 0 4px 20px rgba(237, 137, 54, 0.14);
+        }
+        .final-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--amber);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .step-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 10px;
+        }
+        .message-text {
+            font-size: 18px;
+            line-height: 1.65;
+            color: var(--text);
+            font-weight: 500;
+        }
+        .expected-rewrite {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+        .expected-rewrite-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+        .expected-rewrite-text {
+            font-size: 15px;
+            color: var(--green-dark);
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        /* Copy button */
+        .copy-section { margin-bottom: 14px; }
+        .copy-main-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--green);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.01em;
+        }
+        .copy-main-btn:active  { transform: scale(0.98); }
+        .copy-main-btn:hover   { background: var(--green-dark); }
+        .copy-main-btn.copied  { background: #276749; }
+        .copy-main-btn.is-final-btn              { background: var(--amber); }
+        .copy-main-btn.is-final-btn:hover        { background: var(--amber-dark); }
+        .copy-main-btn.is-final-btn.copied       { background: #9c4221; }
+        .copy-main-btn:disabled { opacity: 0.7; cursor: default; transform: none; }
+
+        .keyboard-hint {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            display: none;
+        }
+        @media (hover: hover) { .keyboard-hint { display: block; } }
+
+        /* Nav buttons */
+        .nav-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 0;
+        }
+        .nav-btn {
+            flex: 1;
+            padding: 14px;
+            border: 1.5px solid var(--border);
+            background: white;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 50px;
+        }
+        .nav-btn:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .nav-btn:disabled:hover {
+            border-color: var(--border);
+            color: var(--text-sm);
+        }
+        .restart-btn {
+            background: var(--purple);
+            border-color: var(--purple);
+            color: white;
+        }
+        .restart-btn:hover {
+            background: var(--purple-dark);
+            border-color: var(--purple-dark);
+            color: white;
+        }
+
+        /* Collapsible panels */
+        .panel-section { margin-top: 16px; }
+        .panel-card {
+            background: white;
+            border-radius: 14px;
+            border: 1.5px solid var(--border);
+            overflow: hidden;
+        }
+        .panel-header {
+            padding: 13px 18px;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .panel-header:hover { background: #edf2f7; }
+        .panel-chevron {
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+        .panel-chevron.open { transform: rotate(180deg); }
+        .panel-body {
+            padding: 14px 18px;
+            display: none;
+        }
+        .panel-body.open { display: block; }
+
+        /* Outcome rows */
+        .outcome-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+        .outcome-row:last-child { border-bottom: none; }
+        .outcome-key {
+            font-weight: 600;
+            color: var(--text-sm);
+            min-width: 130px;
+            font-size: 13px;
+            padding-top: 1px;
+        }
+        .outcome-val { color: var(--text); flex: 1; }
+        .outcome-val.is-true  { color: #276749; font-weight: 600; }
+        .outcome-val.is-false { color: var(--text-muted); }
+
+        /* Context messages */
+        .ctx-msg {
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            line-height: 1.55;
+            margin-bottom: 8px;
+        }
+        .ctx-msg:last-child { margin-bottom: 0; }
+        .ctx-msg.user  { background: #ebf8ff; border-left: 3px solid #63b3ed; }
+        .ctx-msg.model { background: var(--bg); border-left: 3px solid var(--border); }
+        .ctx-msg-role {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            opacity: 0.65;
+            margin-bottom: 4px;
+        }
+
+        /* Manual copy modal (bottom sheet) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 100;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .bottom-sheet {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 24px 20px 40px;
+            width: 100%;
+            max-width: 640px;
+            animation: slideUp 0.25s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to   { transform: translateY(0); }
+        }
+        .sheet-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+        .sheet-desc  { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+        .sheet-textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            line-height: 1.5;
+            resize: none;
+            color: var(--text);
+            background: var(--bg);
+            margin-bottom: 12px;
+            font-family: inherit;
+        }
+        .sheet-close-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--purple);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 72px;
+            left: 50%;
+            transform: translateX(-50%) translateY(16px);
+            background: #2d3748;
+            color: white;
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.25s;
+            z-index: 200;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 400px) {
+            .message-text  { font-size: 16px; }
+            .copy-main-btn { font-size: 15px; min-height: 56px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── LOADING ──────────────────────────────────────────────────────── -->
+<div id="loading-screen" class="loading-screen">
+    <div class="spinner"></div>
+    <p>Loading dataset…</p>
+</div>
+
+<!-- ── LIST VIEW ────────────────────────────────────────────────────── -->
+<div id="list-view" class="view">
+    <div class="page-header">
+        <div class="page-header-top">
+            <a href="../index.html" class="back-link">← Back to Index</a>
+        </div>
+        <h1>🧠 Conversation Memory Tests</h1>
+        <p class="stats" id="list-stats"></p>
+    </div>
+
+    <div class="filter-bar">
+        <div class="filter-label">Filter by scenario</div>
+        <div class="filter-pills" id="filter-pills"></div>
+    </div>
+
+    <div class="cases-list" id="cases-list"></div>
+</div>
+
+<!-- ── TEST RUNNER VIEW ─────────────────────────────────────────────── -->
+<div id="runner-view" class="view">
+    <div id="runner-header" class="runner-header">
+        <div class="runner-header-top">
+            <button class="runner-back" onclick="goList()">← Back</button>
+            <span class="runner-case-id" id="rn-case-id"></span>
+            <span class="step-counter" id="rn-step-counter"></span>
+        </div>
+        <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="rn-progress"></div>
+        </div>
+    </div>
+    <div class="runner-body" id="runner-body"></div>
+</div>
+
+<!-- ── MANUAL COPY MODAL ────────────────────────────────────────────── -->
+<div class="modal-overlay" id="manual-modal" onclick="handleOverlayClick(event)">
+    <div class="bottom-sheet">
+        <div class="sheet-title">📋 Copy manually</div>
+        <div class="sheet-desc">Auto-copy is not available. Select all and copy the text below:</div>
+        <textarea class="sheet-textarea" id="manual-text" rows="4" readonly></textarea>
+        <button class="sheet-close-btn" onclick="closeManualModal()">Done</button>
+    </div>
+</div>
+
+<!-- ── TOAST ────────────────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<script>
+    /* ── STATE ─────────────────────────────────────────────────────── */
+    let dataset     = null;
+    let activeFilter = 'all';
+    let _keyHandler  = null;
+    let _toastTimer  = null;
+
+    /* ── FILTERS ───────────────────────────────────────────────────── */
+    const FILTERS = [
+        { id: 'all',         label: 'All' },
+        { id: 'no_rewrite',  label: 'No Rewrite' },
+        { id: 'rewrite',     label: 'Rewrite' },
+        { id: 'no_retrieve', label: 'No Retrieve' },
+        { id: 'short_term',  label: 'Short-term' },
+        { id: 'long_term',   label: 'Long-term' },
+        { id: 'both',        label: 'Both Memory' },
+        { id: 'edge',        label: 'Edge Cases' },
+    ];
+
+    function matchesFilter(c, f) {
+        const m = c.matrix_cell;
+        const isEdge = c.scenario_label.startsWith('edge');
+        if (f === 'all')         return true;
+        if (f === 'no_rewrite')  return !m.should_rewrite && !isEdge;
+        if (f === 'rewrite')     return m.should_rewrite;
+        if (f === 'no_retrieve') return !m.should_retrieve && !isEdge;
+        if (f === 'short_term')  return m.memory_types.length === 1 && m.memory_types[0] === 'short_term';
+        if (f === 'long_term')   return m.memory_types.length === 1 && m.memory_types[0] === 'long_term';
+        if (f === 'both')        return m.memory_types.length === 2;
+        if (f === 'edge')        return isEdge;
+        return true;
+    }
+
+    /* ── INIT ──────────────────────────────────────────────────────── */
+    async function init() {
+        try {
+            const res = await fetch('../test-data/golden_dataset_orchestrator_with_history.json');
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            dataset = await res.json();
+            document.getElementById('loading-screen').style.display = 'none';
+            buildFilterPills();
+            router();
+        } catch (e) {
+            document.getElementById('loading-screen').innerHTML =
+                `<div style="text-align:center;padding:40px">
+                    <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+                    <p style="color:#c53030;font-size:16px;font-weight:600">Failed to load dataset</p>
+                    <p style="color:#718096;margin-top:8px;font-size:13px">${escHtml(e.message)}</p>
+                 </div>`;
+        }
+    }
+
+    window.addEventListener('load', init);
+    window.addEventListener('hashchange', router);
+
+    /* ── ROUTER ────────────────────────────────────────────────────── */
+    function router() {
+        if (!dataset) return;
+        const hash  = location.hash.slice(1) || 'list';
+        const parts = hash.split('/');
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        if (parts[0] === 'run' && parts[1]) {
+            document.getElementById('runner-view').classList.add('active');
+            renderRunner(parts[1], parseInt(parts[2]) || 0);
+        } else {
+            document.getElementById('list-view').classList.add('active');
+            renderList();
+        }
+    }
+
+    function goList() {
+        removeKeyboardHandler();
+        location.hash = 'list';
+    }
+
+    /* ── FILTER PILLS ──────────────────────────────────────────────── */
+    function buildFilterPills() {
+        const pills = FILTERS.map(f => {
+            const count = f.id === 'all'
+                ? dataset.cases.length
+                : dataset.cases.filter(c => matchesFilter(c, f.id)).length;
+            const isActive = f.id === activeFilter;
+            return `<button class="filter-pill${isActive ? ' active' : ''}"
+                            onclick="setFilter('${f.id}')">
+                        ${f.label} <span style="opacity:0.65">${count}</span>
+                    </button>`;
+        }).join('');
+        document.getElementById('filter-pills').innerHTML = pills;
+    }
+
+    function setFilter(id) {
+        activeFilter = id;
+        buildFilterPills();
+        renderList();
+    }
+
+    /* ── LIST VIEW ─────────────────────────────────────────────────── */
+    function renderList() {
+        if (!dataset) return;
+
+        const withCtx = dataset.cases.filter(c => c.recent_messages?.length > 0).length;
+        document.getElementById('list-stats').textContent =
+            `${dataset.total_cases} cases · ${withCtx} with context messages`;
+
+        const filtered = dataset.cases.filter(c => matchesFilter(c, activeFilter));
+
+        if (!filtered.length) {
+            document.getElementById('cases-list').innerHTML =
+                `<div class="empty-state">
+                    <div class="icon">🔍</div>
+                    <p>No cases match this filter.</p>
+                 </div>`;
+            return;
+        }
+
+        document.getElementById('cases-list').innerHTML = filtered.map(c => {
+            const m = c.matrix_cell;
+            const totalSteps = c.conversation_history.length + 1;
+            const tags = [
+                `<span class="meta-tag tag-steps">📋 ${totalSteps} steps</span>`,
+            ];
+            if (m.should_rewrite)  tags.push(`<span class="meta-tag tag-rewrite">✏️ Rewrite</span>`);
+            if (m.memory_types.length === 1 && m.memory_types[0] === 'short_term')
+                tags.push(`<span class="meta-tag tag-short-term">🔵 Short-term</span>`);
+            if (m.memory_types.length === 1 && m.memory_types[0] === 'long_term')
+                tags.push(`<span class="meta-tag tag-long-term">🟣 Long-term</span>`);
+            if (m.memory_types.length === 2)
+                tags.push(`<span class="meta-tag tag-both-memory">🔴 Both</span>`);
+            if (c.recent_messages?.length)
+                tags.push(`<span class="meta-tag tag-context">💬 ${c.recent_messages.length} ctx</span>`);
+            if (c.scenario_label.startsWith('edge'))
+                tags.push(`<span class="meta-tag tag-edge">⚡ Edge</span>`);
+
+            return `
+            <div class="case-card" onclick="location.hash='run/${c.id}/0'">
+                <div class="case-card-header">
+                    <span class="case-id-badge">${c.id}</span>
+                    <button class="run-btn"
+                            onclick="event.stopPropagation(); location.hash='run/${c.id}/0'">
+                        ▶ Run
+                    </button>
+                </div>
+                <div class="case-scenario">${escHtml(c.scenario_label)}</div>
+                <div class="case-query">"${escHtml(c.original_query)}"</div>
+                <div class="case-meta">${tags.join('')}</div>
+            </div>`;
+        }).join('');
+    }
+
+    /* ── TEST RUNNER ───────────────────────────────────────────────── */
+    function renderRunner(caseId, step) {
+        const c = dataset?.cases.find(x => x.id === caseId);
+        if (!c) { goList(); return; }
+
+        const msgs       = [...c.conversation_history, c.original_query];
+        const total      = msgs.length;
+        const isFinal    = step === total - 1;
+        const pct        = Math.round(((step + 1) / total) * 100);
+        const exp        = c.expected_output;
+
+        /* Header */
+        document.getElementById('rn-case-id').textContent     = caseId;
+        document.getElementById('rn-step-counter').textContent = `${step + 1} / ${total}`;
+        document.getElementById('rn-progress').style.width    = pct + '%';
+
+        /* Message card */
+        let cardHtml;
+        if (isFinal) {
+            const rewriteBlock = (exp.should_rewrite && exp.final_query)
+                ? `<div class="expected-rewrite">
+                       <div class="expected-rewrite-label">Expected rewrite →</div>
+                       <div class="expected-rewrite-text">"${escHtml(exp.final_query)}"</div>
+                   </div>`
+                : '';
+            cardHtml = `
+            <div class="message-card is-final">
+                <div class="final-badge">⭐ Final Query</div>
+                <div class="message-text">${escHtml(msgs[step])}</div>
+                ${rewriteBlock}
+            </div>`;
+        } else {
+            cardHtml = `
+            <div class="message-card">
+                <div class="step-label">History message ${step + 1}</div>
+                <div class="message-text">${escHtml(msgs[step])}</div>
+            </div>`;
+        }
+
+        /* Copy button */
+        const copyBtnClass = `copy-main-btn${isFinal ? ' is-final-btn' : ''}`;
+        const copyBtnLabel = isFinal ? '📋&nbsp; Copy Final Query' : '📋&nbsp; Copy Message';
+        const copyHtml = `
+        <div class="copy-section">
+            <button class="${copyBtnClass}" id="copy-btn"
+                    data-caseid="${escHtml(caseId)}" data-step="${step}"
+                    onclick="handleCopy(this)">
+                ${copyBtnLabel}
+            </button>
+            <div class="keyboard-hint">Space / Enter to copy &nbsp;·&nbsp; ← → to navigate</div>
+        </div>`;
+
+        /* Nav buttons */
+        const prevDisabled = step === 0 ? 'disabled' : '';
+        const navHtml = isFinal
+            ? `<button class="nav-btn" ${prevDisabled}
+                       onclick="goStep('${caseId}', ${step - 1})">← Prev</button>
+               <button class="nav-btn restart-btn"
+                       onclick="goStep('${caseId}', 0)">🔁 Restart</button>`
+            : `<button class="nav-btn" ${prevDisabled}
+                       onclick="goStep('${caseId}', ${step - 1})">← Prev</button>
+               <button class="nav-btn"
+                       onclick="goStep('${caseId}', ${step + 1})">Next →</button>`;
+
+        /* Expected outcome panel (always visible on final step) */
+        let outcomeHtml = '';
+        if (isFinal) {
+            const memLabel = exp.memory_types.length ? exp.memory_types.join(', ') : 'none';
+            const rows = [
+                ['should_rewrite',  exp.should_rewrite],
+                ['should_retrieve', exp.should_retrieve],
+                ['memory_types',    memLabel],
+                ...(exp.final_query ? [['expected rewrite', exp.final_query]] : []),
+                ...(exp.rewrite_rationale && exp.rewrite_rationale !== 'none'
+                    ? [['rewrite_rationale', exp.rewrite_rationale]]
+                    : []),
+            ].map(([k, v]) =>
+                `<div class="outcome-row">
+                    <span class="outcome-key">${escHtml(String(k))}</span>
+                    <span class="outcome-val ${v === true ? 'is-true' : v === false ? 'is-false' : ''}">
+                        ${v === true ? '✅ true' : v === false ? '❌ false' : escHtml(String(v))}
+                    </span>
+                 </div>`
+            ).join('');
+            outcomeHtml = `
+            <div class="panel-section">
+                <div class="panel-card">
+                    <div class="panel-header" onclick="togglePanel('outcome-body','outcome-chev')">
+                        <span>🎯 Expected outcome</span>
+                        <span class="panel-chevron" id="outcome-chev">▼</span>
+                    </div>
+                    <div class="panel-body open" id="outcome-body">${rows}</div>
+                </div>
+            </div>`;
+        }
+
+        /* Context panel (recent_messages) */
+        let contextHtml = '';
+        if (c.recent_messages?.length) {
+            const ctxMsgs = c.recent_messages.map(m =>
+                `<div class="ctx-msg ${m.role}">
+                    <div class="ctx-msg-role">${m.role === 'model' ? 'AI' : 'User'}</div>
+                    ${escHtml(m.content)}
+                 </div>`
+            ).join('');
+            contextHtml = `
+            <div class="panel-section">
+                <div class="panel-card">
+                    <div class="panel-header" onclick="togglePanel('ctx-body','ctx-chev')">
+                        <span>💬 Context already in app (${c.recent_messages.length} msgs)</span>
+                        <span class="panel-chevron" id="ctx-chev">▼</span>
+                    </div>
+                    <div class="panel-body" id="ctx-body">${ctxMsgs}</div>
+                </div>
+            </div>`;
+        }
+
+        document.getElementById('runner-body').innerHTML = `
+            ${cardHtml}
+            ${copyHtml}
+            <div class="nav-section">${navHtml}</div>
+            ${outcomeHtml}
+            ${contextHtml}
+            <div style="height:40px"></div>
+        `;
+
+        setupKeyboard(caseId, step, total);
+    }
+
+    function goStep(caseId, step) {
+        history.replaceState(null, '', `#run/${caseId}/${step}`);
+        renderRunner(caseId, step);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function togglePanel(bodyId, chevId) {
+        const body = document.getElementById(bodyId);
+        const chev = document.getElementById(chevId);
+        if (!body) return;
+        const isOpen = body.classList.toggle('open');
+        chev.classList.toggle('open', isOpen);
+    }
+
+    /* ── KEYBOARD NAV ──────────────────────────────────────────────── */
+    function setupKeyboard(caseId, step, total) {
+        removeKeyboardHandler();
+        _keyHandler = (e) => {
+            if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (step < total - 1) goStep(caseId, step + 1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (step > 0) goStep(caseId, step - 1);
+            } else if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                const btn = document.getElementById('copy-btn');
+                if (btn && !btn.disabled) handleCopy(btn);
+            }
+        };
+        document.addEventListener('keydown', _keyHandler);
+    }
+
+    function removeKeyboardHandler() {
+        if (_keyHandler) {
+            document.removeEventListener('keydown', _keyHandler);
+            _keyHandler = null;
+        }
+    }
+
+    /* ── CLIPBOARD ─────────────────────────────────────────────────── */
+
+    /**
+     * Resolve the text to copy from the button's data attributes.
+     * Using data attributes avoids any escaping issues in onclick HTML.
+     */
+    function getTextForBtn(btn) {
+        const caseId = btn.getAttribute('data-caseid');
+        const step   = parseInt(btn.getAttribute('data-step'), 10);
+        const c = dataset.cases.find(x => x.id === caseId);
+        if (!c) return '';
+        const msgs = [...c.conversation_history, c.original_query];
+        return msgs[step] || '';
+    }
+
+    function handleCopy(btn) {
+        const text = getTextForBtn(btn);
+        if (!text) return;
+
+        /* Tier 1 — Clipboard API (HTTPS / localhost, iOS 13.4+, modern Chrome) */
+        if (navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText(text)
+                .then(() => showCopiedFeedback(btn))
+                .catch(() => fallbackCopy(text, btn));
+            return;
+        }
+
+        /* Tier 2 — execCommand fallback */
+        fallbackCopy(text, btn);
+    }
+
+    function fallbackCopy(text, btn) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        /* Off-screen but still focusable & selectable (display:none blocks selection) */
+        ta.style.cssText = 'position:fixed;left:-9999px;top:50%;opacity:0;pointer-events:none;';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length); /* iOS requires this */
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch (_) { /* swallow */ }
+        document.body.removeChild(ta);
+
+        if (ok) {
+            showCopiedFeedback(btn);
+        } else {
+            /* Tier 3 — show manual copy modal */
+            showManualCopyModal(text);
+        }
+    }
+
+    function showCopiedFeedback(btn) {
+        if (!btn) return;
+        const isFinal  = btn.classList.contains('is-final-btn');
+        const original = btn.innerHTML;
+        btn.innerHTML  = '✓&nbsp; Copied!';
+        btn.classList.add('copied');
+        btn.disabled   = true;
+        showToast('Copied to clipboard!');
+        setTimeout(() => {
+            btn.innerHTML = isFinal ? '📋&nbsp; Copy Final Query' : '📋&nbsp; Copy Message';
+            btn.classList.remove('copied');
+            btn.disabled  = false;
+        }, 2000);
+    }
+
+    /* ── MANUAL COPY MODAL ─────────────────────────────────────────── */
+    function showManualCopyModal(text) {
+        const ta = document.getElementById('manual-text');
+        ta.value = text;
+        document.getElementById('manual-modal').classList.add('show');
+        setTimeout(() => {
+            ta.focus();
+            ta.select();
+            ta.setSelectionRange(0, ta.value.length);
+        }, 200);
+    }
+
+    function closeManualModal() {
+        document.getElementById('manual-modal').classList.remove('show');
+    }
+
+    function handleOverlayClick(e) {
+        if (e.target === document.getElementById('manual-modal')) closeManualModal();
+    }
+
+    /* ── TOAST ─────────────────────────────────────────────────────── */
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(_toastTimer);
+        _toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    /* ── UTILS ─────────────────────────────────────────────────────── */
+    function escHtml(s) {
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+</script>
+</body>
+</html>

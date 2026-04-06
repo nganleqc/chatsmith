@@ -1,0 +1,2796 @@
+{
+  "dataset_name": "orchestrator_conversation_history_eval",
+  "version": "1.0",
+  "description": "Extended orchestrator dataset with generated conversation histories (user messages only). Each case has 10-20 user messages that precede the original_query. These histories are summarised by the memory summarisation service before orchestrator evaluation, allowing end-to-end testing of chatbot memory quality.",
+  "source_dataset": "test_data/golden_dataset_orchestrator.json",
+  "total_cases": 48,
+  "generation_model": "gpt-4o",
+  "cases": [
+    {
+      "id": "ORC-A-001",
+      "scenario_label": "no_rewrite__no_retrieve__world_fact",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [],
+      "user_id": "7c1a3ef5-75bd-40d9-a047-a24a55394b27",
+      "conversation_id": "ad177f62-a437-4745-b9ee-49e3c9e36060",
+      "request_id": "7e86ff5e-6c48-4594-b115-f2c75b4af920",
+      "original_query": "What is the TCP three-way handshake?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Pure world knowledge — no personal or session context needed.",
+      "conversation_history": [
+        "How do volcanoes form?",
+        "What is the difference between magma and lava?",
+        "Can you tell me how tectonic plates affect earthquakes?",
+        "Are there any famous supervolcanoes?",
+        "What was the biggest volcanic eruption in history?",
+        "What's the fastest animal on land?",
+        "How do birds navigate during migration?",
+        "Are there any animals that can survive extreme cold?",
+        "What's the lifespan of a typical elephant?",
+        "Can you explain how bees make honey?",
+        "What's the purpose of a camel's hump?",
+        "Do sharks need to keep moving to stay alive?"
+      ]
+    },
+    {
+      "id": "ORC-A-002",
+      "scenario_label": "no_rewrite__no_retrieve__world_fact",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [],
+      "user_id": "4c64f328-b7df-47a0-9ba6-008f85c1399b",
+      "conversation_id": "7c1e903e-c888-44a1-a75b-b92c1939242c",
+      "request_id": "4ca279fc-5729-4931-b954-fc47159ae911",
+      "original_query": "Explain the difference between Docker containers and virtual machines.",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Self-contained technical definition question.",
+      "conversation_history": [
+        "What's the current population of Japan?",
+        "Can you tell me about the main cultural festivals in Japan?",
+        "How does the Japanese education system differ from that in the US?",
+        "What are some popular tourist attractions in Tokyo?",
+        "I've heard of Japanese tea ceremonies. Can you explain what they are?",
+        "How is the economic relationship between Japan and China evolving?",
+        "Are there any famous Japanese architects or architectural styles?",
+        "What makes black holes so fascinating in the field of astrophysics?",
+        "How do scientists detect exoplanets?",
+        "Can you explain the difference between a meteor, a meteoroid, and a meteorite?",
+        "What are some current theories about dark matter?",
+        "How do eclipses occur, and how often do they happen?",
+        "I'm curious about the latest discoveries in space exploration.",
+        "What role does the Hubble Telescope play in modern astronomy?",
+        "How do solar flares affect Earth?"
+      ]
+    },
+    {
+      "id": "ORC-A-003",
+      "scenario_label": "no_rewrite__no_retrieve__world_fact",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [],
+      "user_id": "33388a7e-b193-4468-85cc-a36e0127bd12",
+      "conversation_id": "9e0cd84a-d3c8-48b5-8720-918eb9914ea9",
+      "request_id": "66837f5f-49ef-419f-ae05-4e343fd84daf",
+      "original_query": "What does the HTTP 429 status code mean?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Standard HTTP specification fact, no personal context.",
+      "conversation_history": [
+        "What are the main differences between the circulatory system and the respiratory system?",
+        "How does the human heart pump blood throughout the body?",
+        "What role do the lungs play in oxygenating blood?",
+        "Can you explain how the diaphragm functions during breathing?",
+        "What are some common diseases that affect the respiratory system?",
+        "How does a solar panel convert sunlight into electricity?",
+        "What are the benefits of using renewable energy sources?",
+        "How does wind energy work to produce electricity?",
+        "What is the basic principle behind hydropower?",
+        "Are there any downsides to using renewable energy like solar or wind?"
+      ]
+    },
+    {
+      "id": "ORC-A-004",
+      "scenario_label": "no_rewrite__no_retrieve__world_fact",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [],
+      "user_id": "e33ec1ad-16d8-4946-88d0-a64f5385077f",
+      "conversation_id": "41aeb651-c350-49f1-81ae-136eeb3aa551",
+      "request_id": "df97e527-322d-4c47-b11e-07f791aa64e9",
+      "original_query": "How does the quicksort algorithm work?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Generic algorithm explanation, no user context needed.",
+      "conversation_history": [
+        "What's the closest planet to the sun?",
+        "How long does it take for Venus to complete one orbit around the sun?",
+        "Why is Mars called the Red Planet?",
+        "Can you tell me about the atmosphere on Jupiter?",
+        "Is there water on any of the other planets?",
+        "What are the main differences between a comet and an asteroid?",
+        "How do black holes form?",
+        "What are some of the most famous constellations in the night sky?",
+        "How far is the Andromeda Galaxy from Earth?",
+        "Who was the first person to step on the moon?",
+        "What are the defining features of a symphony?",
+        "Can you explain the structure of a typical opera?",
+        "What makes jazz music distinct from other genres?",
+        "Who are some of the most influential composers in classical music?",
+        "What's the difference between a violin and a viola?",
+        "How does a grand piano produce sound?",
+        "What are the origins of blues music?"
+      ]
+    },
+    {
+      "id": "ORC-A-005",
+      "scenario_label": "no_rewrite__no_retrieve__world_fact",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [],
+      "user_id": "2e2ccd88-170b-4085-b169-a7a9e1478efc",
+      "conversation_id": "a6ae4a5a-5412-4c08-9b43-37a73506989b",
+      "request_id": "071aef8e-4ee7-4345-9f60-426fbf4e1d26",
+      "original_query": "Define eventual consistency in distributed systems.",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Distributed systems concept definition, fully self-contained.",
+      "conversation_history": [
+        "What are the main differences between a lunar eclipse and a solar eclipse?",
+        "How often do lunar eclipses occur?",
+        "Can you explain why a solar eclipse is less common than a lunar eclipse?",
+        "Are there any safety precautions to take when watching a solar eclipse?",
+        "What was the most recent total solar eclipse in North America?",
+        "What are the most popular tourist destinations in Japan?",
+        "I've heard Kyoto is a beautiful city. What are the must-see places there?",
+        "What's unique about Japanese cuisine compared to other Asian cuisines?",
+        "Can you tell me more about the cherry blossom festivals in Japan?",
+        "Is there a specific time of year that's best to visit Japan for cultural events?"
+      ]
+    },
+    {
+      "id": "ORC-B-001",
+      "scenario_label": "no_rewrite__retrieve_short_term__recent_ref",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "recent_conversation_reference"
+      ],
+      "user_id": "ea614186-2911-43d2-95ce-1cb384c13df7",
+      "conversation_id": "7889ff02-ab50-4ce4-99f1-ce44bd2ea728",
+      "request_id": "30485221-83a3-40fb-ab80-6a6404ad9b22",
+      "original_query": "What name did we settle on?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "We need to pick a name for the new microservice. Options are: PaymentGateway, TransactionBroker, or FundsRouter."
+        },
+        {
+          "role": "model",
+          "content": "Based on clarity and domain alignment, I'd recommend PaymentGateway. It immediately communicates the service's purpose and follows the naming convention used by your existing services like NotificationService and AuthService."
+        },
+        {
+          "role": "user",
+          "content": "Good point. Let me think about it. What are the trade-offs between PaymentGateway and TransactionBroker?"
+        },
+        {
+          "role": "model",
+          "content": "PaymentGateway is more descriptive and user-facing, while TransactionBroker implies a more internal, infrastructure-level role. If this service is customer-facing or used by the frontend team, PaymentGateway is clearer. If it's purely internal for inter-service communication, TransactionBroker could work."
+        },
+        {
+          "role": "user",
+          "content": "We decided on PaymentGateway. Let's proceed with that."
+        },
+        {
+          "role": "model",
+          "content": "Great choice! PaymentGateway it is. I'll keep that in mind for the rest of our discussion."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Clear query but requires recent conversation context to answer ('we settled on' = short_term retrieval).",
+      "conversation_history": [
+        "We need to brainstorm ideas for enhancing our payment process.",
+        "Do you think integrating a new payment method would be beneficial?",
+        "I’ve been considering adding mobile payment options. What's your take?",
+        "Should we focus on improving security or user experience first?",
+        "How do you feel about adopting blockchain for transactions?",
+        "Are there any recent technologies we should look into for payments?",
+        "Do you have any experience with implementing microservices for payments?",
+        "I’ve been thinking about naming conventions for our new microservice.",
+        "Do you have any favorite naming patterns for microservices?",
+        "Should the name reflect the service's functionality or its architecture?",
+        "How important is it for the name to align with our existing services?",
+        "Can you list some potential names that come to mind?",
+        "What are the common pitfalls in naming services that we should avoid?",
+        "How much do you think the name impacts the perception of the service?"
+      ]
+    },
+    {
+      "id": "ORC-B-002",
+      "scenario_label": "no_rewrite__retrieve_short_term__vague_pronoun",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "vague_pronoun_recent_context"
+      ],
+      "user_id": "93675cfe-b7db-45f5-80b2-2cfb9a7192b7",
+      "conversation_id": "bf6e9b80-30eb-4364-b82b-0e501075a2ff",
+      "request_id": "46e12b32-16ba-4813-b9ee-0702d5961940",
+      "original_query": "Can you expand on your last point?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "What's the main risk with using eventual consistency in our order service?"
+        },
+        {
+          "role": "model",
+          "content": "The main risk is stale reads — a user could see an outdated order status right after placing it. You'll need compensating UI patterns like optimistic updates or polling."
+        },
+        {
+          "role": "user",
+          "content": "What about for inventory management?"
+        },
+        {
+          "role": "model",
+          "content": "For inventory, eventual consistency is riskier because overselling is a business problem, not just a UX issue. You'd typically use strong consistency for stock decrement and reservation, and reserve eventual consistency for reporting and analytics."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "'Your last point' is a vague pronoun resolvable only from recent messages — triggers short_term retrieval. Query itself is clear and complete enough not to rewrite.",
+      "conversation_history": [
+        "Can you remind me how eventual consistency works in distributed systems?",
+        "Could you explain why it's preferred over strong consistency in some cases?",
+        "What are some real-world scenarios where eventual consistency is advantageous?",
+        "How does eventual consistency affect database performance?",
+        "I've read about CAP theorem in relation to this; can you clarify how it connects?",
+        "In what situations would you absolutely avoid using eventual consistency?",
+        "Can eventual consistency impact user experience, and how do we mitigate that?",
+        "How should we handle stale data issues in our applications?",
+        "What are some best practices for implementing consistency in microservices?",
+        "Regarding strong consistency, is it always the best choice for critical systems?",
+        "What strategies can we use to ensure data reliability in a distributed system?",
+        "How does data replication affect consistency and availability?",
+        "When designing an order service, what consistency model should we consider?",
+        "Could using eventual consistency in inventory management lead to overselling?",
+        "How can we balance consistency and performance in our systems?"
+      ]
+    },
+    {
+      "id": "ORC-B-003",
+      "scenario_label": "no_rewrite__retrieve_short_term__follow_up",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "follow_up_question"
+      ],
+      "user_id": "0156a39d-0e00-4615-b937-83884107a3b9",
+      "conversation_id": "d91a650f-16ad-405c-a177-e891250b9451",
+      "request_id": "3e896a92-a5bd-4d08-acb6-408d30168f95",
+      "original_query": "What did you suggest for that edge case?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "I'm writing a validation function for user age. It should reject anything below 0 or above 150."
+        },
+        {
+          "role": "model",
+          "content": "For the age validation, I'd use: `if age < 0 or age > 150: raise ValueError('Invalid age')`. You might also want to handle non-integer inputs by checking `isinstance(age, int)` first."
+        },
+        {
+          "role": "user",
+          "content": "What about the edge case where age is exactly 0?"
+        },
+        {
+          "role": "model",
+          "content": "Age 0 is valid — newborns. Keep 0 as the inclusive lower bound. If your domain genuinely requires age >= 1, document that explicitly. I'd suggest a comment in the code: `# 0 is valid: represents age < 1 year`."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "'That edge case' requires recent message context. Query is grammatically fine, no rewrite needed.",
+      "conversation_history": [
+        "I'm trying to improve input validation in my project. Do you have any tips for common pitfalls?",
+        "What are some best practices for handling user inputs that are outside expected ranges?",
+        "Should I be concerned about performance impacts when adding multiple validation checks?",
+        "Is there a standard approach for logging validation errors?",
+        "How should I handle validation for optional fields in a form?",
+        "I've been thinking about edge cases for input validation. What is a good strategy to identify these?",
+        "Are there any tools you'd recommend for testing the robustness of my validation logic?",
+        "Switching topics a bit, I'm considering revamping how we manage user profiles. Any advice?",
+        "How important is it to enforce strong password policies in user profiles?",
+        "What's your take on allowing users to update their email addresses without verification?",
+        "Should I track user activities like login times within their profiles for security?",
+        "What are the pros and cons of using third-party authentication services?",
+        "How do I ensure data consistency when users update their profile information?",
+        "What's the best way to implement user opt-in for marketing communications?",
+        "Can you suggest a way to safely archive old user profiles without violating privacy?"
+      ]
+    },
+    {
+      "id": "ORC-B-004",
+      "scenario_label": "no_rewrite__retrieve_short_term__earlier_decision",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "what_did_we_decide"
+      ],
+      "user_id": "8e3174bd-649d-493a-9f8e-941a62513f1a",
+      "conversation_id": "577bc1cf-e875-4ac9-9e8a-3124f4700e1e",
+      "request_id": "7d891c15-9382-4c32-a2cb-9ba305ccc613",
+      "original_query": "What was the decision we made earlier about the caching strategy?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "Should we use Redis or an in-memory cache for the session tokens?"
+        },
+        {
+          "role": "model",
+          "content": "Redis is better for distributed systems since multiple server instances can share session state. In-memory cache only works if you have sticky sessions or a single-server setup."
+        },
+        {
+          "role": "user",
+          "content": "We have three server instances. So Redis it is?"
+        },
+        {
+          "role": "model",
+          "content": "Yes, Redis is the right call for a 3-instance setup. It also gives you persistence and TTL management out of the box."
+        },
+        {
+          "role": "user",
+          "content": "Alright, we'll go with Redis. Now let me ask about the database indexing."
+        },
+        {
+          "role": "model",
+          "content": "Sure, what specifically about database indexing would you like to cover?"
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "'Decision we made earlier' is an explicit history reference → short_term retrieval.",
+      "conversation_history": [
+        "I'm trying to optimize our cache strategy for better performance, do you have any recommendations?",
+        "How does Redis compare to an in-memory cache in terms of speed and reliability?",
+        "Do you think using Redis justifies the extra complexity in our system architecture?",
+        "What are the pros and cons of using Redis over other cache options?",
+        "Can you explain why persistence might be important in our caching strategy?",
+        "Earlier, you mentioned something about TTL management. Could you elaborate on that?",
+        "Should we consider the cost implications of using Redis at scale?",
+        "Switching gears, I'm also reviewing our database performance. Any tips there?",
+        "Do you think we should focus on indexing strategies to optimize query speeds?",
+        "What are the common pitfalls when setting up database indexes?",
+        "How do different indexing techniques impact database performance?",
+        "Is there a specific indexing strategy that works best for our type of data?",
+        "Would you recommend composite indexes for our multi-column queries?",
+        "How can we monitor the effectiveness of our indexing strategy over time?"
+      ]
+    },
+    {
+      "id": "ORC-B-005",
+      "scenario_label": "no_rewrite__retrieve_short_term__summarize_conversation",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "summarize_conversation"
+      ],
+      "user_id": "fb973de1-6f3c-4910-9e5a-2c2e7863ddd0",
+      "conversation_id": "e7b4e17d-984e-46b9-9fdb-c808b4f8d370",
+      "request_id": "1f505c61-4298-4817-8be6-dd0600a4fcf2",
+      "original_query": "Can you summarize what we've discussed so far?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "Let's plan the API versioning strategy for our new platform."
+        },
+        {
+          "role": "model",
+          "content": "I recommend URL-based versioning (/v1/, /v2/) for public APIs as it's explicit and easy to route. For internal APIs, header-based versioning is cleaner."
+        },
+        {
+          "role": "user",
+          "content": "And what about deprecation policy?"
+        },
+        {
+          "role": "model",
+          "content": "Typically, keep old versions alive for at least 6-12 months after announcing deprecation. Use sunset headers and communicate via changelog and email to API consumers."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "'Summarize what we discussed' is an explicit conversation summary request → short_term retrieval.",
+      "conversation_history": [
+        "I was thinking about how to differentiate our public and private APIs. Do you have any suggestions?",
+        "How should we handle authentication for these APIs?",
+        "I'm concerned about scalability. What should we consider when designing for scale?",
+        "How do we ensure our APIs remain secure as we scale?",
+        "What are the best practices for API documentation?",
+        "What should be our approach to rate limiting?",
+        "Could you tell me more about error handling for our APIs?",
+        "Let's discuss the tech stack for our new platform. What are your thoughts?",
+        "Should we use a microservices architecture for better flexibility?",
+        "How important is it to use containerization for deployment?",
+        "What frameworks do you suggest for building the frontend of our platform?",
+        "What database solutions would be best for our needs?",
+        "How do we ensure data integrity and consistency across the platform?",
+        "What about using cloud services for storage and computing?",
+        "Should we consider any specific tools for monitoring and analytics?"
+      ]
+    },
+    {
+      "id": "ORC-C-001",
+      "scenario_label": "no_rewrite__retrieve_long_term__user_profile",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "user_profile_request"
+      ],
+      "user_id": "ef5e523b-e93f-4bd6-971e-76e46b62bf25",
+      "conversation_id": "45f2c67f-375e-4cd6-8e6c-69210a14a3b9",
+      "request_id": "ea5807a5-b214-4b51-afde-67076c219eec",
+      "original_query": "Write me a CV for a senior backend engineering role.",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "'Write me a CV' requires user's work history, skills, and experience — long_term profile data.",
+      "conversation_history": [
+        "I've been thinking about improving my skills in backend development. What are some good online resources?",
+        "Do you think learning a new programming language would be beneficial for my career?",
+        "I'm interested in exploring more about microservices architecture. Any suggestions on where to start?",
+        "I've been working with Python for a while now. Do you think it's worth diversifying into other languages?",
+        "What are some essential skills for a backend engineer to have in today's job market?",
+        "In your opinion, how important is it for backend engineers to have cloud experience?",
+        "I'm considering taking some courses on AWS. Do you think that's a good idea for someone in my field?",
+        "I've been working on a few personal projects using Django. How important is it to showcase these in a portfolio?",
+        "I prefer working in environments that encourage innovation and creativity. How can I find companies with such cultures?",
+        "What are some common interview questions for senior backend engineering roles?",
+        "How can I best demonstrate my experience with RESTful API design in job applications?",
+        "I'd like to highlight my problem-solving skills in my CV. What's a good way to do that?",
+        "Do you think contributing to open-source projects is valuable for someone like me?",
+        "I'm interested in roles that allow me to mentor junior developers. How can I convey this in my CV?",
+        "Besides technical skills, what soft skills are most valued in senior engineering roles?"
+      ]
+    },
+    {
+      "id": "ORC-C-002",
+      "scenario_label": "no_rewrite__retrieve_long_term__user_preference",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "user_preferences"
+      ],
+      "user_id": "497e7865-949f-4325-9c41-45ae9a1b850d",
+      "conversation_id": "ebbfcab5-5155-421b-a78c-848e0eaf3c7c",
+      "request_id": "04694eda-f347-4aab-a4c8-c14ba93de886",
+      "original_query": "Draft an email in the tone I usually prefer.",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "'The tone I usually prefer' is an explicit user preference reference → long_term retrieval.",
+      "conversation_history": [
+        "I've been thinking about changing the tone of my emails. What do you think is a good professional tone?",
+        "I generally prefer a more friendly and informal tone, but I wonder if that's always appropriate.",
+        "What are some tips for maintaining a consistent tone in professional emails?",
+        "Sometimes I feel like my emails come off too casual. How can I make them sound more formal without losing warmth?",
+        "Are there any templates you recommend for drafting emails in different tones?",
+        "Switching topics, I've been meaning to learn a new skill. Any suggestions for online courses?",
+        "I really enjoy creative writing in my free time. Do you know any platforms where I can publish my work?",
+        "I've read that improving public speaking can help with writing skills too. Would you agree?",
+        "How can I incorporate more of my personal interests, like writing, into my professional development?",
+        "I'm trying to balance my creative hobbies with my career goals. Any advice on maintaining that balance?",
+        "Do you have any tips for staying motivated while learning something new?",
+        "I've been exploring different productivity tools. Which ones do you think are best for tracking personal goals?"
+      ]
+    },
+    {
+      "id": "ORC-C-003",
+      "scenario_label": "no_rewrite__retrieve_long_term__user_capabilities",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "user_capabilities"
+      ],
+      "user_id": "38c8d50a-4287-4d27-ae7a-83a1f139757b",
+      "conversation_id": "e7e11bdc-cbb9-4946-ad94-3c06e0fe0782",
+      "request_id": "e89e3ec7-decf-4936-b634-86d7061591cd",
+      "original_query": "What are my technical skills?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "'My technical skills' is a direct user profile query → long_term retrieval.",
+      "conversation_history": [
+        "I've been thinking about learning a new programming language. What do you think about Python?",
+        "Is there a good online course you would recommend for improving my coding skills?",
+        "I've always had a knack for troubleshooting tech issues. Do you think that’s a useful skill?",
+        "What are some good projects to work on if I want to enhance my technical abilities?",
+        "I recently helped a friend fix their computer, and it was pretty rewarding. Any tips on making a career out of tech support?",
+        "How can I leverage my problem-solving skills in the tech industry?",
+        "Do you know any communities where I can connect with other tech enthusiasts?",
+        "I've been trying to balance work and personal life better. Any tips on managing my time effectively?",
+        "How can I set realistic goals for my personal development?",
+        "What are some good habits to build for better productivity?",
+        "I often find myself getting distracted while working from home. What are some strategies to stay focused?",
+        "I’d like to start reading more books. Do you have any recommendations on productivity or self-improvement?",
+        "How important is it to have a dedicated workspace at home?",
+        "I’m considering setting a weekly review for my goals. Do you think that could help?",
+        "What are some ways to track progress effectively in personal projects?"
+      ]
+    },
+    {
+      "id": "ORC-C-004",
+      "scenario_label": "no_rewrite__retrieve_long_term__user_habit",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "user_habits"
+      ],
+      "user_id": "ea6b3365-2665-4920-ac82-a3fe910ada89",
+      "conversation_id": "66c094bf-c156-48b4-9a7d-a1c88ab40bf4",
+      "request_id": "a3746571-e30b-4928-b5b2-645df7af9c20",
+      "original_query": "Am I usually comfortable presenting to large audiences?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "'Am I usually comfortable' requires persistent user trait data → long_term.",
+      "conversation_history": [
+        "I've been thinking about improving my public speaking skills. Do you have any tips for getting started?",
+        "I get a bit nervous before speaking to a big group. Is that normal?",
+        "How can I build more confidence when speaking in front of large audiences?",
+        "Have I ever mentioned that I took a public speaking course last year?",
+        "Sometimes I feel like I'm better at smaller meetings. What do you think?",
+        "I'm trying to figure out the best way to organize my presentations. Any advice?",
+        "Is it common to still have stage fright even after several presentations?",
+        "Lately, I've been considering taking some cooking classes. What are your thoughts on that?",
+        "Do you know if there are any good culinary schools nearby?",
+        "I enjoy cooking at home, but I'm looking to expand my skills. Have I talked about my favorite dishes before?",
+        "I think learning some advanced cooking techniques would be fun. Would it be worth the effort?",
+        "I'm curious about how to pair different wines with meals. Is that something I should look into?",
+        "Have I ever mentioned that I love trying out new recipes on weekends?",
+        "What do you think is the most challenging part about cooking as a hobby?"
+      ]
+    },
+    {
+      "id": "ORC-C-005",
+      "scenario_label": "no_rewrite__retrieve_long_term__user_knowledge",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "user_profile_request"
+      ],
+      "user_id": "ecba81f7-00b5-4e66-9796-a7da7d30ea72",
+      "conversation_id": "bb64d530-5ded-4f6c-a613-95d7e545e2d0",
+      "request_id": "b6d4d0c3-f645-4120-9385-9dca30aaa6b3",
+      "original_query": "What programming languages do I know?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "User self-knowledge query about their own language skills → long_term profile.",
+      "conversation_history": [
+        "I've been thinking about learning a new programming language. Any suggestions?",
+        "I remember you mentioned Python before. What are its main advantages?",
+        "How does JavaScript compare to Python in terms of ease of learning?",
+        "What are some popular use cases for JavaScript nowadays?",
+        "I'm curious about web development. Which languages should I focus on?",
+        "Is it necessary to learn HTML and CSS before diving into JavaScript?",
+        "I've heard about frameworks like React and Vue. Are they worth learning?",
+        "I love hiking on weekends. Do you know any good trails nearby?",
+        "I've been trying to cook more. Do you have any simple recipes I can start with?",
+        "What's the best way to improve my photography skills?",
+        "I enjoy reading science fiction. Any book recommendations?",
+        "I'm planning to start a garden. What are some easy plants for beginners?",
+        "Do you have any tips for maintaining a healthy work-life balance?",
+        "What exercises are best for staying fit without going to the gym?",
+        "I've been thinking about taking up painting as a hobby. Where should I start?"
+      ]
+    },
+    {
+      "id": "ORC-D-001",
+      "scenario_label": "no_rewrite__retrieve_both__project_and_profile",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "ongoing_project_plus_user_profile"
+      ],
+      "user_id": "c294fe16-794e-40c6-bf50-7e952d6ecb44",
+      "conversation_id": "9a0ad94c-abdf-49d5-85bd-f957709769ee",
+      "request_id": "b6ac1ad0-804e-4c2b-9ea8-89aebffdcf50",
+      "original_query": "Given my background, should I lead the Kubernetes migration we planned?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "We're planning a full migration from Docker Swarm to Kubernetes next quarter."
+        },
+        {
+          "role": "model",
+          "content": "That's a significant migration. Key steps include: cluster provisioning, containerization of remaining workloads, Helm chart creation, and CI/CD pipeline updates."
+        },
+        {
+          "role": "user",
+          "content": "We've already identified a migration lead role. We need someone with cluster management experience."
+        },
+        {
+          "role": "model",
+          "content": "The migration lead should ideally have experience with Kubernetes operators, network policies, and at least one production Kubernetes incident. Familiarity with your existing Docker Swarm setup is also valuable for migration planning."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Needs both the ongoing migration discussion (short_term) and user's background/capabilities (long_term).",
+      "conversation_history": [
+        "I've been thinking about the best way to transition our infrastructure to Kubernetes.",
+        "What are the key challenges we might face in moving away from Docker Swarm?",
+        "Could you remind me why Kubernetes is a better fit for our needs compared to Docker Swarm?",
+        "I'm concerned about the learning curve for Kubernetes. How steep is it typically?",
+        "Should we consider external training for our team on Kubernetes?",
+        "I've read that Kubernetes requires more management overhead. Is that true in your experience?",
+        "Do you think our current team has enough expertise in-house to handle this change, or should we hire additional help?",
+        "Earlier this year, I completed a certification in Kubernetes administration. How can I leverage that in this project?",
+        "I have a strong foundation in DevOps practices. Do you think that aligns well with leading Kubernetes projects?",
+        "Given my previous work on cloud migrations, would that experience be beneficial here?",
+        "I enjoyed leading the last automation project. How different would leading this migration be?",
+        "I usually prefer hands-on roles. Would leading this project involve a lot of strategic planning?",
+        "In past projects, I've focused on optimizing deployment processes. How much of that skill set would apply here?",
+        "What kind of time commitment should I expect if I take on a leadership role in this migration?",
+        "Considering my background in scripting and automation, would those skills be critical for this project?"
+      ]
+    },
+    {
+      "id": "ORC-D-002",
+      "scenario_label": "no_rewrite__retrieve_both__spec_plus_style",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "ongoing_project_plus_user_profile"
+      ],
+      "user_id": "941ee48c-5879-4f6b-9373-91d6a89db68f",
+      "conversation_id": "b6bf59db-3b91-4b1b-9881-a5e750a517d3",
+      "request_id": "7fc1f15f-1dbe-4b92-97d5-561d67b2755b",
+      "original_query": "Can you finish the spec we started, keeping my writing style preferences in mind?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "Let's write a technical spec for the new notification service. It should handle email, SMS, and push notifications."
+        },
+        {
+          "role": "model",
+          "content": "Here's the beginning of the spec: **Notification Service Technical Specification** — Overview: The notification service is a unified delivery layer responsible for routing messages across email, SMS, and push channels. Scope: This spec covers API contract, delivery guarantees, retry logic, and channel configuration."
+        },
+        {
+          "role": "user",
+          "content": "Good start. Now add sections on error handling and observability. I'll come back to finish the rest."
+        },
+        {
+          "role": "model",
+          "content": "Added: **Error Handling** — The service implements exponential backoff (initial delay 1s, max 32s, max 5 retries) with dead-letter queuing. **Observability** — All delivery attempts are emitted as structured events to the telemetry pipeline with correlation IDs."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Ongoing spec (short_term) + user's writing style preferences (long_term).",
+      "conversation_history": [
+        "I've been thinking about how we can enhance our notification system to be more efficient.",
+        "What do you think about integrating a retry mechanism for failed notifications?",
+        "I read about using correlation IDs for tracking messages across services. Should we consider that?",
+        "We need to think about security. How should we handle authentication for different notification channels?",
+        "Should we include a section on logging strategies for troubleshooting in our spec?",
+        "I want to ensure our design aligns with best practices for scalability. What are your thoughts on that?",
+        "Let's focus on making the API contract as clear and concise as possible. Do you agree?",
+        "Since I prefer a straightforward writing style, can we keep the spec language simple and direct?",
+        "Remember, I like to start with an outline before diving into details. Can we plan the sections that way?",
+        "I usually write specs with a bullet-point format for clarity. Let's stick to that style.",
+        "We should set a timeline for this project. How about we aim to complete the initial draft by the end of the month?",
+        "I've been using plain language lately to make documents easier to understand. Let's apply that here.",
+        "Given our previous spec work, should we use the same template format?",
+        "I enjoy collaborating on these specs. Could you schedule a review session once we have the first draft?",
+        "I think establishing a consistent tone is critical. Are we aligned on maintaining a formal yet approachable style?"
+      ]
+    },
+    {
+      "id": "ORC-D-003",
+      "scenario_label": "no_rewrite__retrieve_both__role_fit",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "ongoing_project_plus_user_profile"
+      ],
+      "user_id": "c3bce6c2-2e04-4330-b5f9-858c865fc75d",
+      "conversation_id": "e2799972-99f4-4656-b5c9-3162282c72e8",
+      "request_id": "a48d533c-bea7-4dff-9091-7850532e8695",
+      "original_query": "Based on what we've been designing, which role fits my profile best?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "We're restructuring the engineering org into three tracks: infrastructure, platform, and product engineering."
+        },
+        {
+          "role": "model",
+          "content": "That's a common split. Infrastructure focuses on reliability and ops, platform builds internal developer tools and shared services, and product engineering owns user-facing features."
+        },
+        {
+          "role": "user",
+          "content": "Each track needs a senior IC and a tech lead. What are the key differences in responsibilities?"
+        },
+        {
+          "role": "model",
+          "content": "Senior IC: deep technical ownership of a domain, mentoring, and architectural contributions. Tech lead: the same but with cross-team coordination, roadmap influence, and first escalation point for the team."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Org design discussion (short_term) + user's skills/experience profile (long_term).",
+      "conversation_history": [
+        "I've been thinking about how my background aligns with different roles in tech.",
+        "Given my experience in backend development, which engineering track might suit me best?",
+        "I'm keen on roles that allow me to mentor others. How does that fit into the engineering tracks?",
+        "I've led a few projects in the past. Should I be looking at tech lead positions?",
+        "I enjoy tackling complex technical challenges. Which track would offer the most of those?",
+        "How do the responsibilities differ for IC roles across these tracks?",
+        "Would my skills in cloud infrastructure be more aligned with the infrastructure track?",
+        "I've always been interested in building systems that developers love. Is the platform track a good fit for this?",
+        "My career goal is to eventually move into a role with significant influence over product direction. Should I focus on product engineering?",
+        "Are there opportunities for innovation within the infrastructure track?",
+        "I want to ensure that my role allows for continued learning and development. Which track provides this best?",
+        "What are some of the key challenges faced by tech leads in the platform track?",
+        "I'm curious about the balance between hands-on work and leadership in tech lead roles.",
+        "Can you give examples of how my project management experience would be beneficial in these tracks?",
+        "Career growth is important to me. Which track has the most potential for advancement?",
+        "How important is it for a tech lead to have deep technical skills versus managerial skills?",
+        "What roles in these tracks focus heavily on user experience?",
+        "Is there a way to balance my interest in product engineering with my technical expertise in infrastructure?",
+        "Could you remind me of how my skills align with the roles we've discussed?",
+        "I'm eager to work on projects that have a direct impact on end-users. Which track is best for this?"
+      ]
+    },
+    {
+      "id": "ORC-D-004",
+      "scenario_label": "no_rewrite__retrieve_both__presentation_fit",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "ongoing_project_plus_user_profile"
+      ],
+      "user_id": "634fbaac-0392-49aa-a7c9-6872318ef14c",
+      "conversation_id": "685b3f41-6e0f-46a6-b500-dd1e3a05ecfc",
+      "request_id": "80ead50d-264a-4c2c-9d37-bb1ce1c5c3a4",
+      "original_query": "Should I present the architecture we designed? Do I usually do well in technical presentations?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "We designed a new event-driven architecture for the payment processing pipeline."
+        },
+        {
+          "role": "model",
+          "content": "The event-driven approach with Kafka as the backbone is solid. The key design decisions are: idempotency tokens for safe retries, saga pattern for distributed transactions, and schema registry for event contract management."
+        },
+        {
+          "role": "user",
+          "content": "We need to present this to the CTO next week."
+        },
+        {
+          "role": "model",
+          "content": "For a CTO presentation, focus on: business impact (latency reduction, scalability), key trade-offs you considered, and a clear migration path. Avoid getting too deep into implementation details."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Architecture design context (short_term) + user's presentation history/habits (long_term).",
+      "conversation_history": [
+        "I've been thinking about how we can optimize our payment processing system.",
+        "Do we have any experience with event-driven systems in our projects?",
+        "I read that using Kafka can really help with scaling, should we consider it?",
+        "What are the potential challenges of moving to an event-driven architecture?",
+        "We should identify the key stakeholders for this architecture redesign.",
+        "Do we have the resources to implement this architecture by ourselves?",
+        "How would this architecture change impact our current team structure?",
+        "I have a presentation coming up for our new architecture proposal.",
+        "How do you think I should structure the presentation to highlight our design?",
+        "I've managed technical presentations before, but I'm a bit nervous about this one.",
+        "Do you remember if my last presentation went well or if there was room for improvement?",
+        "I want to make sure I convey the technical details without overwhelming the audience.",
+        "In previous presentations, did I get positive feedback on my delivery style?",
+        "What are some key points I should emphasize to make the presentation impactful?",
+        "I think using visuals could really help, do you agree?",
+        "I've been focusing on improving my presentation skills, do you think it's noticeable?",
+        "Do you recall if I usually handle Q&A sessions well after a presentation?"
+      ]
+    },
+    {
+      "id": "ORC-D-005",
+      "scenario_label": "no_rewrite__retrieve_both__experience_alignment",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "ongoing_project_plus_user_profile"
+      ],
+      "user_id": "4f0fa549-9c8d-4b88-b398-7b8aff5f0930",
+      "conversation_id": "48e57714-5e22-4c3c-8eaa-b90862a11913",
+      "request_id": "2fb87315-e149-4c1e-bb46-cfa78dd92383",
+      "original_query": "Does my experience align with what we planned for the new project?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "The new project requires someone who can own the full ML training pipeline end-to-end."
+        },
+        {
+          "role": "model",
+          "content": "Full pipeline ownership means: data ingestion and preprocessing, model training orchestration, evaluation, versioning, and deployment to production. It's a broad scope requiring both MLOps and ML engineering skills."
+        },
+        {
+          "role": "user",
+          "content": "The team is looking for someone with experience in distributed training and model serving at scale."
+        },
+        {
+          "role": "model",
+          "content": "For distributed training, PyTorch DDP or Ray is typical. For serving at scale, TorchServe, Triton, or Ray Serve are common choices. Experience with both GPU cluster management and inference optimization is ideal."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Project requirements (short_term) + user's ML experience profile (long_term).",
+      "conversation_history": [
+        "I'm considering taking on more responsibilities in the upcoming project. How does that fit with my current role?",
+        "Do you think my background in cloud computing will be valuable for the new project?",
+        "I've mostly worked with AWS and GCP. Will these platforms be used for the new project?",
+        "I'm interested in further developing my skills in MLOps. Would this project involve those elements?",
+        "I have some experience with CI/CD pipelines. Is that something I'd leverage in this project?",
+        "Remind me again about the key goals we set for myself this year in terms of career growth?",
+        "How does my expertise in model optimization fit into the new project's needs?",
+        "The last project I worked on involved a lot of data preprocessing. Is that a significant part of this project too?",
+        "Would you say my leadership skills have grown enough to consider a lead role in this new project?",
+        "I'm curious about how my previous experience with machine learning models can contribute to our future plans.",
+        "How does the new project's scope align with the company's long-term vision?",
+        "I've always been interested in projects that push technical boundaries. Is that the case here?",
+        "What are the primary technologies and tools expected to be used in this project?",
+        "How critical is experience with real-time data processing for this project?",
+        "I've been focusing on improving my skills in distributed systems. Will this project allow me to leverage that?",
+        "I was told the project might involve collaboration with international teams. Is that confirmed?",
+        "I prefer working in agile environments. Is the new project following an agile methodology?",
+        "Considering my past projects, how do you see my experience aligning with the current project requirements?",
+        "I've been looking to use more open-source tools in my work. Do you know if this project will incorporate such tools?"
+      ]
+    },
+    {
+      "id": "ORC-E-001",
+      "scenario_label": "rewrite_typo__no_retrieve__world_fact",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [
+        "typos_in_query"
+      ],
+      "user_id": "5452247a-8757-42d0-b8ae-b0cbe036f133",
+      "conversation_id": "d8417044-5e4e-41af-805d-7dc04fa6c680",
+      "request_id": "988ec6ad-473c-4f14-9545-9f6ccd70d2d9",
+      "original_query": "wat is k8s?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "What is Kubernetes?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Typo + domain abbreviation. Generic world knowledge — no personal context needed.",
+      "conversation_history": [
+        "How do volcanoes form?",
+        "What's the difference between magma and lava?",
+        "Can you explain how tectonic plates work?",
+        "Why do earthquakes happen?",
+        "What's the most active volcano in the world?",
+        "How does a tsunami form?",
+        "What causes the Northern Lights?",
+        "Are there any planets with rings?",
+        "How far away is the closest star to Earth?",
+        "What's the largest planet in our solar system?",
+        "How do scientists find new planets?",
+        "What are black holes and how do they form?",
+        "Can you tell me about the recent Mars missions?",
+        "What's the significance of the Hubble Space Telescope?",
+        "How do astronauts train for space travel?"
+      ]
+    },
+    {
+      "id": "ORC-E-002",
+      "scenario_label": "rewrite_typo__no_retrieve__world_fact",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [
+        "typos_in_query"
+      ],
+      "user_id": "9e5f0b25-710b-44a4-bb28-7fce647615a2",
+      "conversation_id": "9428c1b1-3079-488d-968d-64b662f4c27c",
+      "request_id": "0b1c2087-7b03-4115-9e14-3e444c597297",
+      "original_query": "explian me tcp handshke",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "Explain the TCP handshake.",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Multiple typos. Pure networking concept, no user context needed.",
+      "conversation_history": [
+        "What's the highest mountain in the world?",
+        "How tall is Mount Everest?",
+        "Can you tell me when Mount Everest was first climbed?",
+        "Are there any dangerous animals on Mount Everest?",
+        "How do people prepare for climbing high mountains like Everest?",
+        "What's the capital city of France?",
+        "How many people live in Paris?",
+        "What's the most popular tourist attraction in Paris?",
+        "Can you recommend any traditional French dishes?",
+        "What's the history behind the Eiffel Tower?",
+        "What are the ingredients of a traditional margherita pizza?",
+        "How is mozzarella cheese made?",
+        "What's the difference between Neapolitan and Roman pizza?",
+        "Where did pizza originate?",
+        "Why is pizza so popular around the world?",
+        "Which country consumes the most pizza per capita?"
+      ]
+    },
+    {
+      "id": "ORC-E-003",
+      "scenario_label": "rewrite_typo__no_retrieve__world_fact",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [
+        "typos_in_query"
+      ],
+      "user_id": "ee2769cd-8d8d-49c3-9975-e0df80ca3e7d",
+      "conversation_id": "6ba67147-2af9-44dc-aea9-fee77f1ac37a",
+      "request_id": "e0d48355-a970-4bdc-b6a2-50ccd898475c",
+      "original_query": "hw does git rebase wrks?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "How does git rebase work?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Typos on a standard git concept question. Self-contained world knowledge.",
+      "conversation_history": [
+        "What's the main difference between a comet and an asteroid?",
+        "I heard that comets have tails. Is that always true?",
+        "Why do asteroids sometimes have moons?",
+        "How do scientists track asteroids that might hit Earth?",
+        "Are there any famous asteroids that have passed close to Earth recently?",
+        "Can you recommend any documentaries about space exploration?",
+        "Why is everyone so fascinated by black holes?",
+        "What is the process for a star to become a supernova?",
+        "How does a black hole affect time and space around it?",
+        "Why do stars twinkle at night?",
+        "Is time travel theoretically possible according to current physics?",
+        "Could you explain the concept of parallel universes?",
+        "Do scientists believe multiverses might actually exist?",
+        "How do quantum particles behave differently from classical particles?",
+        "What's the relationship between string theory and multiple dimensions?"
+      ]
+    },
+    {
+      "id": "ORC-E-004",
+      "scenario_label": "rewrite_domain_abbrev__no_retrieve__world_fact",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [
+        "domain_abbreviation"
+      ],
+      "user_id": "8566516d-a188-434f-9e9d-20350e5d4ddc",
+      "conversation_id": "451bea30-3909-4f5d-a4b1-5c20e6f6d049",
+      "request_id": "d3109cbe-6c9c-4340-9661-b54ec80f0bf9",
+      "original_query": "diff betwen REST and gRPC",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "What is the difference between REST and gRPC?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Truncated words + domain term. General API comparison, no personal context.",
+      "conversation_history": [
+        "What's the capital of Spain?",
+        "Can you tell me about the climate in Australia?",
+        "How many countries are there in Europe?",
+        "What's the main language spoken in Brazil?",
+        "What are the tallest mountains in the world?",
+        "What's the currency used in Japan?",
+        "Can you explain the significance of the Great Wall of China?",
+        "What are some key differences between a crocodile and an alligator?",
+        "How do bees make honey?",
+        "What's the life cycle of a butterfly?",
+        "Why do leaves change color in the fall?",
+        "What are the different phases of the moon?",
+        "What causes tides in the ocean?",
+        "How do volcanoes erupt?",
+        "What's the process of photosynthesis?"
+      ]
+    },
+    {
+      "id": "ORC-E-005",
+      "scenario_label": "rewrite_typo__no_retrieve__world_fact",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [
+        "typos_in_query"
+      ],
+      "user_id": "ded9343a-a017-4d6c-a4dc-83a93a253ef9",
+      "conversation_id": "9dfd9727-22b0-4cf1-96ba-671fec4105f4",
+      "request_id": "4af1b826-a919-444b-9d9e-51d13e473585",
+      "original_query": "what r the SOLID principels",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "What are the SOLID principles?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Abbrev 'r' + misspelling. Object-oriented design principles — world knowledge.",
+      "conversation_history": [
+        "What's the difference between a comet and an asteroid?",
+        "Are there any upcoming meteor showers this month?",
+        "Why does the moon have phases?",
+        "How long does it take for the Earth to orbit the Sun?",
+        "I heard black holes can bend light. Is that true?",
+        "Can you explain how tides work?",
+        "What causes a solar eclipse?",
+        "What's the main cause of global warming?",
+        "How does recycling help the environment?",
+        "Can you recommend some renewable energy sources?",
+        "What are the effects of deforestation?",
+        "How can individuals reduce their carbon footprint?",
+        "Is it true that some countries are banning single-use plastics?",
+        "What are the benefits of electric cars?",
+        "How do wind turbines generate electricity?"
+      ]
+    },
+    {
+      "id": "ORC-F-001",
+      "scenario_label": "rewrite_typo__retrieve_short_term__recent_decision",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "typos_in_query",
+        "recent_conversation_reference"
+      ],
+      "user_id": "115a6d98-fe08-4190-9935-dedc05eecfe6",
+      "conversation_id": "6a264946-750e-4c4c-a910-fceaee623232",
+      "request_id": "47ca67a6-f621-475e-8366-e73fdb74d767",
+      "original_query": "wat did we decied abt the deplymant straegy?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "Should we go with blue-green deployment or canary releases for our next release?"
+        },
+        {
+          "role": "model",
+          "content": "Given your rollback requirements and the fact that you have a large user base, I'd recommend blue-green deployment. It gives you instant rollback by switching traffic back to the previous environment."
+        },
+        {
+          "role": "user",
+          "content": "What about the cost overhead of maintaining two environments?"
+        },
+        {
+          "role": "model",
+          "content": "Blue-green does double your infrastructure costs during the deployment window. If that's a concern, canary gives you a gradient rollout with less resource overhead, at the cost of more complex monitoring and rollback procedures."
+        },
+        {
+          "role": "user",
+          "content": "We decided to go with blue-green. Cost is manageable for us."
+        },
+        {
+          "role": "model",
+          "content": "Blue-green it is. I'll factor that into any deployment-related recommendations."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "What did we decide about the deployment strategy?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Heavy typos AND references a past decision from the current thread → rewrite + short_term.",
+      "conversation_history": [
+        "Hey, can we discuss our deployment strategy options for the upcoming release?",
+        "What are the main differences between blue-green and canary deployments?",
+        "How does blue-green deployment handle traffic during a switch?",
+        "Is there any downtime associated with blue-green deployment?",
+        "What do you think about the rollback capabilities of blue-green?",
+        "Let's talk about how canary releases manage risk during deployment.",
+        "Is canary better for smaller feature updates in our context?",
+        "How does the cost of canary compare to blue-green?",
+        "Should we prioritize ease of rollback or cost efficiency more?",
+        "Do we have any specific concerns about maintaining two environments?",
+        "What are the potential pitfalls of using canary in our current setup?",
+        "Considering our infrastructure, which deployment strategy seems more feasible?",
+        "We need to make a decision on the deployment strategy soon, right?",
+        "How critical is it for us to have instant rollback capability?",
+        "I remember we discussed something related to deployment costs earlier, any thoughts on that?"
+      ]
+    },
+    {
+      "id": "ORC-F-002",
+      "scenario_label": "rewrite_typo__retrieve_short_term__recent_ref",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "typos_in_query",
+        "vague_pronoun_recent_context"
+      ],
+      "user_id": "1fab7ff7-3b53-41e2-b933-082f676df2a9",
+      "conversation_id": "48bb8c30-93d7-41de-a290-a1f7ad6e4210",
+      "request_id": "63d6b561-b8e7-46a3-b0bd-9155a60e6f16",
+      "original_query": "can u re-xplain the las thing u said?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "How should we handle token refresh in our mobile app?"
+        },
+        {
+          "role": "model",
+          "content": "Use a silent refresh pattern: store the access token in memory, keep the refresh token in secure storage. When the access token expires, silently call the refresh endpoint before the next API request. If the refresh token is also expired, redirect to login."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "Can you re-explain the last thing you said?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Typos + 'last thing you said' requires recent message context.",
+      "conversation_history": [
+        "Hey, do you remember the last time we talked about integrating social media login?",
+        "What was the conclusion we reached on handling user authentication efficiently?",
+        "I think we agreed on something about token management, right?",
+        "How can we ensure the security of our tokens in the app?",
+        "Did we decide on storing tokens locally or on the server?",
+        "Moving on, how do we handle user sessions when the token expires?",
+        "Can we set up token refresh without interrupting the user experience?",
+        "Shifting gears, I wanted to discuss our app's overall performance.",
+        "What are some ways to optimize the loading speed?",
+        "Is there a way to reduce the app's memory usage?",
+        "How does caching help improve performance in mobile apps?",
+        "Should we consider using a content delivery network for faster loading?",
+        "Have we decided on the best approach to optimize battery usage with our app?",
+        "What are the potential trade-offs when making our app more efficient?",
+        "Let's make sure our app is not draining resources unnecessarily."
+      ]
+    },
+    {
+      "id": "ORC-F-003",
+      "scenario_label": "rewrite_typo__retrieve_short_term__recent_bug",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "typos_in_query",
+        "recent_conversation_reference"
+      ],
+      "user_id": "eec782c9-8317-437a-b3fc-47100d05ff20",
+      "conversation_id": "8e91709b-0206-431e-b631-d7faa9d8c190",
+      "request_id": "d9ad7f0d-3493-4494-95d4-e4a21b1134fc",
+      "original_query": "wht was that bug we where talkin abt?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "We found a weird bug where the payment confirmation email sometimes gets sent twice."
+        },
+        {
+          "role": "model",
+          "content": "That's a classic double-send issue. It's usually caused by a missing idempotency key on the email dispatch, or by a retry mechanism triggering twice on a slow response from the email provider."
+        },
+        {
+          "role": "user",
+          "content": "We checked and there's no idempotency key. That must be it."
+        },
+        {
+          "role": "model",
+          "content": "Yes, add a unique idempotency key per payment event. Use the payment ID + event type as the key. The email service should reject duplicate sends with the same key."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "What was the bug we were talking about?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Typos + 'that bug we were talking about' references recent discussion.",
+      "conversation_history": [
+        "We've been having issues with our email system lately.",
+        "Sometimes, the emails don't reach the intended recipient.",
+        "Have you ever encountered problems like this before?",
+        "I'm concerned it might be affecting our customer service.",
+        "What steps should we take to troubleshoot this?",
+        "Could it be an issue with our email provider's reliability?",
+        "Is there a way to track email delivery more effectively?",
+        "We talked about improving our checkout flow last time.",
+        "Our customers are experiencing delays during checkout.",
+        "What are the common causes of checkout delays?",
+        "Do you think the server response time might be a factor?",
+        "We also noticed some cart abandonment issues recently.",
+        "Is there a strategy to reduce cart abandonment?",
+        "Have we explored optimizing our payment gateway settings?",
+        "Could payment gateway settings be linked to the delays?",
+        "It's critical for us to streamline the entire purchase process."
+      ]
+    },
+    {
+      "id": "ORC-F-004",
+      "scenario_label": "rewrite_typo__retrieve_short_term__recent_fix",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "typos_in_query",
+        "recent_conversation_reference"
+      ],
+      "user_id": "3d1a201a-14e3-4719-bf94-cdbe458585e2",
+      "conversation_id": "f553b133-d597-4c4f-99bf-1809ae0c4b19",
+      "request_id": "5e94a38c-53ba-44ba-aad4-5550b9992e5a",
+      "original_query": "hw shold I fixd that errr we founs?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "We found an N+1 query problem in the user dashboard endpoint."
+        },
+        {
+          "role": "model",
+          "content": "N+1 queries happen when you load a list of entities and then fetch related data for each one separately. Fix it by eager loading the related data in a single join query, or by using a dataloader pattern to batch the secondary fetches."
+        },
+        {
+          "role": "user",
+          "content": "We're using SQLAlchemy. What's the best approach?"
+        },
+        {
+          "role": "model",
+          "content": "With SQLAlchemy, use `joinedload()` or `selectinload()` in your query. `joinedload` does a JOIN, `selectinload` does two separate SELECTs (better for one-to-many). Both eliminate the N+1 problem."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "How should I fix the error we found?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Multiple typos + 'that error we found' is a recent context reference.",
+      "conversation_history": [
+        "We've been experiencing some performance issues on our user dashboard.",
+        "It seems like the queries are taking longer than expected to load.",
+        "Could this be related to the way we're fetching data from the database?",
+        "I'm wondering if there's something specific in our setup that's causing these delays.",
+        "Do you have any advice on optimizing query performance with large datasets?",
+        "Have you seen similar issues with applications using SQLAlchemy?",
+        "What are the common pitfalls to avoid when working with SQLAlchemy to maintain performance?",
+        "We noticed a lot of slowdowns after adding new features to the dashboard.",
+        "One of the features requires accessing user-related data more frequently.",
+        "Is there a way to efficiently manage these data access patterns?",
+        "We discussed eager loading before. How exactly does that work in this context?",
+        "Could lazy loading be a better option for some parts of our dashboard?",
+        "How can we determine the best loading strategy for different queries?",
+        "Are there any tools within SQLAlchemy to help diagnose these query issues?"
+      ]
+    },
+    {
+      "id": "ORC-F-005",
+      "scenario_label": "rewrite_typo__retrieve_short_term__ongoing_feature",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "typos_in_query",
+        "recent_conversation_reference"
+      ],
+      "user_id": "cee92abc-7889-4bcf-a4fa-1f63c6e46ce5",
+      "conversation_id": "60134ffa-f235-4017-8d4d-7df3bfd0edc6",
+      "request_id": "6d8d8b7c-c48f-49b6-bc23-a5225b4392f3",
+      "original_query": "ddi we finish the featur we startd?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "Let's add rate limiting to the public API. I want to start with the authentication endpoints."
+        },
+        {
+          "role": "model",
+          "content": "For rate limiting auth endpoints, a sliding window counter per IP is typical. Use Redis with an expiring key: increment on each request, set TTL on first hit. Return 429 when the limit is exceeded, with a Retry-After header."
+        },
+        {
+          "role": "user",
+          "content": "We implemented the Redis counter. We still need to add the Retry-After header and the 429 response format."
+        },
+        {
+          "role": "model",
+          "content": "For the Retry-After header, calculate: limit_reset_time - current_time in seconds. The 429 response body should include: error code, message, and retry_after seconds. Align with RFC 6585 for compliance."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "Did we finish the feature we started?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Typos + 'the feature we started' references an in-progress task from the thread.",
+      "conversation_history": [
+        "We need to discuss how to handle the API rate limits for our new feature.",
+        "What's the best way to implement rate limiting for the API endpoints?",
+        "Should we start with the authentication endpoints for rate limiting?",
+        "I think using Redis might be a good option; what do you think?",
+        "How do we ensure compliance with rate limit standards like RFCs?",
+        "Let's prioritize getting the basic rate limiting structure in place.",
+        "After implementing the basic rate limit, should we test it for edge cases?",
+        "I was also thinking about adding some documentation for the new feature.",
+        "Do you think our current approach will scale well with increased load?",
+        "Is there anything else we need to consider before we finalize the rate limiting?",
+        "Switching gears, I want to talk about the feature implementation timeline.",
+        "How should we break down the tasks for adding this new API feature?",
+        "Can you remind me what we decided about the testing phase for the feature?",
+        "We need to ensure our new feature aligns with our current API goals.",
+        "I'm concerned about the timeline; can we discuss potential delays?",
+        "What were the main challenges identified for this feature implementation so far?",
+        "Do we have all the resources we need to proceed with this feature?",
+        "Should we schedule a team meeting to align on the feature development?",
+        "Can you recap the key points from our last discussion on this feature?"
+      ]
+    },
+    {
+      "id": "ORC-G-001",
+      "scenario_label": "rewrite_typo__retrieve_long_term__cv",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "typos_in_query",
+        "user_profile_request"
+      ],
+      "user_id": "4f69e2e8-2ea9-434a-80c4-22d1176a9d11",
+      "conversation_id": "76fc5338-321b-43e2-a57c-917c961e4510",
+      "request_id": "c98668e1-00fe-47ca-9ef5-70986e5b8878",
+      "original_query": "write my CV as seinor engieer",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "Write my CV as a senior engineer.",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Typos + 'my CV' = user profile needed → rewrite + long_term.",
+      "conversation_history": [
+        "I've been thinking about updating my resume. Do you have any tips for a senior engineer?",
+        "What are the key sections I should include in my CV for engineering roles?",
+        "I want to highlight my project management skills. How can I do that effectively on my CV?",
+        "Do you have any advice on how to showcase technical skills in a resume?",
+        "How can I make my CV stand out to tech companies?",
+        "Should I include a summary at the top of my resume as a senior engineer?",
+        "Is it important to mention my certifications on my CV?",
+        "I'm planning to travel to Europe next year. Have you heard of any must-visit places?",
+        "Last time I traveled, I really enjoyed trying different cuisines. What's a unique dish I should try in Europe?",
+        "Do you think it's better to plan every detail of a trip or be spontaneous?",
+        "I'm considering learning a new language before my trip. Which one would be useful if I'm visiting multiple countries in Europe?",
+        "How do you usually keep track of your travel itinerary and bookings?",
+        "I love photography. Are there any specific scenic spots in Europe you recommend for great photos?",
+        "What's the best way to pack light for a 3-week trip across Europe?"
+      ]
+    },
+    {
+      "id": "ORC-G-002",
+      "scenario_label": "rewrite_typo__retrieve_long_term__skills",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "typos_in_query",
+        "user_capabilities"
+      ],
+      "user_id": "d82a014e-048c-49b6-8aff-41ac2ae208e2",
+      "conversation_id": "61d33930-b63d-4403-ad5b-118e37edf60c",
+      "request_id": "3621571f-7b9e-4c2b-a690-ac34c8d76426",
+      "original_query": "wat r my techincal skils?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "What are my technical skills?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Typos + direct profile query → rewrite + long_term.",
+      "conversation_history": [
+        "I've been thinking about ways to improve my skills in programming. Any suggestions?",
+        "Do you have any tips on how I can get better at debugging code?",
+        "I often struggle with version control. Maybe it's something I should focus more on.",
+        "Have you heard of any new programming languages that are worth learning?",
+        "What do you think is the most valuable tech skill to have right now?",
+        "I'm curious about web development. How can I start learning about it?",
+        "How does one go about building a portfolio for tech jobs?",
+        "I've been watching a lot of cooking shows lately. It's fascinating!",
+        "I tried making a homemade pasta dish yesterday. Ever tried that?",
+        "What's a good beginner recipe for baking? I want to try something new.",
+        "Do you know how to make a perfect cup of coffee at home?",
+        "I'm thinking of growing my own herbs. Any advice on that?",
+        "Have you ever experimented with making your own sauces or dressings?"
+      ]
+    },
+    {
+      "id": "ORC-G-003",
+      "scenario_label": "rewrite_typo__retrieve_long_term__preference",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "typos_in_query",
+        "user_preferences"
+      ],
+      "user_id": "8b989ea9-bee8-470c-b74c-bd294b585126",
+      "conversation_id": "b95b00b2-3174-4bd0-a376-57319fcfd8ac",
+      "request_id": "b6fafccb-54b2-44af-a275-b214c8d4cc36",
+      "original_query": "draft emial in my preferd tone",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "Draft an email in my preferred tone.",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Typos + user preference reference → rewrite + long_term.",
+      "conversation_history": [
+        "Hey, can you remind me how to improve my email writing skills?",
+        "I tend to write too formally in emails, any tips on making them more casual?",
+        "What's a good way to start an email if I want to sound friendly but professional?",
+        "I often use a lot of jargon in my emails, should I try to reduce that?",
+        "Can you suggest some phrases for closing an email on a positive note?",
+        "I prefer emails that get straight to the point, any advice on structuring them?",
+        "By the way, do you think using humor in emails is appropriate?",
+        "Can you help me set reminders for when I need to send important emails?",
+        "I've been trying to optimize my daily routine, got any productivity hacks?",
+        "What's a good way to keep track of tasks and deadlines?",
+        "I like to start my mornings with a quick workout, do you have any suggestions for short routines?",
+        "Do you think meditation is a good way to improve focus?",
+        "I'm interested in learning new languages, what's a fun way to start?",
+        "Reading is one of my favorite hobbies, do you have book recommendations?",
+        "I'm looking to improve my cooking skills, any easy recipes you can share?"
+      ]
+    },
+    {
+      "id": "ORC-G-004",
+      "scenario_label": "rewrite_typo__retrieve_long_term__habit",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "typos_in_query",
+        "user_habits"
+      ],
+      "user_id": "a8833d7e-0fcc-4ec0-8fdd-89ef4bcf84af",
+      "conversation_id": "f8f73cf2-2ba5-4400-9e3c-6ba468e89e05",
+      "request_id": "4a417caf-6fbe-4945-9ef6-2202eeda7a75",
+      "original_query": "am i gud a publik spekin?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "Am I good at public speaking?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Typos + user self-trait query → rewrite + long_term.",
+      "conversation_history": [
+        "I've been thinking about improving my public speaking skills.",
+        "Have you got any tips on how to not feel nervous before giving a speech?",
+        "I usually get really anxious in front of a large crowd.",
+        "Do you think joining a local speaking club could help?",
+        "I want to be able to communicate my ideas more effectively.",
+        "Sometimes, I feel like my voice isn't strong enough when I speak in public.",
+        "Are there any exercises to help with voice projection?",
+        "I really enjoy reading books in my free time.",
+        "Do you have any book recommendations for someone interested in self-improvement?",
+        "How often do you think I should set aside time for reading each week?",
+        "I've been trying to read at least one book a month.",
+        "Is there an app you recommend for tracking my reading habits?",
+        "What genres do you think would complement my interest in personal development?",
+        "I'm trying to balance my reading with other hobbies like hiking.",
+        "Do you think listening to audiobooks counts as reading?"
+      ]
+    },
+    {
+      "id": "ORC-G-005",
+      "scenario_label": "rewrite_typo__retrieve_long_term__languages",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "typos_in_query",
+        "user_profile_request"
+      ],
+      "user_id": "674ea5f4-dc8f-4640-9b84-0a6b4f737753",
+      "conversation_id": "9fd47a5f-26d2-4a94-8bf2-e15d85ce310e",
+      "request_id": "80ea8f8e-a82f-4c19-8a82-15f976da0650",
+      "original_query": "wht langages do i no?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "What languages do I know?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Typos + user knowledge profile query → rewrite + long_term.",
+      "conversation_history": [
+        "I've been trying to improve my language skills recently.",
+        "Do you have any tips for learning new languages effectively?",
+        "I remember mentioning before that I speak a few languages. How can I get better at them?",
+        "Is it possible to learn multiple languages at the same time?",
+        "What are some good resources for practicing speaking a language?",
+        "I've been thinking about picking up a new hobby. What do you suggest?",
+        "How do people usually balance hobbies with learning new skills?",
+        "Speaking of skills, I want to improve my cooking. Do you have any easy recipes?",
+        "I enjoy cooking Italian dishes. What are some must-try recipes?",
+        "On weekends, I like to read or cook something new. How about you?",
+        "I read a lot of novels. Do you have any book recommendations?",
+        "I've been wanting to start a book club. Do you think that's a good idea?",
+        "Reading in different languages can be challenging. Do you have advice on that?"
+      ]
+    },
+    {
+      "id": "ORC-H-001",
+      "scenario_label": "rewrite_typo__retrieve_both__lead_project",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "typos_in_query",
+        "ongoing_project_plus_user_profile"
+      ],
+      "user_id": "879ebf56-5d90-49c0-912d-42c557469efe",
+      "conversation_id": "a0c1205a-ee02-4ac4-83b9-85f0a72c038f",
+      "request_id": "a51e75d4-2b60-46f5-b87c-b657208964a8",
+      "original_query": "shuld i led the projct we pland, given my bakground?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "We're planning a migration from a monolith to microservices over the next two quarters."
+        },
+        {
+          "role": "model",
+          "content": "A monolith-to-microservices migration requires careful domain decomposition. Start with a strangler fig pattern — incrementally extract services while keeping the monolith running. Prioritize high-churn or independently scalable domains first."
+        },
+        {
+          "role": "user",
+          "content": "We've identified six bounded contexts. The migration will need a technical lead."
+        },
+        {
+          "role": "model",
+          "content": "The migration lead role typically requires distributed systems experience, service mesh familiarity, and strong cross-team communication skills, since you'll coordinate between domain teams."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "Should I lead the project we planned, given my background?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Typos + ongoing project discussion (short_term) + user background profile (long_term).",
+      "conversation_history": [
+        "I'm thinking about taking on more leadership responsibilities at work.",
+        "What skills are most important for leading a tech project?",
+        "I have experience in software architecture and team management.",
+        "Are there any pitfalls to watch out for when leading a large project?",
+        "How do you balance technical and managerial tasks as a project lead?",
+        "I've been involved in cross-functional teams before, should I emphasize that experience?",
+        "Any tips on how to effectively communicate with stakeholders?",
+        "We've been discussing modernizing some of our legacy systems.",
+        "I heard microservices can offer better scalability, is that true?",
+        "Our team is interested in improving deployment times, would microservices help?",
+        "Would you say a gradual approach is better than a complete overhaul?",
+        "I've read about domain-driven design, how crucial is it for microservices?",
+        "What's a common challenge teams face during a migration from monolith to microservices?",
+        "Managing different services seems complex, what's the best way to handle that complexity?"
+      ]
+    },
+    {
+      "id": "ORC-H-002",
+      "scenario_label": "rewrite_typo__retrieve_both__finish_spec",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "typos_in_query",
+        "ongoing_project_plus_user_profile"
+      ],
+      "user_id": "1b035034-3809-445b-831b-56276459e3c6",
+      "conversation_id": "b01360d6-2e9c-4255-ad43-55baab3f3534",
+      "request_id": "106ca96a-477e-483e-b49b-36924a2091f2",
+      "original_query": "help me rite the spec we startd, in my styl",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "Let's write the API spec for the search service. Start with the overview and endpoint list."
+        },
+        {
+          "role": "model",
+          "content": "**Search Service API Specification** — Overview: The search service exposes a query interface for full-text and faceted search across the product catalog. Endpoints: POST /search (query), GET /search/suggest (autocomplete), POST /search/index (admin reindex)."
+        },
+        {
+          "role": "user",
+          "content": "Good. I'll finish the rest of the spec later. Keep my usual writing style in mind."
+        },
+        {
+          "role": "model",
+          "content": "Understood. I'll keep the concise, direct documentation style you typically prefer when we continue."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "Help me write the spec we started, in my style.",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Typos + in-progress spec (short_term) + user writing style (long_term).",
+      "conversation_history": [
+        "I've been thinking about how we can improve the search functionality. What are your thoughts on adding a filter for product categories?",
+        "Do you think using a machine learning model for search suggestions would be beneficial, or should we stick with simpler algorithms?",
+        "How should we handle multilingual support in our search service?",
+        "Is there a need to include a 'Did you mean?' feature for user search queries?",
+        "What measures can we take to ensure the search results are returned quickly, even with a large product catalog?",
+        "Should we log search terms for analysis to improve user experience over time?",
+        "On a different note, I remember you liked my writing style in our last project. Can we make sure to maintain that tone in this spec?",
+        "I usually prefer using bullet points and clear headers in my documents. Do you think that suits this spec as well?",
+        "By the way, I aim for concise documentation. How detailed should we be in this API spec?",
+        "Do you think incorporating examples in the documentation would help the developers better understand the API usage?",
+        "I recall you mentioning that you liked the way I structured the user guide last time. Should I follow a similar format here?",
+        "For consistency, let's use the same terminology I usually prefer in my documents. Can you remind me of any specific terms we've agreed on before?"
+      ]
+    },
+    {
+      "id": "ORC-H-003",
+      "scenario_label": "rewrite_typo__retrieve_both__experience_match",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "typos_in_query",
+        "ongoing_project_plus_user_profile"
+      ],
+      "user_id": "dadceff0-a227-4f10-a46c-2a718a81032a",
+      "conversation_id": "3cdc0c0a-d5d9-4c00-b547-dd7b53a076d3",
+      "request_id": "54873422-edef-4893-bac5-588290abc915",
+      "original_query": "does my expernce matc wat we desined?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "We're building a real-time fraud detection system. It needs to process 50K transactions per second with sub-100ms latency."
+        },
+        {
+          "role": "model",
+          "content": "At that scale, you'll need a streaming architecture: Kafka for ingestion, Flink or Spark Streaming for feature extraction and model inference, and a low-latency store like Redis for feature state. The model itself should be a lightweight gradient boosting or neural network that can run in under 5ms."
+        },
+        {
+          "role": "user",
+          "content": "We're leaning toward Flink with a custom feature store. The core team needs expertise in stream processing and ML serving."
+        },
+        {
+          "role": "model",
+          "content": "Flink is a strong choice. Your core team should have hands-on Flink experience (operators, watermarks, state backends), plus experience deploying ONNX or TFLite models in latency-critical pipelines."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "Does my experience match what we designed?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Typos + system design context (short_term) + user's experience profile (long_term).",
+      "conversation_history": [
+        "I'm starting a new project on real-time data analytics. What should I consider first?",
+        "What are the key components of a high-throughput data processing system?",
+        "How do different stream processing frameworks compare for performance?",
+        "I've heard about Kafka, can you explain how it fits into a data pipeline?",
+        "What are the pros and cons of using Flink over Spark Streaming?",
+        "I'm interested in machine learning models for real-time predictions. What should I look into?",
+        "How can feature stores optimize the performance of machine learning models in streaming environments?",
+        "For the fraud detection system, is there a specific tech stack that is generally recommended?",
+        "What challenges should I anticipate when scaling up to high transaction volumes?",
+        "Does my background in data engineering help with operating streaming systems?",
+        "I've mostly worked with batch processing so far, will my skills translate well to streaming?",
+        "I'm focusing on improving my skills in deploying machine learning models. Any advice?",
+        "My experience is largely in Python and SQL, will that be beneficial for this project?",
+        "I've attended a few workshops on Kafka, but haven't used it in production. How steep is the learning curve?",
+        "I'm really keen on enhancing my capabilities in real-time data systems. Do you think my current skill set aligns with that goal?"
+      ]
+    },
+    {
+      "id": "ORC-H-004",
+      "scenario_label": "rewrite_typo__retrieve_both__team_message",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "typos_in_query",
+        "ongoing_project_plus_user_profile"
+      ],
+      "user_id": "934f93c7-bd39-4d13-ae22-8201ae19c7c1",
+      "conversation_id": "c8691905-070d-4cee-908e-8aaaf235359c",
+      "request_id": "dfa7ae0f-23a6-4129-a331-852978a3bd6e",
+      "original_query": "wat shuld I tak to the team, based on wat we said n my strenghts?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "We agreed to move to a microservice architecture and the team needs to align on the transition plan."
+        },
+        {
+          "role": "model",
+          "content": "The team alignment session should cover: the rationale for microservices, the migration timeline, team topology changes, and the technical standards (service contracts, observability, CI/CD)."
+        },
+        {
+          "role": "user",
+          "content": "I need to lead that session. What's the best format for this kind of technical alignment?"
+        },
+        {
+          "role": "model",
+          "content": "A technical alignment session works best as: 10min context setting, 20min architecture walkthrough with diagrams, 15min Q&A, 15min breakout by domain team to identify concerns. Document decisions in a lightweight ADR."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "What should I take to the team, based on what we said and my strengths?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Typos + team session discussion (short_term) + user strengths profile (long_term).",
+      "conversation_history": [
+        "Could you remind me of the key benefits of moving to a microservice architecture?",
+        "What are the common challenges other teams face when transitioning to microservices?",
+        "Do you have any tips on managing dependencies between microservices effectively?",
+        "How often should we update the documentation during the transition period?",
+        "How do we ensure that all team members are on the same page with the new architecture?",
+        "Can you suggest any tools for monitoring and observing microservices?",
+        "What metrics should we focus on to track the success of our transition?",
+        "I feel like I'm good at structuring team meetings. What format should I consider for our alignment sessions?",
+        "I prefer a more visual approach. Do you think diagrams would be helpful during the sessions?",
+        "Are there any good templates for documenting architecture decisions you recommend?",
+        "I want the session to be interactive. How can I encourage participation from all team members?",
+        "Given my expertise with CI/CD pipelines, should that be a focal point in our discussions?",
+        "How can I leverage my project management skills to keep the transition plan on track?",
+        "I usually work best with a detailed agenda. Do you think that would help the team align better?",
+        "What strategies can I use to effectively address concerns that arise during the session?"
+      ]
+    },
+    {
+      "id": "ORC-H-005",
+      "scenario_label": "rewrite_typo__retrieve_both__finish_task_my_style",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "typos_in_query",
+        "ongoing_project_plus_user_profile"
+      ],
+      "user_id": "bb4dbffe-d6c5-47d9-8340-75bc581ddbc2",
+      "conversation_id": "58436ec4-12c1-42e3-a7b0-0c6c6be4593f",
+      "request_id": "9fda1af1-3179-48c0-9109-7a0a6ca230b8",
+      "original_query": "can u finish this, and remeber how I like to writ?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "I'm drafting a post-mortem for the production outage last week. Here's the start: 'On March 10th, the order service experienced a 45-minute outage due to a misconfigured load balancer health check...'"
+        },
+        {
+          "role": "model",
+          "content": "Continuing: '...resulting in all traffic being routed to a single unhealthy instance. The root cause was a threshold change deployed without corresponding monitoring updates. Impact: ~3,200 affected orders, $12K estimated revenue impact.'"
+        },
+        {
+          "role": "user",
+          "content": "Good. Now I need to add the timeline, remediation, and action items sections. I'll come back to finish this."
+        },
+        {
+          "role": "model",
+          "content": "I've outlined those sections and will continue in your direct, factual documentation style when you return."
+        }
+      ],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "Can you finish this, and remember how I like to write?",
+        "rewrite_rationale": "typos_noise",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Typos + in-progress document (short_term) + user's writing style preferences (long_term).",
+      "conversation_history": [
+        "I'm gathering thoughts for the post-mortem on the outage last week. Can you help structure it?",
+        "I prefer to keep my documents clear and concise, focusing on facts and outcomes.",
+        "Let's start with the background section. What should we highlight first?",
+        "I usually like to dive deep into the technical causes. What details should we expand on?",
+        "Once we cover the technical aspects, we should focus on the business impact next.",
+        "How do you think we should prioritize the action items based on severity?",
+        "Can you also remind me to include the estimated revenue impact in the final report?",
+        "Switching gears, I've been working on my writing style for reports. Any tips?",
+        "I try to maintain a factual tone in my documentation. How can I improve clarity?",
+        "You know I love feedback. How can I make my writing more engaging without losing professionalism?",
+        "When I draft documents, I always aim for precision. Are there examples you can share?",
+        "Lately, I've been experimenting with more structured outlines. Do you see any areas for improvement in that regard?",
+        "I'm also incorporating more visuals in my reports. Do you think that enhances understanding?",
+        "In terms of my writing process, do you think I should allocate more time to editing?",
+        "I'm curious about using different formats like bullet points. Would that suit my style?",
+        "Sometimes I struggle with transitions between sections. Any suggestions on smoothing these out?"
+      ]
+    },
+    {
+      "id": "ORC-EDGE-001",
+      "scenario_label": "edge__unresolvable_pronoun_no_context",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [
+        "unresolvable_pronoun",
+        "no_context"
+      ],
+      "user_id": "f89aa151-98c3-4560-a93c-548609abacd5",
+      "conversation_id": "fc2c462b-5637-4699-8cca-9524bb14fb03",
+      "request_id": "19864378-27d9-4af4-bb16-96db684f8e48",
+      "original_query": "Tell me more.",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Unresolvable vague prompt — 'more' has no referent in message, recent_messages, or summary. Rewrite rule explicitly forbids rewriting when referent is missing and cannot be inferred.",
+      "conversation_history": [
+        "What's the difference between a comet and an asteroid?",
+        "How often do comets usually pass by Earth?",
+        "Are there any famous asteroid belts in our solar system?",
+        "What was the name of the comet that was visible in the 90s?",
+        "Is it true that dinosaurs were wiped out by an asteroid?",
+        "How do scientists track asteroids and comets now?",
+        "What techniques do researchers use to analyze comet compositions?",
+        "How does photosynthesis work in plants?",
+        "Why do some plants only flower at certain times of the year?",
+        "What role do fungi play in the ecosystem?",
+        "Can you explain how bees contribute to plant pollination?",
+        "How do desert plants survive with so little water?",
+        "What are the different types of plant cells?",
+        "Why are some plants considered invasive in certain areas?"
+      ]
+    },
+    {
+      "id": "ORC-EDGE-002",
+      "scenario_label": "edge__long_query_no_rewrite",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [
+        "long_query_no_rewrite",
+        "over_40_words"
+      ],
+      "user_id": "c5ba4ba5-259e-48bf-8b81-4103cd69c6c3",
+      "conversation_id": "7803396a-e838-41fb-ab34-acc937dda782",
+      "request_id": "a921f463-bd65-42fd-a733-df360218f1f7",
+      "original_query": "Can you explain in detail how RESTful API design principles work, specifically focusing on statelessness, uniform interface, resource identification through URIs, use of HTTP methods, and how these principles improve scalability and maintainability of web services?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Query is >40 words — rewrite rule explicitly says do NOT rewrite long queries. Also pure world knowledge.",
+      "conversation_history": [
+        "What are some of the best exercises for building upper body strength?",
+        "How important is it to maintain proper form when lifting weights?",
+        "Can you suggest a good workout routine for someone just starting out at the gym?",
+        "I've heard a lot about HIIT workouts. How effective are they for weight loss?",
+        "What's the difference between anaerobic and aerobic exercises?",
+        "How can I ensure I'm getting enough protein in my diet for muscle growth?",
+        "What are the benefits of incorporating yoga into a fitness regimen?",
+        "What are the key differences between Android and iOS operating systems?",
+        "How does machine learning enhance smartphone user experience?",
+        "What are the latest trends in mobile app development?",
+        "Can you explain the concept of blockchain technology in simple terms?",
+        "How does 5G technology impact mobile data speeds and connectivity?",
+        "What are some advantages of using cloud services for storing mobile app data?",
+        "Is there a significant difference in security between Android and iOS devices?",
+        "How does augmented reality work on mobile devices?"
+      ]
+    },
+    {
+      "id": "ORC-EDGE-003",
+      "scenario_label": "edge__multi_intent_factual",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [
+        "multi_intent"
+      ],
+      "user_id": "b9d12fd1-2bd7-4c23-897b-144ece795acc",
+      "conversation_id": "873f1bb2-e594-4412-9c5e-c816d9bbda08",
+      "request_id": "cac56d20-9baa-41bb-b5f1-7d615535de64",
+      "original_query": "Fix the bug and explain the SOLID principles",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "Explain the SOLID principles",
+        "rewrite_rationale": "multi_intent",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Two unrelated intents in one query — multi-intent rewrite. Both parts are generic/world knowledge so no retrieval needed.",
+      "conversation_history": [
+        "What's the capital of Australia?",
+        "How long is the Great Wall of China?",
+        "Can you tell me about the history of the Eiffel Tower?",
+        "What are some famous landmarks in Italy?",
+        "What's the tallest mountain in the world?",
+        "How does a solar eclipse happen?",
+        "Why do we have leap years?",
+        "What's the difference between a virus and bacteria?",
+        "How does photosynthesis work in plants?",
+        "What are the basic differences between reptiles and amphibians?",
+        "Can you explain how gravity works?",
+        "What causes the changing of seasons?",
+        "How do airplanes stay in the air?",
+        "What's the process of water purification?",
+        "How do earthquakes occur?"
+      ]
+    },
+    {
+      "id": "ORC-EDGE-004",
+      "scenario_label": "edge__topic_in_summary_not_recent",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "summary_topic_retrieval"
+      ],
+      "user_id": "a75df359-ed87-4456-9ef3-c946a0f8d486",
+      "conversation_id": "33a966a8-b67e-4308-83de-0c7c53a3a9ef",
+      "request_id": "eb7137af-ea15-4210-ade6-f3dc842c669e",
+      "original_query": "What was the approach we decided for the database sharding?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "Now let's talk about the API rate limiting implementation."
+        },
+        {
+          "role": "model",
+          "content": "For API rate limiting, I recommend a token bucket algorithm with Redis as the backing store. Each user gets a bucket with a fixed capacity and refill rate."
+        }
+      ],
+      "conversation_summary": "Earlier in this conversation, the user and assistant discussed database sharding strategies. The user asked about horizontal vs vertical sharding, and the assistant recommended horizontal sharding with consistent hashing, noting the user decided to proceed with a range-based partition key on user_id for predictable data distribution.",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Query topic (database sharding) is in conversation_summary but not in recent_messages. Rule: topics related to summary → retrieve short_term.",
+      "conversation_history": [
+        "Can we start by discussing the overall architecture for our new application?",
+        "What do you think are the main challenges we might face with scalability?",
+        "I was reading about microservices. Do you think we should consider that for our architecture?",
+        "How about security? What are some best practices we should implement from the start?",
+        "I'm also concerned about how we handle user authentication. Any suggestions on that?",
+        "Moving on, let's talk about our database setup. What's your take on the best database technology for us?",
+        "Is there a way to ensure our database can handle a large number of transactions efficiently?",
+        "Speaking of our last discussion, what did we decide on database sharding strategies?",
+        "I read that horizontal sharding can improve performance. Should we consider implementing that?",
+        "How do we plan to manage data consistency across shards?",
+        "Switching gears, can we discuss our API architecture?",
+        "What are the essential APIs we need to prioritize in our development?",
+        "I'm curious about how we can ensure our APIs are secure and reliable.",
+        "Should we be considering GraphQL instead of REST for some of our APIs?",
+        "What tools or frameworks do you recommend for API development and testing?",
+        "Lastly, how do we handle versioning for our APIs to maintain backward compatibility?"
+      ]
+    },
+    {
+      "id": "ORC-EDGE-005",
+      "scenario_label": "edge__pronoun_within_same_message",
+      "matrix_cell": {
+        "should_rewrite": true,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [
+        "pronoun_within_message"
+      ],
+      "user_id": "2d16869a-7c75-41dd-96e6-df87b522c25e",
+      "conversation_id": "c28cc195-856e-4548-bb52-8ba17fcb4aac",
+      "request_id": "3f38c99d-7b49-4d93-9002-4c41e0088d51",
+      "original_query": "Bob proposed the microservice approach for the checkout flow. Is it a good idea?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": true,
+        "final_query": "Is the microservice approach for the checkout flow a good idea?",
+        "rewrite_rationale": "pronoun_resolution",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Pronoun 'it' is resolvable within the same message ('the microservice approach'). Rewrite rule: rewrite when pronoun can be resolved from context within the same message. No personal context needed — generic architecture question.",
+      "conversation_history": [
+        "What are the key factors that affect climate change?",
+        "How do renewable energy sources contribute to reducing carbon footprints?",
+        "Can planting more trees actually reverse the effects of global warming?",
+        "I read that the polar ice caps are melting faster than before. What are the predictions for sea level rise?",
+        "Are electric vehicles genuinely better for the environment compared to traditional cars?",
+        "What role does diet play in an individual's carbon footprint?",
+        "Can public transportation systems significantly reduce urban pollution levels?",
+        "What's the difference between machine learning and artificial intelligence?",
+        "How do neural networks work in simple terms?",
+        "Is Python a good programming language for beginners in data science?",
+        "I've heard that quantum computing could revolutionize tech. How does it differ from classical computing?",
+        "Are there any programming languages specifically designed for AI development?",
+        "What are the ethical considerations in developing autonomous systems?",
+        "How does blockchain technology ensure security and transparency?",
+        "Can machine learning improve customer experiences in e-commerce?"
+      ]
+    },
+    {
+      "id": "ORC-EDGE-006",
+      "scenario_label": "edge__my_technical_noun_long_term",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "my_technical_noun"
+      ],
+      "user_id": "5425b299-4b96-4e58-b2d8-8496de58ab33",
+      "conversation_id": "6404beb6-61b4-4cb4-aade-df8d2acb20f1",
+      "request_id": "301191dd-5426-4f88-be21-1c909c983fba",
+      "original_query": "What ports does my service expose?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "'My service' = user's own system → rule: 'my [technical noun]' always triggers retrieval. No session context so long_term only.",
+      "conversation_history": [
+        "I've been trying to optimize my home server setup. Do you have any tips?",
+        "I'm particularly interested in reducing power consumption. Any suggestions?",
+        "What are some efficient ways to monitor server performance?",
+        "I'm using Docker a lot these days. Have you got any advice on managing containers more effectively?",
+        "I heard about using a reverse proxy for my web services. What's your take on that approach?",
+        "I'm planning a small app deployment. Should I use Kubernetes or stick with Docker Compose?",
+        "How often should I back up my server data to ensure it's safe?",
+        "I'm considering learning a new programming language. Do you have any recommendations?",
+        "I've been using Python for most of my scripting needs. Is there a better alternative for automation tasks?",
+        "I'm really into data science. What would be a good project to tackle next?",
+        "Do you know of any good resources for improving my coding skills?",
+        "I'm trying to decide if I should get certified in cloud computing. What do you think?",
+        "I've been reading about different cloud providers. Which one do you prefer for personal projects?",
+        "What tools do you recommend for collaborating on coding projects with others?",
+        "I want to contribute to open-source projects. How should I get started?"
+      ]
+    },
+    {
+      "id": "ORC-EDGE-007",
+      "scenario_label": "edge__summary_topic_plus_user_profile",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "summary_plus_profile"
+      ],
+      "user_id": "4faccdb8-9266-449a-9cdd-7739c7a4c81b",
+      "conversation_id": "57e5be44-052a-4938-9e9f-abe480ed3776",
+      "request_id": "5740728b-54a0-43a6-8e40-693a36d5ee4d",
+      "original_query": "Based on everything we've discussed about the Python project, can you write my bio for the project README?",
+      "recent_messages": [
+        {
+          "role": "user",
+          "content": "Let's finalize the README structure."
+        },
+        {
+          "role": "model",
+          "content": "Typical README structure: Overview, Installation, Usage, Configuration, Contributing, and License. For a Python project, also add a Requirements section."
+        }
+      ],
+      "conversation_summary": "The user and assistant have been discussing an open-source Python library the user is building for time series anomaly detection. They covered the core algorithm design, API design principles, and testing strategy.",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term",
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "Conversation summary about Python project (short_term) + 'my bio' requires user's profile/background (long_term).",
+      "conversation_history": [
+        "I've been working on a Python project lately; do you have any tips for improving code efficiency?",
+        "How should I handle dependencies in a Python project to ensure smooth installations?",
+        "What are some best practices for structuring a Python project?",
+        "I'm considering using virtual environments. Are they necessary for Python projects?",
+        "How can I optimize my Python code for better performance?",
+        "Do you think it's a good idea to use type hinting in Python projects?",
+        "I'm planning to add some data visualization features. Any libraries you recommend?",
+        "What’s the best way to document my Python project for new team members?",
+        "How do I ensure my project is easy to understand for contributors?",
+        "Could you help me draft a clear and concise project overview for the README?",
+        "I want my README to reflect my expertise in data science. Any sections I should emphasize?",
+        "Since I have a background in machine learning, should I highlight that in the README?",
+        "How can I incorporate my experience with Python into the project's documentation?",
+        "Should I mention my preference for agile methodologies in the README?",
+        "I've been focusing more on code readability lately. Should that be reflected in the README?"
+      ]
+    },
+    {
+      "id": "ORC-EDGE-008",
+      "scenario_label": "edge__temporal_self_reference",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "self_history_reference",
+        "temporal_reference"
+      ],
+      "user_id": "c52f42ae-f080-4638-8f11-cc6fd2eb014d",
+      "conversation_id": "85fbe83b-86ef-4d54-b8b0-b3b4b7d0f338",
+      "request_id": "465111eb-f85a-4775-8a71-bfc53b64fdda",
+      "original_query": "What did we discuss last time about the deployment pipeline?",
+      "recent_messages": [],
+      "conversation_summary": "In a previous session, the user and assistant reviewed the deployment pipeline architecture. Key decisions included using GitHub Actions for CI, ArgoCD for CD, and agreeing to add smoke tests as a mandatory gate before production deployment.",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "evaluation_notes": "'What did we discuss last time' is an explicit self-history reference ('last time', 'as I said earlier' pattern) → retrieve short_term. Deployment pipeline topic is in conversation_summary.",
+      "conversation_history": [
+        "How are we progressing with the new feature roll-out?",
+        "I remember we talked about some potential issues with the last deployment. Did we solve those?",
+        "What were the main challenges we faced during the last deployment?",
+        "Can you remind me of the strategies we discussed to improve the deployment process?",
+        "Last time, we considered automating some parts of the pipeline. How is that going?",
+        "Have there been any updates on the deployment tool we are using?",
+        "Did we finalize the deployment schedule for the next release?",
+        "Earlier, you mentioned something about the marketing campaign. Can we go over that?",
+        "How are the preparations for the campaign launch coming along?",
+        "What are the key points we need to highlight in the campaign?",
+        "Do we have a target audience defined for this campaign?",
+        "Have we decided on the platforms we'll use for the marketing?",
+        "What was the feedback from the last marketing meeting?",
+        "Are there any specific goals we've set for this campaign's success?"
+      ]
+    }
+  ]
+}

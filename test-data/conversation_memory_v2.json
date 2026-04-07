@@ -1,0 +1,767 @@
+# datasets/scenarios.py
+"""
+Extended test scenario definitions with 7-10 turns per scenario.
+Designed to thoroughly test memory retention across longer conversations.
+"""
+
+from models import Scenario, EvaluationTurnSpec
+
+
+MEMORY_SCENARIOS: list[Scenario] = [
+    # ══════════════════════════════════════════════════════════════
+    # SCENARIO 1: Basic Personal Info Recall (10 turns)
+    # ══════════════════════════════════════════════════════════════
+    Scenario(
+        id="basic_recall_001",
+        name="Basic Personal Info Recall",
+        description="Bot should remember name, occupation, preferences, and personal details across extended conversation",
+        turns=[
+            # Turn 0: Introduce name and occupation
+            "Hi, my name is Alex and I'm a software engineer at a fintech startup.",
+            # Turn 1: Add language preference
+            "I prefer Python over Java for backend development. I've been using it for about 5 years now.",
+            # Turn 2: Add more context about work
+            "My team is small, just 4 developers. We're building a payment processing platform.",
+            # Turn 3: Share hobby/interest
+            "Outside of work, I enjoy playing chess and hiking on weekends.",
+            # Turn 4: Unrelated technical question
+            "By the way, can you explain the difference between REST and GraphQL?",
+            # Turn 5: Another unrelated question
+            "What are some best practices for API versioning?",
+            # Turn 6: Test recall of name and occupation
+            "Going back to our intro — what's my name and what do I do for work?",
+            # Turn 7: Test recall of team and project
+            "And what kind of project is my team working on? How big is the team?",
+            # Turn 8: Test recall of preference with application
+            "Can you recommend me a web framework based on my language preference?",
+            # Turn 9: Test recall of hobbies
+            "What hobbies did I mention I enjoy?",
+        ],
+        evaluation_turns=[
+            EvaluationTurnSpec(
+                turn_index=6,
+                expected_memory_facts=[
+                    "User's name is Alex",
+                    "User is a software engineer",
+                    "User works at a fintech startup",
+                ],
+                evaluation_criteria="Bot should correctly state name is Alex, occupation is software engineer, and workplace is a fintech startup.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=7,
+                expected_memory_facts=[
+                    "Team is building a payment processing platform",
+                    "Team has 4 developers",
+                ],
+                evaluation_criteria="Bot should recall the payment processing project and team size of 4 developers.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=8,
+                expected_memory_facts=[
+                    "User prefers Python over Java",
+                    "User has 5 years of Python experience",
+                ],
+                evaluation_criteria="Bot should recommend Python frameworks (Django, FastAPI, Flask) based on user's Python preference.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=9,
+                expected_memory_facts=[
+                    "User enjoys chess",
+                    "User enjoys hiking on weekends",
+                ],
+                evaluation_criteria="Bot should recall both hobbies: chess and hiking.",
+            ),
+        ],
+    ),
+
+    # ══════════════════════════════════════════════════════════════
+    # SCENARIO 2: Context Update and Correction (9 turns)
+    # ══════════════════════════════════════════════════════════════
+    Scenario(
+        id="context_update_002",
+        name="Context Update and Correction",
+        description="Bot should track and update information when user provides corrections",
+        turns=[
+            # Turn 0: Initial location
+            "I live in New York City and work remotely for a tech company.",
+            # Turn 1: Pet info
+            "I have two cats named Whiskers and Luna. They're both rescues.",
+            # Turn 2: Hobby info
+            "I usually go jogging in Central Park every morning before work.",
+            # Turn 3: Correction #1 - location change
+            "Actually, I recently moved to San Francisco last month for a new job opportunity.",
+            # Turn 4: Add new detail
+            "I'm still getting used to the hills here. Much different from NYC!",
+            # Turn 5: Correction #2 - pet update
+            "Oh, and I should mention — I recently adopted a dog named Max too. So now I have two cats and a dog.",
+            # Turn 6: Unrelated conversation
+            "What are some good hiking trails near San Francisco?",
+            # Turn 7: Test location recall (should be updated)
+            "Where do I currently live?",
+            # Turn 8: Test complete pet recall (should include update)
+            "Can you list all my pets and their names?",
+        ],
+        evaluation_turns=[
+            EvaluationTurnSpec(
+                turn_index=7,
+                expected_memory_facts=[
+                    "User currently lives in San Francisco",
+                    "User moved from New York City",
+                    "User moved last month",
+                ],
+                evaluation_criteria="Bot MUST say San Francisco as current city. May acknowledge the move from NYC. Should NOT say user currently lives in New York.",
+                should_not_contain=["live in New York", "lives in New York City currently"],
+            ),
+            EvaluationTurnSpec(
+                turn_index=8,
+                expected_memory_facts=[
+                    "User has two cats named Whiskers and Luna",
+                    "User has a dog named Max",
+                    "User has 3 pets total",
+                ],
+                evaluation_criteria="Bot must list all THREE pets: cats Whiskers and Luna, plus dog Max. Should reflect the updated pet situation.",
+            ),
+        ],
+    ),
+
+    # ══════════════════════════════════════════════════════════════
+    # SCENARIO 3: Long-Term Memory Across Topic Switches (10 turns)
+    # ══════════════════════════════════════════════════════════════
+    Scenario(
+        id="long_term_003",
+        name="Long-Term Memory Across Topic Switches",
+        description="Bot should retain personal details through multiple unrelated topic changes",
+        turns=[
+            # Turn 0: Personal details
+            "My birthday is on March 15th and I'm turning 30 this year. I'm planning a big celebration.",
+            # Turn 1: More personal details
+            "My partner's name is Jordan and we've been together for 3 years.",
+            # Turn 2: Topic switch - technical
+            "Let's talk about something different. What are best practices for microservices architecture?",
+            # Turn 3: Continue technical
+            "How does event-driven architecture compare to request-driven?",
+            # Turn 4: Continue technical
+            "Can you explain the saga pattern in distributed transactions?",
+            # Turn 5: Another topic - general knowledge
+            "Switching topics again — what's the capital of Australia?",
+            # Turn 6: Another topic - recommendations
+            "Can you recommend some good science fiction books?",
+            # Turn 7: Test long-term recall - birthday
+            "Going back to personal stuff — when is my birthday and how old am I turning?",
+            # Turn 8: Test long-term recall - partner
+            "What's my partner's name and how long have we been together?",
+            # Turn 9: Test combined recall
+            "I want to plan something special. Remind me what celebration I mentioned I was planning?",
+        ],
+        evaluation_turns=[
+            EvaluationTurnSpec(
+                turn_index=7,
+                expected_memory_facts=[
+                    "Birthday is March 15th",
+                    "Turning 30 years old",
+                ],
+                evaluation_criteria="After several unrelated topics (technical, geography, books), bot should recall birthday is March 15th and age is 30.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=8,
+                expected_memory_facts=[
+                    "Partner's name is Jordan",
+                    "Together for 3 years",
+                ],
+                evaluation_criteria="Bot should remember partner Jordan and 3-year relationship duration.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=9,
+                expected_memory_facts=[
+                    "Planning a big birthday celebration",
+                    "Birthday is March 15th",
+                    "Turning 30",
+                ],
+                evaluation_criteria="Bot should connect the dots: user is planning a big 30th birthday celebration.",
+            ),
+        ],
+    ),
+
+    # ══════════════════════════════════════════════════════════════
+    # SCENARIO 4: Multi-Entity Memory (8 turns)
+    # ══════════════════════════════════════════════════════════════
+    Scenario(
+        id="multi_entity_004",
+        name="Multi-Entity Memory",
+        description="Bot should track multiple people and their attributes without mixing them up",
+        turns=[
+            # Turn 0: Introduce Sarah
+            "My colleague Sarah works on the frontend team. She's an expert in React and has been with the company for 2 years.",
+            # Turn 1: Introduce Tom
+            "My manager Tom handles the infrastructure team. He prefers Kubernetes and has 10 years of experience.",
+            # Turn 2: Introduce Lisa
+            "There's also Lisa from the data science team. She primarily uses Python and specializes in machine learning.",
+            # Turn 3: Introduce Mike
+            "Mike is our DevOps lead. He's really good with Terraform and AWS, been here for 5 years.",
+            # Turn 4: Unrelated work discussion
+            "We have a big product launch next quarter. Everyone's been working overtime.",
+            # Turn 5: Test Sarah recall
+            "What does Sarah do and what's her expertise?",
+            # Turn 6: Test project staffing with multiple entities
+            "I need to staff a new project that requires frontend work, infrastructure setup, and ML capabilities. Who from my team should I involve and what are their specialties?",
+            # Turn 7: Test specific entity disambiguation
+            "Who has been at the company the longest — Sarah, Tom, Lisa, or Mike? And who's the newest?",
+        ],
+        evaluation_turns=[
+            EvaluationTurnSpec(
+                turn_index=5,
+                expected_memory_facts=[
+                    "Sarah is on the frontend team",
+                    "Sarah is an expert in React",
+                    "Sarah has been with company for 2 years",
+                ],
+                evaluation_criteria="Bot should correctly describe Sarah's role, React expertise, and tenure.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=6,
+                expected_memory_facts=[
+                    "Sarah does frontend with React",
+                    "Tom handles infrastructure with Kubernetes",
+                    "Lisa does data science and ML with Python",
+                ],
+                evaluation_criteria="Bot must correctly map: Sarah→frontend/React, Tom→infrastructure/Kubernetes, Lisa→data science/ML. Must NOT mix up attributes between people.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=7,
+                expected_memory_facts=[
+                    "Tom has 10 years experience (longest)",
+                    "Mike has 5 years (second)",
+                    "Sarah has 2 years (newest mentioned)",
+                ],
+                evaluation_criteria="Bot should correctly identify Tom as most experienced (10 years) and Sarah as newest (2 years). Lisa's tenure wasn't specified.",
+            ),
+        ],
+    ),
+
+    # ══════════════════════════════════════════════════════════════
+    # SCENARIO 5: Implicit Memory Usage (9 turns)
+    # ══════════════════════════════════════════════════════════════
+    Scenario(
+        id="implicit_memory_005",
+        name="Implicit Memory Usage",
+        description="Bot should proactively apply remembered constraints without explicit reminders",
+        turns=[
+            # Turn 0: Dietary restrictions
+            "I'm allergic to shellfish and I'm vegetarian. I also try to avoid too much gluten when possible.",
+            # Turn 1: Fitness context
+            "I'm training for a half marathon, so I need to eat healthy and get enough protein.",
+            # Turn 2: General question - should apply diet implicitly
+            "Can you suggest a high-protein dinner recipe for tonight?",
+            # Turn 3: More specific - should still apply constraints
+            "What about a Thai-inspired dish? I love Thai food.",
+            # Turn 4: Meal planning - should apply all constraints
+            "Can you suggest a meal prep plan for the week that supports my training?",
+            # Turn 5: Unrelated discussion
+            "What are some good stretches to do after a long run?",
+            # Turn 6: Restaurant recommendation - should consider diet
+            "I'm meeting friends for dinner tomorrow. Can you suggest what type of cuisine would be good for someone with my dietary needs?",
+            # Turn 7: Explicit test of constraint memory
+            "Wait, can you remind me what dietary restrictions I mentioned?",
+            # Turn 8: Recipe with potential allergens - should avoid them
+            "I want to try making sushi at home. Any suggestions?",
+        ],
+        evaluation_turns=[
+            EvaluationTurnSpec(
+                turn_index=2,
+                expected_memory_facts=[
+                    "User is vegetarian",
+                    "User is training for half marathon",
+                    "User needs high protein",
+                ],
+                evaluation_criteria="Recipe must be vegetarian AND high-protein. Should not suggest meat. Good options: tofu, tempeh, legumes, eggs if user eats them.",
+                should_not_contain=["chicken", "beef", "pork", "fish", "salmon", "shrimp"],
+            ),
+            EvaluationTurnSpec(
+                turn_index=3,
+                expected_memory_facts=[
+                    "User is vegetarian",
+                    "User is allergic to shellfish",
+                    "User avoids gluten when possible",
+                ],
+                evaluation_criteria="Thai recipe must be vegetarian AND shellfish-free. Should consider gluten (avoid heavy soy sauce, suggest alternatives).",
+                should_not_contain=["shrimp", "crab", "lobster", "prawn", "fish sauce with shellfish"],
+            ),
+            EvaluationTurnSpec(
+                turn_index=4,
+                expected_memory_facts=[
+                    "User is vegetarian",
+                    "User is allergic to shellfish",
+                    "User is training for half marathon",
+                    "User needs high protein",
+                ],
+                evaluation_criteria="Meal prep plan must accommodate ALL constraints: vegetarian, shellfish-free, support endurance training with adequate protein.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=6,
+                expected_memory_facts=[
+                    "User is vegetarian",
+                    "User is allergic to shellfish",
+                ],
+                evaluation_criteria="Restaurant recommendations should consider vegetarian options and shellfish allergy risks. Should suggest cuisines with good vegetarian options.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=8,
+                expected_memory_facts=[
+                    "User is vegetarian",
+                    "User is allergic to shellfish",
+                ],
+                evaluation_criteria="Sushi suggestions must be vegetarian (veggie rolls, cucumber rolls, avocado rolls) and avoid any shellfish. No crab, shrimp, or fish-based sushi.",
+                should_not_contain=["salmon", "tuna", "crab", "shrimp", "eel", "fish"],
+            ),
+        ],
+    ),
+
+    # ══════════════════════════════════════════════════════════════
+    # SCENARIO 6: No Memory Hallucination (8 turns)
+    # ══════════════════════════════════════════════════════════════
+    Scenario(
+        id="no_hallucination_006",
+        name="No Memory Hallucination",
+        description="Bot must NOT fabricate information that was never shared by the user",
+        turns=[
+            # Turn 0: Minimal intro
+            "Hi, I'd like to learn about machine learning.",
+            # Turn 1: General question
+            "What are the main types of machine learning?",
+            # Turn 2: Follow-up
+            "Can you explain supervised learning in more detail?",
+            # Turn 3: Test hallucination - language preference
+            "What's my favorite programming language?",
+            # Turn 4: Another general question
+            "What's a good dataset to practice ML with?",
+            # Turn 5: Test hallucination - occupation
+            "What do I do for work?",
+            # Turn 6: Test hallucination - name
+            "What's my name?",
+            # Turn 7: Test hallucination - experience level
+            "How many years of programming experience do I have?",
+        ],
+        evaluation_turns=[
+            EvaluationTurnSpec(
+                turn_index=3,
+                expected_memory_facts=[],
+                evaluation_criteria="Bot should say it doesn't know user's favorite language — it was NEVER mentioned. Bot must NOT guess or fabricate.",
+                should_not_contain=[
+                    "your favorite language is",
+                    "you mentioned you prefer",
+                    "you told me you like",
+                    "you said your favorite",
+                    "based on what you told me",
+                ],
+            ),
+            EvaluationTurnSpec(
+                turn_index=5,
+                expected_memory_facts=[],
+                evaluation_criteria="Bot should say it doesn't know user's occupation — never mentioned. Must NOT assume or invent a profession.",
+                should_not_contain=[
+                    "you work as",
+                    "your job is",
+                    "you mentioned you're a",
+                    "you said you work",
+                ],
+            ),
+            EvaluationTurnSpec(
+                turn_index=6,
+                expected_memory_facts=[],
+                evaluation_criteria="Bot should say it doesn't know user's name — never provided. Must NOT make up a name.",
+                should_not_contain=[
+                    "your name is",
+                    "you told me your name",
+                    "you mentioned your name",
+                ],
+            ),
+            EvaluationTurnSpec(
+                turn_index=7,
+                expected_memory_facts=[],
+                evaluation_criteria="Bot should say it doesn't know user's experience level — never mentioned. Must NOT guess.",
+                should_not_contain=[
+                    "you have",
+                    "years of experience",
+                    "you mentioned you've been",
+                    "based on our conversation, you have",
+                ],
+            ),
+        ],
+    ),
+
+    # ══════════════════════════════════════════════════════════════
+    # SCENARIO 7: Contradiction Handling (8 turns)
+    # ══════════════════════════════════════════════════════════════
+    Scenario(
+        id="contradiction_007",
+        name="Contradiction Handling",
+        description="Bot should notice and appropriately handle contradictory user statements",
+        turns=[
+            # Turn 0: Initial statement about experience
+            "I don't have any programming experience at all. I'm a complete beginner.",
+            # Turn 1: Bot provides beginner advice
+            "What programming language would you recommend for a beginner like me?",
+            # Turn 2: More beginner context
+            "I've never written a single line of code in my life.",
+            # Turn 3: Contradictory request
+            "Can you review my Python code for the REST API I built last week?",
+            # Turn 4: Continue as if contradiction didn't happen
+            "The API uses Flask and connects to a PostgreSQL database.",
+            # Turn 5: Another contradiction
+            "I've actually been using Python professionally for 3 years now.",
+            # Turn 6: Test how bot handles the resolved contradiction
+            "Based on what you know about my experience level, what advanced topics should I learn next?",
+            # Turn 7: Meta question about the conversation
+            "Do you notice anything inconsistent about what I've told you about my experience?",
+        ],
+        evaluation_turns=[
+            EvaluationTurnSpec(
+                turn_index=3,
+                expected_memory_facts=[
+                    "User previously said no programming experience",
+                    "User said they're a complete beginner",
+                    "User said never written code",
+                ],
+                evaluation_criteria="Bot should notice the apparent contradiction — user claimed no experience but asks for code review. Bot should politely clarify or ask about this inconsistency.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=6,
+                expected_memory_facts=[
+                    "User clarified having 3 years Python experience",
+                    "User built a REST API with Flask",
+                    "User works with PostgreSQL",
+                ],
+                evaluation_criteria="Bot should now use the UPDATED understanding (3 years experience) and suggest genuinely advanced topics appropriate for an experienced developer.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=7,
+                expected_memory_facts=[
+                    "Initial claim: no experience, complete beginner",
+                    "Later revealed: 3 years Python experience, built APIs",
+                ],
+                evaluation_criteria="Bot should acknowledge the inconsistency: user first said no experience, then revealed significant professional experience. Should handle this diplomatically.",
+            ),
+        ],
+    ),
+
+    # ══════════════════════════════════════════════════════════════
+    # SCENARIO 8: Temporal and Event Memory (10 turns)
+    # ══════════════════════════════════════════════════════════════
+    Scenario(
+        id="temporal_memory_008",
+        name="Temporal and Event Memory",
+        description="Bot should remember and correctly track time-based events and deadlines",
+        turns=[
+            # Turn 0: Upcoming event
+            "I have a job interview at Google next Monday at 10 AM.",
+            # Turn 1: Another event
+            "I'm also planning a vacation to Japan in December, specifically from December 15th to 30th.",
+            # Turn 2: Add another event
+            "My sister's wedding is on November 8th. I'm the best man.",
+            # Turn 3: Add deadline
+            "I need to submit my project proposal by this Friday. It's really important.",
+            # Turn 4: Unrelated discussion
+            "Can you give me some tips for acing a technical interview?",
+            # Turn 5: More unrelated
+            "What are common system design questions asked at big tech companies?",
+            # Turn 6: Test recall of all events
+            "Can you summarize all the upcoming events and deadlines I mentioned?",
+            # Turn 7: Test specific event recall
+            "When is my Japan trip and how long will I be there?",
+            # Turn 8: Test role-based recall
+            "What role do I have in my sister's wedding?",
+            # Turn 9: Test priority/urgency recall
+            "What's my most urgent deadline?",
+        ],
+        evaluation_turns=[
+            EvaluationTurnSpec(
+                turn_index=6,
+                expected_memory_facts=[
+                    "Job interview at Google next Monday at 10 AM",
+                    "Japan vacation December 15-30",
+                    "Sister's wedding November 8th",
+                    "Project proposal due this Friday",
+                ],
+                evaluation_criteria="Bot should list ALL events: Google interview (Monday 10 AM), Japan trip (Dec 15-30), sister's wedding (Nov 8), and project deadline (Friday).",
+            ),
+            EvaluationTurnSpec(
+                turn_index=7,
+                expected_memory_facts=[
+                    "Japan trip: December 15th to 30th",
+                    "Duration: 15 days",
+                ],
+                evaluation_criteria="Bot should state dates (December 15-30) and ideally mention it's about a 2-week trip.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=8,
+                expected_memory_facts=[
+                    "User is the best man at sister's wedding",
+                    "Wedding is on November 8th",
+                ],
+                evaluation_criteria="Bot should remember user is the best man at the wedding.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=9,
+                expected_memory_facts=[
+                    "Project proposal due this Friday",
+                    "User said it's really important",
+                ],
+                evaluation_criteria="Bot should identify the project proposal (this Friday) as most urgent since it's the nearest deadline.",
+            ),
+        ],
+    ),
+
+    # ══════════════════════════════════════════════════════════════
+    # SCENARIO 9: Preference Evolution (9 turns)
+    # ══════════════════════════════════════════════════════════════
+    Scenario(
+        id="preference_evolution_009",
+        name="Preference Evolution and Updates",
+        description="Bot should track how user preferences change throughout conversation",
+        turns=[
+            # Turn 0: Initial preferences
+            "I'm looking to buy a new laptop. I prefer Windows for gaming.",
+            # Turn 1: Budget
+            "My budget is around $1500.",
+            # Turn 2: More requirements
+            "I need at least 16GB RAM and a dedicated GPU.",
+            # Turn 3: Change preference
+            "Actually, I've been thinking about switching to Mac for the better build quality. I might game less anyway.",
+            # Turn 4: Budget update
+            "I could stretch my budget to $2000 for the right machine.",
+            # Turn 5: Add specific need
+            "I also need good battery life since I travel a lot for work.",
+            # Turn 6: Unrelated question
+            "What's the difference between M3 and M3 Pro chips?",
+            # Turn 7: Test updated preference summary
+            "Based on everything I've told you, what are my current laptop requirements?",
+            # Turn 8: Recommendation request
+            "Given my updated preferences and budget, what laptop would you recommend?",
+        ],
+        evaluation_turns=[
+            EvaluationTurnSpec(
+                turn_index=7,
+                expected_memory_facts=[
+                    "Switched preference from Windows to Mac",
+                    "Budget: up to $2000 (increased from $1500)",
+                    "Needs: 16GB+ RAM, dedicated GPU or equivalent",
+                    "Needs: good battery life",
+                    "Use case: travels for work, may game less",
+                ],
+                evaluation_criteria="Bot should summarize CURRENT requirements: Mac preference (not Windows), $2000 budget, 16GB+ RAM, good battery, travel use case.",
+                should_not_contain=["Windows gaming laptop", "your budget is $1500"],
+            ),
+            EvaluationTurnSpec(
+                turn_index=8,
+                expected_memory_facts=[
+                    "Mac preference",
+                    "Budget up to $2000",
+                    "Good battery life needed",
+                    "16GB+ RAM",
+                ],
+                evaluation_criteria="Recommendation should be a MacBook (likely MacBook Pro with M3) within $2000, emphasizing battery life and portability. Should NOT recommend Windows gaming laptop.",
+                should_not_contain=["Windows", "gaming laptop", "ASUS", "Razer"],
+            ),
+        ],
+    ),
+
+    # ══════════════════════════════════════════════════════════════
+    # SCENARIO 10: Complex Project Context (10 turns)
+    # ══════════════════════════════════════════════════════════════
+    Scenario(
+        id="project_context_010",
+        name="Complex Project Context Memory",
+        description="Bot should remember detailed project context and provide relevant assistance",
+        turns=[
+            # Turn 0: Project intro
+            "I'm building an e-commerce platform for handmade crafts. It's called 'ArtisanHub'.",
+            # Turn 1: Tech stack
+            "We're using Next.js for the frontend, Python FastAPI for the backend, and PostgreSQL for the database.",
+            # Turn 2: Team context
+            "Our team has 3 frontend devs, 2 backend devs, and 1 DevOps engineer.",
+            # Turn 3: Current challenge
+            "We're struggling with implementing real-time inventory updates. Multiple users buying the same item causes race conditions.",
+            # Turn 4: Additional context
+            "We're hosted on AWS and using Redis for caching.",
+            # Turn 5: Unrelated question
+            "What's the best way to handle image optimization for product photos?",
+            # Turn 6: Another question
+            "How should we structure our API endpoints for the shopping cart?",
+            # Turn 7: Test project recall
+            "Can you remind me what our tech stack is for ArtisanHub?",
+            # Turn 8: Test problem recall with solution
+            "Going back to our race condition problem with inventory — can you suggest a solution using our current infrastructure?",
+            # Turn 9: Staffing question
+            "If we need to add real-time features, do we have the right team composition?",
+        ],
+        evaluation_turns=[
+            EvaluationTurnSpec(
+                turn_index=7,
+                expected_memory_facts=[
+                    "Project name: ArtisanHub",
+                    "Frontend: Next.js",
+                    "Backend: Python FastAPI",
+                    "Database: PostgreSQL",
+                    "Caching: Redis",
+                    "Hosting: AWS",
+                ],
+                evaluation_criteria="Bot should recall complete tech stack: Next.js, FastAPI, PostgreSQL, Redis, AWS.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=8,
+                expected_memory_facts=[
+                    "Problem: race conditions in inventory updates",
+                    "Multiple users buying same item",
+                    "Have Redis available",
+                    "Using PostgreSQL",
+                ],
+                evaluation_criteria="Solution should leverage existing stack (Redis for distributed locks, PostgreSQL transactions). Should address the specific race condition problem mentioned earlier.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=9,
+                expected_memory_facts=[
+                    "3 frontend devs",
+                    "2 backend devs",
+                    "1 DevOps engineer",
+                    "Using Next.js and FastAPI",
+                ],
+                evaluation_criteria="Bot should analyze team composition (3 FE, 2 BE, 1 DevOps) against real-time feature requirements and provide staffing recommendations.",
+            ),
+        ],
+    ),
+
+    # ══════════════════════════════════════════════════════════════
+    # SCENARIO 11: Personal Health Context (9 turns)
+    # ══════════════════════════════════════════════════════════════
+    Scenario(
+        id="health_context_011",
+        name="Personal Health Context Memory",
+        description="Bot should remember health constraints and apply them to all relevant advice",
+        turns=[
+            # Turn 0: Health conditions
+            "I have Type 2 diabetes and high blood pressure. I'm managing both with medication and lifestyle.",
+            # Turn 1: Physical limitations
+            "I also have a bad knee from an old injury, so high-impact exercises are out.",
+            # Turn 2: Goals
+            "I want to lose about 20 pounds over the next 6 months.",
+            # Turn 3: Current routine
+            "Right now I walk about 30 minutes a day and try to avoid sugar.",
+            # Turn 4: General fitness question
+            "What type of cardio would be good for me?",
+            # Turn 5: Nutrition question
+            "What should I eat for breakfast?",
+            # Turn 6: Unrelated topic
+            "What's a good book on developing healthy habits?",
+            # Turn 7: Test comprehensive health recall
+            "Can you summarize my health situation and goals?",
+            # Turn 8: Integrated advice request
+            "Create a simple daily routine that considers all my health factors and goals.",
+        ],
+        evaluation_turns=[
+            EvaluationTurnSpec(
+                turn_index=4,
+                expected_memory_facts=[
+                    "User has bad knee",
+                    "Cannot do high-impact exercises",
+                    "Currently walks 30 min/day",
+                ],
+                evaluation_criteria="Cardio suggestions must be low-impact (swimming, cycling, elliptical). Should NOT suggest running, jumping, HIIT with jumps.",
+                should_not_contain=["running", "jogging", "jumping", "high-impact"],
+            ),
+            EvaluationTurnSpec(
+                turn_index=5,
+                expected_memory_facts=[
+                    "User has Type 2 diabetes",
+                    "User has high blood pressure",
+                    "User avoids sugar",
+                    "User wants to lose weight",
+                ],
+                evaluation_criteria="Breakfast should be diabetic-friendly (low glycemic), heart-healthy (low sodium), and support weight loss. Should not be high-sugar or high-sodium.",
+                should_not_contain=["pancakes", "sugary cereal", "fruit juice", "bacon"],
+            ),
+            EvaluationTurnSpec(
+                turn_index=7,
+                expected_memory_facts=[
+                    "Type 2 diabetes",
+                    "High blood pressure",
+                    "Bad knee",
+                    "Goal: lose 20 pounds in 6 months",
+                    "Currently walks 30 min/day",
+                ],
+                evaluation_criteria="Summary should include all health conditions (diabetes, high BP, knee), current activity, and weight loss goal.",
+            ),
+            EvaluationTurnSpec(
+                turn_index=8,
+                expected_memory_facts=[
+                    "Type 2 diabetes",
+                    "High blood pressure",
+                    "Bad knee - no high impact",
+                    "Weight loss goal",
+                    "Currently walks 30 min",
+                ],
+                evaluation_criteria="Routine must accommodate ALL constraints: diabetic-friendly meals, low sodium, low-impact exercise, realistic for weight loss.",
+            ),
+        ],
+    ),
+
+    # ══════════════════════════════════════════════════════════════
+    # SCENARIO 12: Learning Journey Memory (10 turns)
+    # ══════════════════════════════════════════════════════════════
+    Scenario(
+        id="learning_journey_012",
+        name="Learning Journey Memory",
+        description="Bot should remember learning progress and build on previously covered topics",
+        turns=[
+            # Turn 0: Learning goal
+            "I want to learn data science. I'm a complete beginner but I know some Python basics.",
+            # Turn 1: First lesson
+            "Can you explain what pandas is and how it's used?",
+            # Turn 2: Practice confirmation
+            "Great, I practiced with pandas last night. I can now load CSVs and do basic filtering.",
+            # Turn 3: Next lesson
+            "What should I learn next?",
+            # Turn 4: Learning numpy
+            "Can you explain numpy arrays?",
+            # Turn 5: Progress update
+            "I've spent the weekend learning numpy. I understand arrays and basic operations now.",
+            # Turn 6: Unrelated question
+            "Quick question — how much do data scientists typically earn?",
+            # Turn 7: Test progress recall
+            "What have I learned so far in my data science journey?",
+            # Turn 8: Next steps
+            "Based on my progress, what's the next logical topic to learn?",
+            # Turn 9: Resource request
+            "Can you suggest a project that uses the skills I've already learned?",
+        ],
+        evaluation_turns=[
+            EvaluationTurnSpec(
+                turn_index=7,
+                expected_memory_facts=[
+                    "Knows Python basics",
+                    "Learned pandas: loading CSVs, basic filtering",
+                    "Learned numpy: arrays, basic operations",
+                ],
+                evaluation_criteria="Bot should recall learning progression: started with Python basics, learned pandas (CSVs, filtering), then numpy (arrays, operations).",
+            ),
+            EvaluationTurnSpec(
+                turn_index=8,
+                expected_memory_facts=[
+                    "User knows pandas and numpy",
+                    "User is a beginner data science learner",
+                    "User started with Python basics",
+                ],
+                evaluation_criteria="Next topic should build on pandas+numpy (e.g., data visualization with matplotlib, or intro to scikit-learn). Should not repeat what was learned.",
+                should_not_contain=["learn pandas", "start with numpy", "begin with Python basics"],
+            ),
+            EvaluationTurnSpec(
+                turn_index=9,
+                expected_memory_facts=[
+                    "User knows pandas (CSV loading, filtering)",
+                    "User knows numpy (arrays, basic operations)",
+                    "User is beginner level",
+                ],
+                evaluation_criteria="Project should utilize pandas and numpy skills (e.g., data analysis project with CSV data). Should be appropriate for beginner level.",
+            ),
+        ],
+    ),
+]

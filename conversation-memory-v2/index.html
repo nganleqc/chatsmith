@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Conversation Memory V2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --purple:      #667eea;
+            --purple-dark: #5a67d8;
+            --green:       #48bb78;
+            --green-dark:  #38a169;
+            --amber:       #ed8936;
+            --amber-dark:  #dd6b20;
+            --red:         #e53e3e;
+            --red-light:   #fff5f5;
+            --bg:          #f8fafc;
+            --border:      #e2e8f0;
+            --text:        #2d3748;
+            --text-muted:  #718096;
+            --text-sm:     #4a5568;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* ── PAGE HEADER ─────────────────────────────────────── */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 20px 18px;
+        }
+        .page-header-top { margin-bottom: 10px; }
+        .back-link {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: white; }
+        .page-header h1 { font-size: 1.55em; font-weight: 700; margin-bottom: 4px; }
+        .page-header .stats { font-size: 13px; opacity: 0.85; }
+
+        /* ── FILTER BAR ──────────────────────────────────────── */
+        .filter-bar {
+            background: white;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .filter-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 10px;
+        }
+        .filter-pills { display: flex; flex-wrap: wrap; gap: 7px; }
+        .filter-pill {
+            padding: 6px 13px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border);
+            background: white;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            min-height: 34px;
+        }
+        .filter-pill:hover { border-color: var(--purple); color: var(--purple); }
+        .filter-pill.active { background: var(--purple); border-color: var(--purple); color: white; }
+
+        /* ── LIST VIEW ───────────────────────────────────────── */
+        .cases-list {
+            padding: 16px 20px;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        .case-card {
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .case-card:hover {
+            border-color: var(--purple);
+            box-shadow: 0 4px 16px rgba(102,126,234,0.13);
+            transform: translateY(-1px);
+        }
+        .case-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        .case-id-badge {
+            background: var(--purple);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: monospace;
+            white-space: nowrap;
+        }
+        .run-btn {
+            background: var(--green);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+            min-height: 36px;
+        }
+        .run-btn:hover { background: var(--green-dark); }
+        .case-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+        .case-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .case-meta { display: flex; flex-wrap: wrap; gap: 5px; }
+        .meta-tag {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .tag-turns       { background: #ebf4ff; color: #2b6cb0; }
+        .tag-eval        { background: #fef3c7; color: #92400e; }
+        .tag-no-halluc   { background: #fed7d7; color: #7f1d1d; }
+        .tag-update      { background: #d1fae5; color: #065f46; }
+        .tag-implicit    { background: #ede9fe; color: #4c1d95; }
+        .tag-temporal    { background: #fce7f3; color: #831843; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+
+        /* ── RUNNER VIEW ─────────────────────────────────────── */
+        .runner-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 20px 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .runner-header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .runner-back {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .runner-back:hover { background: rgba(255,255,255,0.3); }
+        .runner-case-name { font-size: 13px; font-weight: 700; max-width: 180px; text-align: center; line-height: 1.3; }
+        .step-counter { font-size: 13px; opacity: 0.9; font-weight: 600; }
+        .progress-bar-track {
+            background: rgba(255,255,255,0.25);
+            border-radius: 4px;
+            height: 5px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            background: white;
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .runner-body {
+            padding: 20px;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        /* Message card */
+        .message-card {
+            background: white;
+            border-radius: 16px;
+            padding: 22px 20px;
+            margin-bottom: 16px;
+            border: 2px solid var(--border);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .message-card.is-eval {
+            border-color: var(--amber);
+            box-shadow: 0 4px 18px rgba(237,137,54,0.14);
+        }
+        .turn-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 10px;
+        }
+        .eval-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--amber);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .message-text {
+            font-size: 18px;
+            line-height: 1.65;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* Eval details */
+        .eval-details {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(237,137,54,0.25);
+        }
+        .eval-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 8px;
+        }
+        .eval-section-label.green  { color: var(--green-dark); }
+        .eval-section-label.red    { color: var(--red); }
+        .eval-section-label.purple { color: var(--purple-dark); }
+
+        .eval-criteria {
+            font-size: 13px;
+            color: var(--text-sm);
+            line-height: 1.55;
+            background: #fffbeb;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+        }
+        .facts-list {
+            list-style: none;
+            margin-bottom: 12px;
+        }
+        .facts-list li {
+            font-size: 13px;
+            color: var(--text-sm);
+            padding: 5px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            line-height: 1.4;
+        }
+        .facts-list li:last-child { border-bottom: none; }
+        .facts-list li::before { content: '✓'; color: var(--green-dark); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+        .no-contain-list { list-style: none; margin-bottom: 12px; }
+        .no-contain-list li {
+            font-size: 12px;
+            color: var(--red);
+            padding: 4px 0;
+            border-bottom: 1px solid #fed7d7;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            font-family: monospace;
+            background: var(--red-light);
+            margin-bottom: 4px;
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+        .no-contain-list li::before { content: '✗'; color: var(--red); font-weight: 700; flex-shrink: 0; }
+
+        /* Copy button */
+        .copy-section { margin-bottom: 14px; }
+        .copy-main-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--green);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .copy-main-btn:active  { transform: scale(0.98); }
+        .copy-main-btn:hover   { background: var(--green-dark); }
+        .copy-main-btn.copied  { background: #276749; }
+        .copy-main-btn.is-eval-btn             { background: var(--amber); }
+        .copy-main-btn.is-eval-btn:hover       { background: var(--amber-dark); }
+        .copy-main-btn.is-eval-btn.copied      { background: #9c4221; }
+        .copy-main-btn:disabled { opacity: 0.7; cursor: default; transform: none; }
+
+        .keyboard-hint {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            display: none;
+        }
+        @media (hover: hover) { .keyboard-hint { display: block; } }
+
+        /* Nav buttons */
+        .nav-section { display: flex; gap: 10px; }
+        .nav-btn {
+            flex: 1;
+            padding: 14px;
+            border: 1.5px solid var(--border);
+            background: white;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 50px;
+        }
+        .nav-btn:hover { border-color: var(--purple); color: var(--purple); }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .nav-btn:disabled:hover { border-color: var(--border); color: var(--text-sm); }
+        .restart-btn { background: var(--purple); border-color: var(--purple); color: white; }
+        .restart-btn:hover { background: var(--purple-dark); border-color: var(--purple-dark); color: white; }
+
+        /* Eval summary panel (shown on last turn) */
+        .panel-section { margin-top: 16px; }
+        .panel-card {
+            background: white;
+            border-radius: 14px;
+            border: 1.5px solid var(--border);
+            overflow: hidden;
+        }
+        .panel-header {
+            padding: 13px 18px;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .panel-header:hover { background: #edf2f7; }
+        .panel-chevron { font-size: 10px; transition: transform 0.2s; }
+        .panel-chevron.open { transform: rotate(180deg); }
+        .panel-body { padding: 14px 18px; display: none; }
+        .panel-body.open { display: block; }
+
+        .eval-summary-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .eval-summary-item:last-child { border-bottom: none; }
+        .eval-summary-turn {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--amber);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 4px;
+        }
+        .eval-summary-criteria {
+            font-size: 13px;
+            color: var(--text-sm);
+            line-height: 1.5;
+        }
+
+        /* Manual copy modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 100;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .bottom-sheet {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 24px 20px 40px;
+            width: 100%;
+            max-width: 640px;
+            animation: slideUp 0.25s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to   { transform: translateY(0); }
+        }
+        .sheet-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+        .sheet-desc  { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+        .sheet-textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            line-height: 1.5;
+            resize: none;
+            color: var(--text);
+            background: var(--bg);
+            margin-bottom: 12px;
+            font-family: inherit;
+        }
+        .sheet-close-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--purple);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 72px;
+            left: 50%;
+            transform: translateX(-50%) translateY(16px);
+            background: #2d3748;
+            color: white;
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.25s;
+            z-index: 200;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        @media (max-width: 400px) {
+            .message-text  { font-size: 16px; }
+            .copy-main-btn { font-size: 15px; min-height: 56px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── LIST VIEW ────────────────────────────────────────────────────── -->
+<div id="list-view" class="view active">
+    <div class="page-header">
+        <div class="page-header-top">
+            <a href="../index.html" class="back-link">← Back to Index</a>
+        </div>
+        <h1>🧠 Conversation Memory V2</h1>
+        <p class="stats" id="list-stats"></p>
+    </div>
+    <div class="filter-bar">
+        <div class="filter-label">Filter by type</div>
+        <div class="filter-pills" id="filter-pills"></div>
+    </div>
+    <div class="cases-list" id="cases-list"></div>
+</div>
+
+<!-- ── TEST RUNNER VIEW ─────────────────────────────────────────────── -->
+<div id="runner-view" class="view">
+    <div class="runner-header" id="runner-header">
+        <div class="runner-header-top">
+            <button class="runner-back" onclick="goList()">← Back</button>
+            <span class="runner-case-name" id="rn-case-name"></span>
+            <span class="step-counter" id="rn-step-counter"></span>
+        </div>
+        <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="rn-progress"></div>
+        </div>
+    </div>
+    <div class="runner-body" id="runner-body"></div>
+</div>
+
+<!-- ── MANUAL COPY MODAL ────────────────────────────────────────────── -->
+<div class="modal-overlay" id="manual-modal" onclick="handleOverlayClick(event)">
+    <div class="bottom-sheet">
+        <div class="sheet-title">📋 Copy manually</div>
+        <div class="sheet-desc">Auto-copy is not available. Select all and copy:</div>
+        <textarea class="sheet-textarea" id="manual-text" rows="4" readonly></textarea>
+        <button class="sheet-close-btn" onclick="closeManualModal()">Done</button>
+    </div>
+</div>
+
+<!-- ── TOAST ────────────────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── DATASET ───────────────────────────────────────────────────────── */
+const SCENARIOS = [
+  {
+    id: "basic_recall_001",
+    name: "Basic Personal Info Recall",
+    description: "Bot should remember name, occupation, preferences, and personal details across extended conversation",
+    tags: ["recall"],
+    turns: [
+      "Hi, my name is Alex and I'm a software engineer at a fintech startup.",
+      "I prefer Python over Java for backend development. I've been using it for about 5 years now.",
+      "My team is small, just 4 developers. We're building a payment processing platform.",
+      "Outside of work, I enjoy playing chess and hiking on weekends.",
+      "By the way, can you explain the difference between REST and GraphQL?",
+      "What are some best practices for API versioning?",
+      "Going back to our intro — what's my name and what do I do for work?",
+      "And what kind of project is my team working on? How big is the team?",
+      "Can you recommend me a web framework based on my language preference?",
+      "What hobbies did I mention I enjoy?",
+    ],
+    evaluation_turns: [
+      { turn_index: 6, expected_memory_facts: ["User's name is Alex", "User is a software engineer", "User works at a fintech startup"], evaluation_criteria: "Bot should correctly state name is Alex, occupation is software engineer, and workplace is a fintech startup.", should_not_contain: [] },
+      { turn_index: 7, expected_memory_facts: ["Team is building a payment processing platform", "Team has 4 developers"], evaluation_criteria: "Bot should recall the payment processing project and team size of 4 developers.", should_not_contain: [] },
+      { turn_index: 8, expected_memory_facts: ["User prefers Python over Java", "User has 5 years of Python experience"], evaluation_criteria: "Bot should recommend Python frameworks (Django, FastAPI, Flask) based on user's Python preference.", should_not_contain: [] },
+      { turn_index: 9, expected_memory_facts: ["User enjoys chess", "User enjoys hiking on weekends"], evaluation_criteria: "Bot should recall both hobbies: chess and hiking.", should_not_contain: [] },
+    ],
+  },
+  {
+    id: "context_update_002",
+    name: "Context Update and Correction",
+    description: "Bot should track and update information when user provides corrections",
+    tags: ["update"],
+    turns: [
+      "I live in New York City and work remotely for a tech company.",
+      "I have two cats named Whiskers and Luna. They're both rescues.",
+      "I usually go jogging in Central Park every morning before work.",
+      "Actually, I recently moved to San Francisco last month for a new job opportunity.",
+      "I'm still getting used to the hills here. Much different from NYC!",
+      "Oh, and I should mention — I recently adopted a dog named Max too. So now I have two cats and a dog.",
+      "What are some good hiking trails near San Francisco?",
+      "Where do I currently live?",
+      "Can you list all my pets and their names?",
+    ],
+    evaluation_turns: [
+      { turn_index: 7, expected_memory_facts: ["User currently lives in San Francisco", "User moved from New York City", "User moved last month"], evaluation_criteria: "Bot MUST say San Francisco as current city. May acknowledge the move from NYC. Should NOT say user currently lives in New York.", should_not_contain: ["live in New York", "lives in New York City currently"] },
+      { turn_index: 8, expected_memory_facts: ["User has two cats named Whiskers and Luna", "User has a dog named Max", "User has 3 pets total"], evaluation_criteria: "Bot must list all THREE pets: cats Whiskers and Luna, plus dog Max. Should reflect the updated pet situation.", should_not_contain: [] },
+    ],
+  },
+  {
+    id: "long_term_003",
+    name: "Long-Term Memory Across Topic Switches",
+    description: "Bot should retain personal details through multiple unrelated topic changes",
+    tags: ["recall"],
+    turns: [
+      "My birthday is on March 15th and I'm turning 30 this year. I'm planning a big celebration.",
+      "My partner's name is Jordan and we've been together for 3 years.",
+      "Let's talk about something different. What are best practices for microservices architecture?",
+      "How does event-driven architecture compare to request-driven?",
+      "Can you explain the saga pattern in distributed transactions?",
+      "Switching topics again — what's the capital of Australia?",
+      "Can you recommend some good science fiction books?",
+      "Going back to personal stuff — when is my birthday and how old am I turning?",
+      "What's my partner's name and how long have we been together?",
+      "I want to plan something special. Remind me what celebration I mentioned I was planning?",
+    ],
+    evaluation_turns: [
+      { turn_index: 7, expected_memory_facts: ["Birthday is March 15th", "Turning 30 years old"], evaluation_criteria: "After several unrelated topics (technical, geography, books), bot should recall birthday is March 15th and age is 30.", should_not_contain: [] },
+      { turn_index: 8, expected_memory_facts: ["Partner's name is Jordan", "Together for 3 years"], evaluation_criteria: "Bot should remember partner Jordan and 3-year relationship duration.", should_not_contain: [] },
+      { turn_index: 9, expected_memory_facts: ["Planning a big birthday celebration", "Birthday is March 15th", "Turning 30"], evaluation_criteria: "Bot should connect the dots: user is planning a big 30th birthday celebration.", should_not_contain: [] },
+    ],
+  },
+  {
+    id: "multi_entity_004",
+    name: "Multi-Entity Memory",
+    description: "Bot should track multiple people and their attributes without mixing them up",
+    tags: ["recall"],
+    turns: [
+      "My colleague Sarah works on the frontend team. She's an expert in React and has been with the company for 2 years.",
+      "My manager Tom handles the infrastructure team. He prefers Kubernetes and has 10 years of experience.",
+      "There's also Lisa from the data science team. She primarily uses Python and specializes in machine learning.",
+      "Mike is our DevOps lead. He's really good with Terraform and AWS, been here for 5 years.",
+      "We have a big product launch next quarter. Everyone's been working overtime.",
+      "What does Sarah do and what's her expertise?",
+      "I need to staff a new project that requires frontend work, infrastructure setup, and ML capabilities. Who from my team should I involve and what are their specialties?",
+      "Who has been at the company the longest — Sarah, Tom, Lisa, or Mike? And who's the newest?",
+    ],
+    evaluation_turns: [
+      { turn_index: 5, expected_memory_facts: ["Sarah is on the frontend team", "Sarah is an expert in React", "Sarah has been with company for 2 years"], evaluation_criteria: "Bot should correctly describe Sarah's role, React expertise, and tenure.", should_not_contain: [] },
+      { turn_index: 6, expected_memory_facts: ["Sarah does frontend with React", "Tom handles infrastructure with Kubernetes", "Lisa does data science and ML with Python"], evaluation_criteria: "Bot must correctly map: Sarah→frontend/React, Tom→infrastructure/Kubernetes, Lisa→data science/ML. Must NOT mix up attributes between people.", should_not_contain: [] },
+      { turn_index: 7, expected_memory_facts: ["Tom has 10 years experience (longest)", "Mike has 5 years (second)", "Sarah has 2 years (newest mentioned)"], evaluation_criteria: "Bot should correctly identify Tom as most experienced (10 years) and Sarah as newest (2 years). Lisa's tenure wasn't specified.", should_not_contain: [] },
+    ],
+  },
+  {
+    id: "implicit_memory_005",
+    name: "Implicit Memory Usage",
+    description: "Bot should proactively apply remembered constraints without explicit reminders",
+    tags: ["implicit"],
+    turns: [
+      "I'm allergic to shellfish and I'm vegetarian. I also try to avoid too much gluten when possible.",
+      "I'm training for a half marathon, so I need to eat healthy and get enough protein.",
+      "Can you suggest a high-protein dinner recipe for tonight?",
+      "What about a Thai-inspired dish? I love Thai food.",
+      "Can you suggest a meal prep plan for the week that supports my training?",
+      "What are some good stretches to do after a long run?",
+      "I'm meeting friends for dinner tomorrow. Can you suggest what type of cuisine would be good for someone with my dietary needs?",
+      "Wait, can you remind me what dietary restrictions I mentioned?",
+      "I want to try making sushi at home. Any suggestions?",
+    ],
+    evaluation_turns: [
+      { turn_index: 2, expected_memory_facts: ["User is vegetarian", "User is training for half marathon", "User needs high protein"], evaluation_criteria: "Recipe must be vegetarian AND high-protein. Should not suggest meat. Good options: tofu, tempeh, legumes, eggs if user eats them.", should_not_contain: ["chicken", "beef", "pork", "fish", "salmon", "shrimp"] },
+      { turn_index: 3, expected_memory_facts: ["User is vegetarian", "User is allergic to shellfish", "User avoids gluten when possible"], evaluation_criteria: "Thai recipe must be vegetarian AND shellfish-free. Should consider gluten (avoid heavy soy sauce, suggest alternatives).", should_not_contain: ["shrimp", "crab", "lobster", "prawn"] },
+      { turn_index: 4, expected_memory_facts: ["User is vegetarian", "User is allergic to shellfish", "User is training for half marathon", "User needs high protein"], evaluation_criteria: "Meal prep plan must accommodate ALL constraints: vegetarian, shellfish-free, support endurance training with adequate protein.", should_not_contain: [] },
+      { turn_index: 6, expected_memory_facts: ["User is vegetarian", "User is allergic to shellfish"], evaluation_criteria: "Restaurant recommendations should consider vegetarian options and shellfish allergy risks.", should_not_contain: [] },
+      { turn_index: 8, expected_memory_facts: ["User is vegetarian", "User is allergic to shellfish"], evaluation_criteria: "Sushi suggestions must be vegetarian (veggie rolls, cucumber rolls, avocado rolls) and avoid any shellfish. No crab, shrimp, or fish-based sushi.", should_not_contain: ["salmon", "tuna", "crab", "shrimp", "eel", "fish"] },
+    ],
+  },
+  {
+    id: "no_hallucination_006",
+    name: "No Memory Hallucination",
+    description: "Bot must NOT fabricate information that was never shared by the user",
+    tags: ["no-hallucination"],
+    turns: [
+      "Hi, I'd like to learn about machine learning.",
+      "What are the main types of machine learning?",
+      "Can you explain supervised learning in more detail?",
+      "What's my favorite programming language?",
+      "What's a good dataset to practice ML with?",
+      "What do I do for work?",
+      "What's my name?",
+      "How many years of programming experience do I have?",
+    ],
+    evaluation_turns: [
+      { turn_index: 3, expected_memory_facts: [], evaluation_criteria: "Bot should say it doesn't know user's favorite language — it was NEVER mentioned. Bot must NOT guess or fabricate.", should_not_contain: ["your favorite language is", "you mentioned you prefer", "you told me you like", "you said your favorite", "based on what you told me"] },
+      { turn_index: 5, expected_memory_facts: [], evaluation_criteria: "Bot should say it doesn't know user's occupation — never mentioned. Must NOT assume or invent a profession.", should_not_contain: ["you work as", "your job is", "you mentioned you're a", "you said you work"] },
+      { turn_index: 6, expected_memory_facts: [], evaluation_criteria: "Bot should say it doesn't know user's name — never provided. Must NOT make up a name.", should_not_contain: ["your name is", "you told me your name", "you mentioned your name"] },
+      { turn_index: 7, expected_memory_facts: [], evaluation_criteria: "Bot should say it doesn't know user's experience level — never mentioned. Must NOT guess.", should_not_contain: ["you have", "years of experience", "you mentioned you've been", "based on our conversation, you have"] },
+    ],
+  },
+  {
+    id: "contradiction_007",
+    name: "Contradiction Handling",
+    description: "Bot should notice and appropriately handle contradictory user statements",
+    tags: ["update"],
+    turns: [
+      "I don't have any programming experience at all. I'm a complete beginner.",
+      "What programming language would you recommend for a beginner like me?",
+      "I've never written a single line of code in my life.",
+      "Can you review my Python code for the REST API I built last week?",
+      "The API uses Flask and connects to a PostgreSQL database.",
+      "I've actually been using Python professionally for 3 years now.",
+      "Based on what you know about my experience level, what advanced topics should I learn next?",
+      "Do you notice anything inconsistent about what I've told you about my experience?",
+    ],
+    evaluation_turns: [
+      { turn_index: 3, expected_memory_facts: ["User previously said no programming experience", "User said they're a complete beginner", "User said never written code"], evaluation_criteria: "Bot should notice the apparent contradiction — user claimed no experience but asks for code review. Bot should politely clarify or ask about this inconsistency.", should_not_contain: [] },
+      { turn_index: 6, expected_memory_facts: ["User clarified having 3 years Python experience", "User built a REST API with Flask", "User works with PostgreSQL"], evaluation_criteria: "Bot should now use the UPDATED understanding (3 years experience) and suggest genuinely advanced topics appropriate for an experienced developer.", should_not_contain: [] },
+      { turn_index: 7, expected_memory_facts: ["Initial claim: no experience, complete beginner", "Later revealed: 3 years Python experience, built APIs"], evaluation_criteria: "Bot should acknowledge the inconsistency: user first said no experience, then revealed significant professional experience. Should handle this diplomatically.", should_not_contain: [] },
+    ],
+  },
+  {
+    id: "temporal_memory_008",
+    name: "Temporal and Event Memory",
+    description: "Bot should remember and correctly track time-based events and deadlines",
+    tags: ["temporal"],
+    turns: [
+      "I have a job interview at Google next Monday at 10 AM.",
+      "I'm also planning a vacation to Japan in December, specifically from December 15th to 30th.",
+      "My sister's wedding is on November 8th. I'm the best man.",
+      "I need to submit my project proposal by this Friday. It's really important.",
+      "Can you give me some tips for acing a technical interview?",
+      "What are common system design questions asked at big tech companies?",
+      "Can you summarize all the upcoming events and deadlines I mentioned?",
+      "When is my Japan trip and how long will I be there?",
+      "What role do I have in my sister's wedding?",
+      "What's my most urgent deadline?",
+    ],
+    evaluation_turns: [
+      { turn_index: 6, expected_memory_facts: ["Job interview at Google next Monday at 10 AM", "Japan vacation December 15-30", "Sister's wedding November 8th", "Project proposal due this Friday"], evaluation_criteria: "Bot should list ALL events: Google interview (Monday 10 AM), Japan trip (Dec 15-30), sister's wedding (Nov 8), and project deadline (Friday).", should_not_contain: [] },
+      { turn_index: 7, expected_memory_facts: ["Japan trip: December 15th to 30th", "Duration: 15 days"], evaluation_criteria: "Bot should state dates (December 15-30) and ideally mention it's about a 2-week trip.", should_not_contain: [] },
+      { turn_index: 8, expected_memory_facts: ["User is the best man at sister's wedding", "Wedding is on November 8th"], evaluation_criteria: "Bot should remember user is the best man at the wedding.", should_not_contain: [] },
+      { turn_index: 9, expected_memory_facts: ["Project proposal due this Friday", "User said it's really important"], evaluation_criteria: "Bot should identify the project proposal (this Friday) as most urgent since it's the nearest deadline.", should_not_contain: [] },
+    ],
+  },
+  {
+    id: "preference_evolution_009",
+    name: "Preference Evolution and Updates",
+    description: "Bot should track how user preferences change throughout conversation",
+    tags: ["update"],
+    turns: [
+      "I'm looking to buy a new laptop. I prefer Windows for gaming.",
+      "My budget is around $1500.",
+      "I need at least 16GB RAM and a dedicated GPU.",
+      "Actually, I've been thinking about switching to Mac for the better build quality. I might game less anyway.",
+      "I could stretch my budget to $2000 for the right machine.",
+      "I also need good battery life since I travel a lot for work.",
+      "What's the difference between M3 and M3 Pro chips?",
+      "Based on everything I've told you, what are my current laptop requirements?",
+      "Given my updated preferences and budget, what laptop would you recommend?",
+    ],
+    evaluation_turns: [
+      { turn_index: 7, expected_memory_facts: ["Switched preference from Windows to Mac", "Budget: up to $2000 (increased from $1500)", "Needs: 16GB+ RAM, dedicated GPU or equivalent", "Needs: good battery life", "Use case: travels for work, may game less"], evaluation_criteria: "Bot should summarize CURRENT requirements: Mac preference (not Windows), $2000 budget, 16GB+ RAM, good battery, travel use case.", should_not_contain: ["Windows gaming laptop", "your budget is $1500"] },
+      { turn_index: 8, expected_memory_facts: ["Mac preference", "Budget up to $2000", "Good battery life needed", "16GB+ RAM"], evaluation_criteria: "Recommendation should be a MacBook (likely MacBook Pro with M3) within $2000, emphasizing battery life and portability. Should NOT recommend Windows gaming laptop.", should_not_contain: ["Windows", "gaming laptop", "ASUS", "Razer"] },
+    ],
+  },
+  {
+    id: "project_context_010",
+    name: "Complex Project Context Memory",
+    description: "Bot should remember detailed project context and provide relevant assistance",
+    tags: ["recall"],
+    turns: [
+      "I'm building an e-commerce platform for handmade crafts. It's called 'ArtisanHub'.",
+      "We're using Next.js for the frontend, Python FastAPI for the backend, and PostgreSQL for the database.",
+      "Our team has 3 frontend devs, 2 backend devs, and 1 DevOps engineer.",
+      "We're struggling with implementing real-time inventory updates. Multiple users buying the same item causes race conditions.",
+      "We're hosted on AWS and using Redis for caching.",
+      "What's the best way to handle image optimization for product photos?",
+      "How should we structure our API endpoints for the shopping cart?",
+      "Can you remind me what our tech stack is for ArtisanHub?",
+      "Going back to our race condition problem with inventory — can you suggest a solution using our current infrastructure?",
+      "If we need to add real-time features, do we have the right team composition?",
+    ],
+    evaluation_turns: [
+      { turn_index: 7, expected_memory_facts: ["Project name: ArtisanHub", "Frontend: Next.js", "Backend: Python FastAPI", "Database: PostgreSQL", "Caching: Redis", "Hosting: AWS"], evaluation_criteria: "Bot should recall complete tech stack: Next.js, FastAPI, PostgreSQL, Redis, AWS.", should_not_contain: [] },
+      { turn_index: 8, expected_memory_facts: ["Problem: race conditions in inventory updates", "Multiple users buying same item", "Have Redis available", "Using PostgreSQL"], evaluation_criteria: "Solution should leverage existing stack (Redis for distributed locks, PostgreSQL transactions). Should address the specific race condition problem.", should_not_contain: [] },
+      { turn_index: 9, expected_memory_facts: ["3 frontend devs", "2 backend devs", "1 DevOps engineer", "Using Next.js and FastAPI"], evaluation_criteria: "Bot should analyze team composition (3 FE, 2 BE, 1 DevOps) against real-time feature requirements.", should_not_contain: [] },
+    ],
+  },
+  {
+    id: "health_context_011",
+    name: "Personal Health Context Memory",
+    description: "Bot should remember health constraints and apply them to all relevant advice",
+    tags: ["implicit"],
+    turns: [
+      "I have Type 2 diabetes and high blood pressure. I'm managing both with medication and lifestyle.",
+      "I also have a bad knee from an old injury, so high-impact exercises are out.",
+      "I want to lose about 20 pounds over the next 6 months.",
+      "Right now I walk about 30 minutes a day and try to avoid sugar.",
+      "What type of cardio would be good for me?",
+      "What should I eat for breakfast?",
+      "What's a good book on developing healthy habits?",
+      "Can you summarize my health situation and goals?",
+      "Create a simple daily routine that considers all my health factors and goals.",
+    ],
+    evaluation_turns: [
+      { turn_index: 4, expected_memory_facts: ["User has bad knee", "Cannot do high-impact exercises", "Currently walks 30 min/day"], evaluation_criteria: "Cardio suggestions must be low-impact (swimming, cycling, elliptical). Should NOT suggest running, jumping, HIIT with jumps.", should_not_contain: ["running", "jogging", "jumping", "high-impact"] },
+      { turn_index: 5, expected_memory_facts: ["User has Type 2 diabetes", "User has high blood pressure", "User avoids sugar", "User wants to lose weight"], evaluation_criteria: "Breakfast should be diabetic-friendly (low glycemic), heart-healthy (low sodium), and support weight loss.", should_not_contain: ["pancakes", "sugary cereal", "fruit juice", "bacon"] },
+      { turn_index: 7, expected_memory_facts: ["Type 2 diabetes", "High blood pressure", "Bad knee", "Goal: lose 20 pounds in 6 months", "Currently walks 30 min/day"], evaluation_criteria: "Summary should include all health conditions (diabetes, high BP, knee), current activity, and weight loss goal.", should_not_contain: [] },
+      { turn_index: 8, expected_memory_facts: ["Type 2 diabetes", "High blood pressure", "Bad knee - no high impact", "Weight loss goal", "Currently walks 30 min"], evaluation_criteria: "Routine must accommodate ALL constraints: diabetic-friendly meals, low sodium, low-impact exercise, realistic for weight loss.", should_not_contain: [] },
+    ],
+  },
+  {
+    id: "learning_journey_012",
+    name: "Learning Journey Memory",
+    description: "Bot should remember learning progress and build on previously covered topics",
+    tags: ["recall"],
+    turns: [
+      "I want to learn data science. I'm a complete beginner but I know some Python basics.",
+      "Can you explain what pandas is and how it's used?",
+      "Great, I practiced with pandas last night. I can now load CSVs and do basic filtering.",
+      "What should I learn next?",
+      "Can you explain numpy arrays?",
+      "I've spent the weekend learning numpy. I understand arrays and basic operations now.",
+      "Quick question — how much do data scientists typically earn?",
+      "What have I learned so far in my data science journey?",
+      "Based on my progress, what's the next logical topic to learn?",
+      "Can you suggest a project that uses the skills I've already learned?",
+    ],
+    evaluation_turns: [
+      { turn_index: 7, expected_memory_facts: ["Knows Python basics", "Learned pandas: loading CSVs, basic filtering", "Learned numpy: arrays, basic operations"], evaluation_criteria: "Bot should recall learning progression: started with Python basics, learned pandas (CSVs, filtering), then numpy (arrays, operations).", should_not_contain: [] },
+      { turn_index: 8, expected_memory_facts: ["User knows pandas and numpy", "User is a beginner data science learner", "User started with Python basics"], evaluation_criteria: "Next topic should build on pandas+numpy (e.g., data visualization with matplotlib, or intro to scikit-learn). Should not repeat what was learned.", should_not_contain: ["learn pandas", "start with numpy", "begin with Python basics"] },
+      { turn_index: 9, expected_memory_facts: ["User knows pandas (CSV loading, filtering)", "User knows numpy (arrays, basic operations)", "User is beginner level"], evaluation_criteria: "Project should utilize pandas and numpy skills (e.g., data analysis project with CSV data). Should be appropriate for beginner level.", should_not_contain: [] },
+    ],
+  },
+];
+
+/* ── STATE ──────────────────────────────────────────────────────────── */
+let activeFilter  = 'all';
+let _keyHandler   = null;
+let _toastTimer   = null;
+
+/* ── FILTERS ────────────────────────────────────────────────────────── */
+const FILTERS = [
+    { id: 'all',             label: 'All' },
+    { id: 'recall',          label: 'Recall' },
+    { id: 'update',          label: 'Update / Correction' },
+    { id: 'implicit',        label: 'Implicit Usage' },
+    { id: 'no-hallucination',label: 'No Hallucination' },
+    { id: 'temporal',        label: 'Temporal' },
+];
+
+const TAG_META = {
+    'recall':           { label: '🧠 Recall',          cls: 'tag-turns' },
+    'update':           { label: '✏️ Update',          cls: 'tag-update' },
+    'implicit':         { label: '🔒 Implicit',        cls: 'tag-implicit' },
+    'no-hallucination': { label: '🚫 No Hallucination',cls: 'tag-no-halluc' },
+    'temporal':         { label: '📅 Temporal',        cls: 'tag-temporal' },
+};
+
+function matchesFilter(s, f) {
+    if (f === 'all') return true;
+    return s.tags.includes(f);
+}
+
+/* ── INIT ───────────────────────────────────────────────────────────── */
+window.addEventListener('load', () => {
+    buildFilterPills();
+    renderList();
+    router();
+});
+window.addEventListener('hashchange', router);
+
+/* ── ROUTER ─────────────────────────────────────────────────────────── */
+function router() {
+    const hash  = location.hash.slice(1) || 'list';
+    const parts = hash.split('/');
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    if (parts[0] === 'run' && parts[1]) {
+        document.getElementById('runner-view').classList.add('active');
+        renderRunner(parts[1], parseInt(parts[2]) || 0);
+    } else {
+        document.getElementById('list-view').classList.add('active');
+        renderList();
+    }
+}
+
+function goList() {
+    removeKeyboardHandler();
+    location.hash = 'list';
+}
+
+/* ── FILTER PILLS ───────────────────────────────────────────────────── */
+function buildFilterPills() {
+    const pills = FILTERS.map(f => {
+        const count = f.id === 'all'
+            ? SCENARIOS.length
+            : SCENARIOS.filter(s => matchesFilter(s, f.id)).length;
+        return `<button class="filter-pill${f.id === activeFilter ? ' active' : ''}"
+                        onclick="setFilter('${f.id}')">
+                    ${f.label} <span style="opacity:0.65">${count}</span>
+                </button>`;
+    }).join('');
+    document.getElementById('filter-pills').innerHTML = pills;
+}
+
+function setFilter(id) {
+    activeFilter = id;
+    buildFilterPills();
+    renderList();
+}
+
+/* ── LIST VIEW ──────────────────────────────────────────────────────── */
+function renderList() {
+    const filtered = SCENARIOS.filter(s => matchesFilter(s, activeFilter));
+    const totalEvals = SCENARIOS.reduce((n, s) => n + s.evaluation_turns.length, 0);
+    document.getElementById('list-stats').textContent =
+        `${SCENARIOS.length} scenarios · ${totalEvals} evaluation turns`;
+
+    if (!filtered.length) {
+        document.getElementById('cases-list').innerHTML =
+            `<div class="empty-state"><div class="icon">🔍</div><p>No scenarios for this filter.</p></div>`;
+        return;
+    }
+
+    document.getElementById('cases-list').innerHTML = filtered.map(s => {
+        const evalTurns = s.evaluation_turns.length;
+        const hasNoContain = s.evaluation_turns.some(e => e.should_not_contain?.length > 0);
+        const tags = [
+            `<span class="meta-tag tag-turns">📋 ${s.turns.length} turns</span>`,
+            `<span class="meta-tag tag-eval">📊 ${evalTurns} eval turn${evalTurns > 1 ? 's' : ''}</span>`,
+            ...s.tags.map(t => {
+                const m = TAG_META[t];
+                return m ? `<span class="meta-tag ${m.cls}">${m.label}</span>` : '';
+            }),
+            hasNoContain ? `<span class="meta-tag tag-no-halluc">⛔ should_not_contain</span>` : '',
+        ].filter(Boolean);
+
+        return `
+        <div class="case-card" onclick="location.hash='run/${s.id}/0'">
+            <div class="case-card-header">
+                <span class="case-id-badge">${s.id}</span>
+                <button class="run-btn"
+                        onclick="event.stopPropagation(); location.hash='run/${s.id}/0'">
+                    ▶ Run
+                </button>
+            </div>
+            <div class="case-name">${escHtml(s.name)}</div>
+            <div class="case-desc">${escHtml(s.description)}</div>
+            <div class="case-meta">${tags.join('')}</div>
+        </div>`;
+    }).join('');
+}
+
+/* ── TEST RUNNER ────────────────────────────────────────────────────── */
+function renderRunner(scenarioId, step) {
+    const s = SCENARIOS.find(x => x.id === scenarioId);
+    if (!s) { goList(); return; }
+
+    const total    = s.turns.length;
+    const pct      = Math.round(((step + 1) / total) * 100);
+    const isLast   = step === total - 1;
+    const evalSpec = s.evaluation_turns.find(e => e.turn_index === step);
+    const isEval   = !!evalSpec;
+
+    /* Header */
+    document.getElementById('rn-case-name').textContent    = s.name;
+    document.getElementById('rn-step-counter').textContent = `${step + 1} / ${total}`;
+    document.getElementById('rn-progress').style.width     = pct + '%';
+
+    /* Message card */
+    let evalDetailsHtml = '';
+    if (isEval) {
+        const factsHtml = evalSpec.expected_memory_facts.length
+            ? `<div class="eval-section-label green">✅ Expected memory facts</div>
+               <ul class="facts-list">${evalSpec.expected_memory_facts.map(f => `<li>${escHtml(f)}</li>`).join('')}</ul>`
+            : '';
+        const noContainHtml = evalSpec.should_not_contain?.length
+            ? `<div class="eval-section-label red">⛔ Bot should NOT contain</div>
+               <ul class="no-contain-list">${evalSpec.should_not_contain.map(t => `<li>${escHtml(t)}</li>`).join('')}</ul>`
+            : '';
+        evalDetailsHtml = `
+        <div class="eval-details">
+            <div class="eval-section-label purple">📝 Evaluation criteria</div>
+            <div class="eval-criteria">${escHtml(evalSpec.evaluation_criteria)}</div>
+            ${factsHtml}
+            ${noContainHtml}
+        </div>`;
+    }
+
+    const cardHtml = isEval
+        ? `<div class="message-card is-eval">
+               <div class="eval-badge">📊 Eval Turn ${step}</div>
+               <div class="message-text">${escHtml(s.turns[step])}</div>
+               ${evalDetailsHtml}
+           </div>`
+        : `<div class="message-card">
+               <div class="turn-label">Turn ${step}</div>
+               <div class="message-text">${escHtml(s.turns[step])}</div>
+           </div>`;
+
+    /* Copy button */
+    const copyBtnClass = `copy-main-btn${isEval ? ' is-eval-btn' : ''}`;
+    const copyBtnLabel = isEval ? '📋&nbsp; Copy Eval Turn' : '📋&nbsp; Copy Turn';
+    const copyHtml = `
+    <div class="copy-section">
+        <button class="${copyBtnClass}" id="copy-btn"
+                data-scenarioid="${escHtml(scenarioId)}" data-step="${step}"
+                onclick="handleCopy(this)">
+            ${copyBtnLabel}
+        </button>
+        <div class="keyboard-hint">Space / Enter to copy &nbsp;·&nbsp; ← → to navigate</div>
+    </div>`;
+
+    /* Nav buttons */
+    const prevDisabled = step === 0 ? 'disabled' : '';
+    const navHtml = isLast
+        ? `<button class="nav-btn" ${prevDisabled}
+                   onclick="goStep('${scenarioId}', ${step - 1})">← Prev</button>
+           <button class="nav-btn restart-btn"
+                   onclick="goStep('${scenarioId}', 0)">🔁 Restart</button>`
+        : `<button class="nav-btn" ${prevDisabled}
+                   onclick="goStep('${scenarioId}', ${step - 1})">← Prev</button>
+           <button class="nav-btn"
+                   onclick="goStep('${scenarioId}', ${step + 1})">Next →</button>`;
+
+    /* Eval summary panel — shown on last turn */
+    let evalSummaryHtml = '';
+    if (isLast && s.evaluation_turns.length) {
+        const items = s.evaluation_turns.map(e => `
+            <div class="eval-summary-item">
+                <div class="eval-summary-turn">📊 Eval at Turn ${e.turn_index}</div>
+                <div class="eval-summary-criteria">${escHtml(e.evaluation_criteria)}</div>
+            </div>`).join('');
+        evalSummaryHtml = `
+        <div class="panel-section">
+            <div class="panel-card">
+                <div class="panel-header" onclick="togglePanel('eval-sum-body','eval-sum-chev')">
+                    <span>🎯 All evaluation criteria (${s.evaluation_turns.length})</span>
+                    <span class="panel-chevron open" id="eval-sum-chev">▼</span>
+                </div>
+                <div class="panel-body open" id="eval-sum-body">${items}</div>
+            </div>
+        </div>`;
+    }
+
+    document.getElementById('runner-body').innerHTML = `
+        ${cardHtml}
+        ${copyHtml}
+        <div class="nav-section">${navHtml}</div>
+        ${evalSummaryHtml}
+        <div style="height:40px"></div>
+    `;
+
+    setupKeyboard(scenarioId, step, total);
+}
+
+function goStep(scenarioId, step) {
+    history.replaceState(null, '', `#run/${scenarioId}/${step}`);
+    renderRunner(scenarioId, step);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function togglePanel(bodyId, chevId) {
+    const body = document.getElementById(bodyId);
+    const chev = document.getElementById(chevId);
+    if (!body) return;
+    const isOpen = body.classList.toggle('open');
+    chev.classList.toggle('open', isOpen);
+}
+
+/* ── KEYBOARD NAV ───────────────────────────────────────────────────── */
+function setupKeyboard(scenarioId, step, total) {
+    removeKeyboardHandler();
+    _keyHandler = (e) => {
+        if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (step < total - 1) goStep(scenarioId, step + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (step > 0) goStep(scenarioId, step - 1);
+        } else if (e.key === ' ' || e.key === 'Enter') {
+            e.preventDefault();
+            const btn = document.getElementById('copy-btn');
+            if (btn && !btn.disabled) handleCopy(btn);
+        }
+    };
+    document.addEventListener('keydown', _keyHandler);
+}
+
+function removeKeyboardHandler() {
+    if (_keyHandler) {
+        document.removeEventListener('keydown', _keyHandler);
+        _keyHandler = null;
+    }
+}
+
+/* ── CLIPBOARD ──────────────────────────────────────────────────────── */
+function getTextForBtn(btn) {
+    const scenarioId = btn.getAttribute('data-scenarioid');
+    const step       = parseInt(btn.getAttribute('data-step'), 10);
+    const s = SCENARIOS.find(x => x.id === scenarioId);
+    return s ? (s.turns[step] || '') : '';
+}
+
+function handleCopy(btn) {
+    const text = getTextForBtn(btn);
+    if (!text) return;
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text)
+            .then(() => showCopiedFeedback(btn))
+            .catch(() => fallbackCopy(text, btn));
+        return;
+    }
+    fallbackCopy(text, btn);
+}
+
+function fallbackCopy(text, btn) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;left:-9999px;top:50%;opacity:0;pointer-events:none;';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length);
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (_) {}
+    document.body.removeChild(ta);
+    if (ok) showCopiedFeedback(btn);
+    else showManualCopyModal(text);
+}
+
+function showCopiedFeedback(btn) {
+    if (!btn) return;
+    const isEval = btn.classList.contains('is-eval-btn');
+    btn.innerHTML = '✓&nbsp; Copied!';
+    btn.classList.add('copied');
+    btn.disabled  = true;
+    showToast('Copied to clipboard!');
+    setTimeout(() => {
+        btn.innerHTML = isEval ? '📋&nbsp; Copy Eval Turn' : '📋&nbsp; Copy Turn';
+        btn.classList.remove('copied');
+        btn.disabled  = false;
+    }, 2000);
+}
+
+/* ── MANUAL COPY MODAL ──────────────────────────────────────────────── */
+function showManualCopyModal(text) {
+    const ta = document.getElementById('manual-text');
+    ta.value = text;
+    document.getElementById('manual-modal').classList.add('show');
+    setTimeout(() => { ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length); }, 200);
+}
+function closeManualModal() {
+    document.getElementById('manual-modal').classList.remove('show');
+}
+function handleOverlayClick(e) {
+    if (e.target === document.getElementById('manual-modal')) closeManualModal();
+}
+
+/* ── TOAST ──────────────────────────────────────────────────────────── */
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+/* ── UTILS ──────────────────────────────────────────────────────────── */
+function escHtml(s) {
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+</script>
+</body>
+</html>

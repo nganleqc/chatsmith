@@ -1,0 +1,2670 @@
+{
+  "dataset_name": "golden_dataset_chatsmith_conv_02",
+  "version": "1.0",
+  "description": "Theory-of-mind / false-belief dataset for evaluating Chatsmith conversation quality. Each case requires the model to reason about what a character *believes* based on their observation history within the conversation.",
+  "source_dataset": "manual",
+  "total_cases": 50,
+  "generation_model": "claude-sonnet-4-6",
+  "cases": [
+    {
+      "id": "ORC-TOM-001",
+      "scenario_label": "en_theory_of_mind__false_belief__object_location__jacob_skirt",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "theory_of_mind",
+        "false_belief",
+        "object_location"
+      ],
+      "user_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "conversation_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "request_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "original_query": "The TV program has ended for today. Where will Jacob look for the skirt?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "pantry"
+      },
+      "expected_facts": [
+        "pantry"
+      ],
+      "evaluation_notes": "Theory-of-mind false-belief task. The skirt was announced to be in the pantry while Jacob was in the attic. Jacob then exited the attic. After Jacob left, Ava moved the skirt to the bottle — an event Jacob did not witness. Therefore Jacob's last known location for the skirt is the pantry, and that is where he will look. The model must track each character's observation window to distinguish what Jacob *believes* from the actual current state.",
+      "conversation_history": [
+        "They are broadcasting a program on TV. I will keep you updated on what happens. while updating status, you only confirm as noted. and at the end, I will ask you a question about what happened on the show. \nProvide your answer in JSON form with a single word as answer, like this: {\"answer\": \"word\"}\nBe as specific as possible. Okay?",
+        "(On TV) Ava entered the attic.\n",
+        "(On TV) Jacob entered the attic.\n",
+        "(On TV) The skirt is in the pantry.\n",
+        "(On TV) Jacob exited the attic.\n",
+        "(On TV) Ava moved the skirt to the bottle.\n",
+        "(On TV) Jacob dislikes the cucumber\n",
+        "(On TV) Jacob entered the staircase.\n"
+      ]
+    },
+    {
+      "id": "ORC-VI-004",
+      "scenario_label": "vi_memory__retrieve_short_term__meeting_decision_recap",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [],
+      "user_id": "84813520-c79c-4b43-9ce2-fbf50059335e",
+      "conversation_id": "810c7155-5329-4a0a-872d-0923ca4ad826",
+      "request_id": "dcd7dcaa-5bdd-4d49-ad7e-759ffa935d6f",
+      "original_query": "Tóm tắt lại quyết định cuối cùng của team về KPI tháng này giúp mình.",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ]
+      },
+      "expected_facts": [
+        "1500",
+        "3.2%",
+        "180k",
+        "ngày 15"
+      ],
+      "evaluation_notes": "Yêu cầu recap quyết định vừa thảo luận trong mạch hội thoại hiện tại",
+      "conversation_history": [
+        "Mình cần chuẩn bị biên bản cho họp team marketing.",
+        "Team đang có 3 mục tiêu: tăng lead, tăng conversion, và giảm CPA.",
+        "Lead tháng trước là 1200.",
+        "Conversion từ lead sang đơn hiện là 2.6%.",
+        "CPA trung bình đang ở mức 210k.",
+        "Có đề xuất chạy thêm kênh TikTok Ads.",
+        "Nhưng team lo ngân sách sẽ bị dàn trải.",
+        "Mọi người thống nhất ưu tiên giữ CPA dưới 180k trước.",
+        "Lead mục tiêu tháng này chốt là 1500.",
+        "Conversion mục tiêu nâng lên 3.2%.",
+        "Deadline review giữa tháng là ngày 15.",
+        "Nhớ ghi rõ ai chịu trách nhiệm từng kênh nhé."
+      ]
+    },
+    {
+      "id": "ORC-SPN-001",
+      "scenario_label": "en_spatial_navigation__waypoint_sequence__hometown_map",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "spatial_reasoning",
+        "sequential_recall",
+        "direction_following"
+      ],
+      "user_id": "d4e5f6a7-b8c9-0123-defa-456789012345",
+      "conversation_id": "e5f6a7b8-c9d0-1234-efab-567890123456",
+      "request_id": "f6a7b8c9-d0e1-2345-fabc-678901234567",
+      "original_query": "Given the points of interest that I have told you about, how would I travel from Statue of Founder to Town Hall following those interesting points?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "From Statue of Founder, go 2km North to Hospital.\nFrom Hospital, go 1km North to Playground.\nFrom Playground, go 3km South to Library.\nFrom Library, go 1km North to Park.\nFrom Park, go 1km South to High Street.\nFrom High Street, go 1km West to Town Hall."
+      },
+      "expected_facts": [
+        "Hospital",
+        "2 KM North",
+        "Playground",
+        "1 KM North",
+        "Library",
+        "3 KM South",
+        "Park",
+        "1 KM North",
+        "High Street",
+        "1 KM South",
+        "Town Hall",
+        "1 KM West"
+      ],
+      "evaluation_notes": "Spatial navigation task requiring sequential recall of all waypoints and their directions/distances from conversation history. The model must reconstruct the full route in order: Statue of Founder → Hospital → Playground → Library → Park → High Street → Town Hall. Each hop's direction and distance must be recalled accurately from short_term memory.",
+      "conversation_history": [
+        "There is a Statue of Founder in the center of my hometown.",
+        "Hospital is a location in my home town, it is 2 KM, North from Statue of Founder.",
+        "I visited Playground, which is 1 KM, North from Hospital.",
+        "I visited Library, which is 3 KM, South from Playground.",
+        "Park is a location in my home town, it is 1 KM, North from Library.",
+        "I visited High Street, which is 1 KM, South from Park.",
+        "And finally there is Town Hall which is West from High Street and 1 KM from it."
+      ]
+    },
+    {
+      "id": "ORC-NTR-001",
+      "scenario_label": "en_sequential_recall__name_tracking__all_given_names",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "sequential_recall",
+        "name_tracking",
+        "cumulative_memory"
+      ],
+      "user_id": "a7b8c9d0-e1f2-3456-abcd-789012345678",
+      "conversation_id": "b8c9d0e1-f2a3-4567-bcde-890123456789",
+      "request_id": "c9d0e1f2-a3b4-5678-cdef-901234567890",
+      "original_query": "What have been all of the names that I have given you?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Gary, Mitchel, Melvin, Michael, Conal"
+      },
+      "expected_facts": [
+        "Gary",
+        "Mitchel",
+        "Melvin",
+        "Michael",
+        "Conal"
+      ],
+      "evaluation_notes": "Cumulative sequential recall task. The user assigned five different names across five turns. The model must recall all names in order — not just the most recent one. Tests that the model does not overwrite earlier entries with later ones but retains the full history of name assignments from short_term memory.",
+      "conversation_history": [
+        "Refer to me as Gary.",
+        "Mitchel is what I am called.",
+        "My name is Melvin.",
+        "My name has changed to Michael.",
+        "Start calling me by my name which is Conal."
+      ]
+    },
+    {
+      "id": "ORC-ENT-001",
+      "scenario_label": "en_entity_disambiguation__colour_preference__friend_vs_user",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "entity_disambiguation",
+        "pronoun_tracking",
+        "distractor_resistance"
+      ],
+      "user_id": "e1f2a3b4-c5d6-7890-efab-234567890123",
+      "conversation_id": "f2a3b4c5-d6e7-8901-fabc-345678901234",
+      "request_id": "a3b4c5d6-e7f8-9012-abcd-456789012345",
+      "original_query": "What is my friend's favourite color?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Purple"
+      },
+      "expected_facts": [
+        "Purple"
+      ],
+      "evaluation_notes": "Entity disambiguation task. The friend's favourite colour (Purple) is established in turn 1. Subsequent turns introduce the user's own colour preferences (Magenta, then Cyan) and unrelated distractors — these must NOT overwrite the friend's stored attribute. The model must maintain separate entity slots for 'friend' vs 'user' and resist being misled by later colour mentions. Common failure: model returns Cyan because it is the most recent colour mentioned, confusing subject entities.",
+      "conversation_history": [
+        "I'm designing a website for my friend. The name of his favourite colour is Purple.",
+        "My favourite color could be described as Magenta.",
+        "he didn't like the theme with Magenta tone",
+        "which color do you prefer?",
+        "his website is following best practice with good system design",
+        "My favourite colour could be described as Cyan."
+      ]
+    },
+    {
+      "id": "ORC-TON-001",
+      "scenario_label": "en_long_term_preference__tone_recall__email_drafting",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "preference_recall",
+        "distractor_resistance",
+        "long_context"
+      ],
+      "user_id": "b4c5d6e7-f8a9-0123-bcde-567890123456",
+      "conversation_id": "c5d6e7f8-a9b0-1234-cdef-678901234567",
+      "request_id": "d6e7f8a9-b0c1-2345-defa-789012345678",
+      "original_query": "Draft an email in the tone I usually prefer.",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "A drafted email that is friendly and informal in tone, while retaining warmth rather than being overly stiff or formal."
+      },
+      "expected_facts": [
+        "friendly",
+        "informal",
+        "warmth"
+      ],
+      "evaluation_notes": "Long-term preference recall under heavy distraction. The user's tone preference is stated in turn 2 ('friendly and informal') and refined in turn 4 ('formal without losing warmth'). The subsequent 8 turns cover unrelated topics (online courses, creative writing, public speaking, productivity tools) — these are deliberate distractors. The model must retrieve the tone preference stated early in the conversation and ignore the off-topic content. A failing model either loses the preference under context pressure or drafts a generically formal email.",
+      "conversation_history": [
+        "I've been thinking about changing the tone of my emails. What do you think is a good professional tone?",
+        "I generally prefer a more friendly and informal tone, but I wonder if that's always appropriate.",
+        "What are some tips for maintaining a consistent tone in professional emails?",
+        "Sometimes I feel like my emails come off too casual. How can I make them sound more formal without losing warmth?",
+        "Are there any templates you recommend for drafting emails in different tones?",
+        "Switching topics, I've been meaning to learn a new skill. Any suggestions for online courses?",
+        "I really enjoy creative writing in my free time. Do you know any platforms where I can publish my work?",
+        "I've read that improving public speaking can help with writing skills too. Would you agree?",
+        "How can I incorporate more of my personal interests, like writing, into my professional development?",
+        "I'm trying to balance my creative hobbies with my career goals. Any advice on maintaining that balance?",
+        "Do you have any tips for staying motivated while learning something new?",
+        "I've been exploring different productivity tools. Which ones do you think are best for tracking personal goals?"
+      ]
+    },
+    {
+      "id": "ORC-SKL-001",
+      "scenario_label": "en_long_term_profile__technical_skills_recall__scattered_signals",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "profile_building",
+        "scattered_signals",
+        "distractor_resistance",
+        "long_context"
+      ],
+      "user_id": "c5d6e7f8-a9b0-2345-cdef-678901234567",
+      "conversation_id": "d6e7f8a9-b0c1-3456-defa-789012345678",
+      "request_id": "e7f8a9b0-c1d2-4567-efab-890123456789",
+      "original_query": "What are my technical skills?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Based on what you've shared, your technical skills include troubleshooting tech issues, computer repair/tech support, and problem-solving."
+      },
+      "expected_facts": [
+        "troubleshooting",
+        "tech support",
+        "problem-solving"
+      ],
+      "evaluation_notes": "Profile-building recall under heavy distraction. Technical skill signals are scattered across turns 3 ('knack for troubleshooting tech issues'), 5 ('helped a friend fix their computer'), and 6 ('problem-solving skills'). Turns 8–15 are entirely about work-life balance and productivity — 9 consecutive off-topic turns that create context pressure. The model must aggregate the three separate skill signals stated earlier and ignore the unrelated content. A failing model either returns only the most recently mentioned skill or returns nothing because the topic shifted away from tech.",
+      "conversation_history": [
+        "I've been thinking about learning a new programming language. What do you think about Python?",
+        "Is there a good online course you would recommend for improving my coding skills?",
+        "I've always had a knack for troubleshooting tech issues. Do you think that's a useful skill?",
+        "What are some good projects to work on if I want to enhance my technical abilities?",
+        "I recently helped a friend fix their computer, and it was pretty rewarding. Any tips on making a career out of tech support?",
+        "How can I leverage my problem-solving skills in the tech industry?",
+        "Do you know any communities where I can connect with other tech enthusiasts?",
+        "I've been trying to balance work and personal life better. Any tips on managing my time effectively?",
+        "How can I set realistic goals for my personal development?",
+        "What are some good habits to build for better productivity?",
+        "I often find myself getting distracted while working from home. What are some strategies to stay focused?",
+        "I'd like to start reading more books. Do you have any recommendations on productivity or self-improvement?",
+        "How important is it to have a dedicated workspace at home?",
+        "I'm considering setting a weekly review for my goals. Do you think that could help?",
+        "What are some ways to track progress effectively in personal projects?"
+      ]
+    },
+    {
+      "id": "ORC-HTL-001",
+      "scenario_label": "vi_short_term__hotel_room_count__family_composition_recall",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "arithmetic_reasoning",
+        "family_composition",
+        "distractor_resistance"
+      ],
+      "user_id": "f8a9b0c1-d2e3-4567-fabc-901234567890",
+      "conversation_id": "a9b0c1d2-e3f4-5678-abcd-012345678901",
+      "request_id": "b0c1d2e3-f4a5-6789-bcde-123456789012",
+      "original_query": "how many room i need to book hotel",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "You have 4 adults and 2 young children (aged 2 and 4). Since the children are very young, they can share rooms with parents. You would typically need 2 rooms — one for 2 adults with one child each."
+      },
+      "expected_facts": [
+        "4 adults",
+        "2 children",
+        "2 years old",
+        "4 years old",
+        "2 rooms"
+      ],
+      "evaluation_notes": "Short-term recall with arithmetic reasoning. Family composition is established in turn 2 (4 adults, 2 children aged 2 and 4). Turns 3–7 are destination-exploration distractors (Sapa, weather, Dalat, Da Nang, Hanoi). The query requires the model to retrieve the headcount from memory and apply standard hotel booking logic: children aged 2 and 4 share rooms with parents, so 2 rooms suffice. A failing model either loses the family size under context pressure or ignores child ages and over-counts rooms needed.",
+      "conversation_history": [
+        "I am living in VietNam. I am planning a holiday trips for my family in next month. do you have any suggestion?",
+        "my budget is around 2.000.000 VND per person. there are 4 adults person and 2 children (2 years old and 4 years old)",
+        "my parent want to go to Sapa but my children like sea, any suggestion",
+        "what is the weather when we go?",
+        "how about Dalat?",
+        "how about DaNang",
+        "how about HaNoi"
+      ]
+    },
+    {
+      "id": "SCN-001-T06",
+      "scenario_label": "en_basic-recall-001__eval_turn_06",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "basic_recall",
+        "personal_info",
+        "distractor_resistance"
+      ],
+      "user_id": "412fd307-8f8d-4ca7-b22d-8cfa9e079b8e",
+      "conversation_id": "f98d1423-c53e-4587-88b3-c316fbb5f1b7",
+      "request_id": "99a664a4-b8f9-4a7f-9101-5667597bcc47",
+      "original_query": "Going back to our intro — what's my name and what do I do for work?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should correctly state name is Alex, occupation is software engineer, and workplace is a fintech startup."
+      },
+      "expected_facts": [
+        "Alex",
+        "software engineer",
+        "fintech startup"
+      ],
+      "evaluation_notes": "[Basic Personal Info Recall] Bot should correctly state name is Alex, occupation is software engineer, and workplace is a fintech startup.",
+      "conversation_history": [
+        "Hi, my name is Alex and I'm a software engineer at a fintech startup.",
+        "I prefer Python over Java for backend development. I've been using it for about 5 years now.",
+        "My team is small, just 4 developers. We're building a payment processing platform.",
+        "Outside of work, I enjoy playing chess and hiking on weekends.",
+        "By the way, can you explain the difference between REST and GraphQL?",
+        "What are some best practices for API versioning?"
+      ]
+    },
+    {
+      "id": "SCN-001-T07",
+      "scenario_label": "en_basic-recall-001__eval_turn_07",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "basic_recall",
+        "personal_info",
+        "distractor_resistance"
+      ],
+      "user_id": "d39b45b9-18f1-4b2d-b931-9ab1dff251ee",
+      "conversation_id": "c8644fda-c429-4b8d-86f3-488190553357",
+      "request_id": "81e5d8ae-5039-4f8c-934e-806e8afce433",
+      "original_query": "And what kind of project is my team working on? How big is the team?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should recall the payment processing project and team size of 4 developers."
+      },
+      "expected_facts": [
+        "payment processing platform",
+        "4 developers"
+      ],
+      "evaluation_notes": "[Basic Personal Info Recall] Bot should recall the payment processing project and team size of 4 developers.",
+      "conversation_history": [
+        "Hi, my name is Alex and I'm a software engineer at a fintech startup.",
+        "I prefer Python over Java for backend development. I've been using it for about 5 years now.",
+        "My team is small, just 4 developers. We're building a payment processing platform.",
+        "Outside of work, I enjoy playing chess and hiking on weekends.",
+        "By the way, can you explain the difference between REST and GraphQL?",
+        "What are some best practices for API versioning?",
+        "Going back to our intro — what's my name and what do I do for work?"
+      ]
+    },
+    {
+      "id": "SCN-001-T08",
+      "scenario_label": "en_basic-recall-001__eval_turn_08",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "basic_recall",
+        "personal_info",
+        "distractor_resistance"
+      ],
+      "user_id": "ede7aea9-1a5a-419c-9bad-99520c488d7e",
+      "conversation_id": "38f3fc22-2252-4bf1-8db2-92018ff3cedc",
+      "request_id": "7b6208ad-b742-465e-be83-a1202aa05476",
+      "original_query": "Can you recommend me a web framework based on my language preference?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should recommend Python frameworks (Django, FastAPI, Flask) based on user's Python preference."
+      },
+      "expected_facts": [
+        "Python",
+        "5 years"
+      ],
+      "evaluation_notes": "[Basic Personal Info Recall] Bot should recommend Python frameworks (Django, FastAPI, Flask) based on user's Python preference.",
+      "conversation_history": [
+        "Hi, my name is Alex and I'm a software engineer at a fintech startup.",
+        "I prefer Python over Java for backend development. I've been using it for about 5 years now.",
+        "My team is small, just 4 developers. We're building a payment processing platform.",
+        "Outside of work, I enjoy playing chess and hiking on weekends.",
+        "By the way, can you explain the difference between REST and GraphQL?",
+        "What are some best practices for API versioning?",
+        "Going back to our intro — what's my name and what do I do for work?",
+        "And what kind of project is my team working on? How big is the team?"
+      ]
+    },
+    {
+      "id": "SCN-001-T09",
+      "scenario_label": "en_basic-recall-001__eval_turn_09",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "basic_recall",
+        "personal_info",
+        "distractor_resistance"
+      ],
+      "user_id": "75d97f41-774b-47d2-bc71-902f11dfd288",
+      "conversation_id": "591263ac-ba53-4814-98e2-c60caad4d69e",
+      "request_id": "bee6872c-aa74-4887-a9bd-e545406869d7",
+      "original_query": "What hobbies did I mention I enjoy?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should recall both hobbies: chess and hiking."
+      },
+      "expected_facts": [
+        "chess",
+        "hiking"
+      ],
+      "evaluation_notes": "[Basic Personal Info Recall] Bot should recall both hobbies: chess and hiking.",
+      "conversation_history": [
+        "Hi, my name is Alex and I'm a software engineer at a fintech startup.",
+        "I prefer Python over Java for backend development. I've been using it for about 5 years now.",
+        "My team is small, just 4 developers. We're building a payment processing platform.",
+        "Outside of work, I enjoy playing chess and hiking on weekends.",
+        "By the way, can you explain the difference between REST and GraphQL?",
+        "What are some best practices for API versioning?",
+        "Going back to our intro — what's my name and what do I do for work?",
+        "And what kind of project is my team working on? How big is the team?",
+        "Can you recommend me a web framework based on my language preference?"
+      ]
+    },
+    {
+      "id": "SCN-002-T07",
+      "scenario_label": "en_context-update-002__eval_turn_07",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "context_update",
+        "correction_handling",
+        "update_tracking"
+      ],
+      "user_id": "e710825f-612d-4e55-b360-d053b5562967",
+      "conversation_id": "61c5222c-d3a8-48a7-9d62-6044a2699bbe",
+      "request_id": "3c90bed3-5cff-4428-ab42-f737ab830989",
+      "original_query": "Where do I currently live?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot MUST say San Francisco as current city. May acknowledge the move from NYC. Should NOT say user currently lives in New York.",
+        "should_not_contain": [
+          "live in New York",
+          "lives in New York City currently"
+        ]
+      },
+      "expected_facts": [
+        "San Francisco",
+        "New York City",
+        "last month"
+      ],
+      "evaluation_notes": "[Context Update and Correction] Bot MUST say San Francisco as current city. May acknowledge the move from NYC. Should NOT say user currently lives in New York. | Must NOT contain: live in New York, lives in New York City currently",
+      "conversation_history": [
+        "I live in New York City and work remotely for a tech company.",
+        "I have two cats named Whiskers and Luna. They're both rescues.",
+        "I usually go jogging in Central Park every morning before work.",
+        "Actually, I recently moved to San Francisco last month for a new job opportunity.",
+        "I'm still getting used to the hills here. Much different from NYC!",
+        "Oh, and I should mention — I recently adopted a dog named Max too. So now I have two cats and a dog.",
+        "What are some good hiking trails near San Francisco?"
+      ]
+    },
+    {
+      "id": "SCN-002-T08",
+      "scenario_label": "en_context-update-002__eval_turn_08",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "context_update",
+        "correction_handling",
+        "update_tracking"
+      ],
+      "user_id": "a2f66663-9c9c-46d5-9d65-641718aad7ad",
+      "conversation_id": "05fb675d-fd6b-408e-986e-eec90588c9a1",
+      "request_id": "e784ede0-7f8d-43ce-9c80-93a660f9e661",
+      "original_query": "Can you list all my pets and their names?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot must list all THREE pets: cats Whiskers and Luna, plus dog Max."
+      },
+      "expected_facts": [
+        "Whiskers",
+        "Luna",
+        "Max",
+        "3 pets"
+      ],
+      "evaluation_notes": "[Context Update and Correction] Bot must list all THREE pets: cats Whiskers and Luna, plus dog Max.",
+      "conversation_history": [
+        "I live in New York City and work remotely for a tech company.",
+        "I have two cats named Whiskers and Luna. They're both rescues.",
+        "I usually go jogging in Central Park every morning before work.",
+        "Actually, I recently moved to San Francisco last month for a new job opportunity.",
+        "I'm still getting used to the hills here. Much different from NYC!",
+        "Oh, and I should mention — I recently adopted a dog named Max too. So now I have two cats and a dog.",
+        "What are some good hiking trails near San Francisco?",
+        "Where do I currently live?"
+      ]
+    },
+    {
+      "id": "SCN-003-T07",
+      "scenario_label": "en_long-term-003__eval_turn_07",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "long_term_recall",
+        "topic_switch",
+        "distractor_resistance"
+      ],
+      "user_id": "469ceb49-c215-4878-b951-c8592f5a4487",
+      "conversation_id": "928321f3-2443-4a9e-b7ac-fdf9c26ae67a",
+      "request_id": "cfa7db63-95f0-4b8d-9439-c64a7a4c7659",
+      "original_query": "Going back to personal stuff — when is my birthday and how old am I turning?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "After several unrelated topics, bot should recall birthday is March 15th and age is 30."
+      },
+      "expected_facts": [
+        "March 15th",
+        "30"
+      ],
+      "evaluation_notes": "[Long-Term Memory Across Topic Switches] After several unrelated topics, bot should recall birthday is March 15th and age is 30.",
+      "conversation_history": [
+        "My birthday is on March 15th and I'm turning 30 this year. I'm planning a big celebration.",
+        "My partner's name is Jordan and we've been together for 3 years.",
+        "Let's talk about something different. What are best practices for microservices architecture?",
+        "How does event-driven architecture compare to request-driven?",
+        "Can you explain the saga pattern in distributed transactions?",
+        "Switching topics again — what's the capital of Australia?",
+        "Can you recommend some good science fiction books?"
+      ]
+    },
+    {
+      "id": "SCN-003-T08",
+      "scenario_label": "en_long-term-003__eval_turn_08",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "long_term_recall",
+        "topic_switch",
+        "distractor_resistance"
+      ],
+      "user_id": "e5517b7d-d186-47f4-8bd1-06cd53491e12",
+      "conversation_id": "19e68c79-a094-4672-a3cf-78f44c2bd606",
+      "request_id": "59f7876c-013c-4ea7-8333-d80896086d4a",
+      "original_query": "What's my partner's name and how long have we been together?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should remember partner Jordan and 3-year relationship duration."
+      },
+      "expected_facts": [
+        "Jordan",
+        "3 years"
+      ],
+      "evaluation_notes": "[Long-Term Memory Across Topic Switches] Bot should remember partner Jordan and 3-year relationship duration.",
+      "conversation_history": [
+        "My birthday is on March 15th and I'm turning 30 this year. I'm planning a big celebration.",
+        "My partner's name is Jordan and we've been together for 3 years.",
+        "Let's talk about something different. What are best practices for microservices architecture?",
+        "How does event-driven architecture compare to request-driven?",
+        "Can you explain the saga pattern in distributed transactions?",
+        "Switching topics again — what's the capital of Australia?",
+        "Can you recommend some good science fiction books?",
+        "Going back to personal stuff — when is my birthday and how old am I turning?"
+      ]
+    },
+    {
+      "id": "SCN-003-T09",
+      "scenario_label": "en_long-term-003__eval_turn_09",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "long_term_recall",
+        "topic_switch",
+        "distractor_resistance"
+      ],
+      "user_id": "f537ca6e-2e8c-432c-8d5f-07b7716cec07",
+      "conversation_id": "d96d3089-0797-4117-b47a-5840910baea2",
+      "request_id": "fc4791f4-e88c-468a-afa0-ac2a940c80fe",
+      "original_query": "I want to plan something special. Remind me what celebration I mentioned I was planning?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should connect the dots: user is planning a big 30th birthday celebration."
+      },
+      "expected_facts": [
+        "big celebration",
+        "March 15th",
+        "30"
+      ],
+      "evaluation_notes": "[Long-Term Memory Across Topic Switches] Bot should connect the dots: user is planning a big 30th birthday celebration.",
+      "conversation_history": [
+        "My birthday is on March 15th and I'm turning 30 this year. I'm planning a big celebration.",
+        "My partner's name is Jordan and we've been together for 3 years.",
+        "Let's talk about something different. What are best practices for microservices architecture?",
+        "How does event-driven architecture compare to request-driven?",
+        "Can you explain the saga pattern in distributed transactions?",
+        "Switching topics again — what's the capital of Australia?",
+        "Can you recommend some good science fiction books?",
+        "Going back to personal stuff — when is my birthday and how old am I turning?",
+        "What's my partner's name and how long have we been together?"
+      ]
+    },
+    {
+      "id": "SCN-004-T05",
+      "scenario_label": "en_multi-entity-004__eval_turn_05",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "entity_disambiguation",
+        "multi_entity",
+        "attribute_mapping"
+      ],
+      "user_id": "80b88b40-ec54-4e4f-a59a-94bb120556e6",
+      "conversation_id": "ada9e1d7-dfdb-4927-a43c-5a4e08ac72f3",
+      "request_id": "f47e9bdd-aac4-49b7-929e-4d59612fc266",
+      "original_query": "What does Sarah do and what's her expertise?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should correctly describe Sarah's role, React expertise, and tenure."
+      },
+      "expected_facts": [
+        "Sarah",
+        "frontend team",
+        "React",
+        "2 years"
+      ],
+      "evaluation_notes": "[Multi-Entity Memory] Bot should correctly describe Sarah's role, React expertise, and tenure.",
+      "conversation_history": [
+        "My colleague Sarah works on the frontend team. She's an expert in React and has been with the company for 2 years.",
+        "My manager Tom handles the infrastructure team. He prefers Kubernetes and has 10 years of experience.",
+        "There's also Lisa from the data science team. She primarily uses Python and specializes in machine learning.",
+        "Mike is our DevOps lead. He's really good with Terraform and AWS, been here for 5 years.",
+        "We have a big product launch next quarter. Everyone's been working overtime."
+      ]
+    },
+    {
+      "id": "SCN-004-T06",
+      "scenario_label": "en_multi-entity-004__eval_turn_06",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "entity_disambiguation",
+        "multi_entity",
+        "attribute_mapping"
+      ],
+      "user_id": "2de837b4-d943-401b-8404-ffb455006ae3",
+      "conversation_id": "d0ce178e-034f-43e6-933a-b579b8ced42a",
+      "request_id": "9501a6e1-7b1a-4d4e-a4dc-7daefae88dde",
+      "original_query": "I need to staff a new project that requires frontend work, infrastructure setup, and ML capabilities. Who from my team should I involve and what are their specialties?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot must correctly map: Sarah→frontend/React, Tom→infrastructure/Kubernetes, Lisa→data science/ML. Must NOT mix up attributes."
+      },
+      "expected_facts": [
+        "Sarah",
+        "React",
+        "Tom",
+        "Kubernetes",
+        "Lisa",
+        "machine learning"
+      ],
+      "evaluation_notes": "[Multi-Entity Memory] Bot must correctly map: Sarah→frontend/React, Tom→infrastructure/Kubernetes, Lisa→data science/ML. Must NOT mix up attributes.",
+      "conversation_history": [
+        "My colleague Sarah works on the frontend team. She's an expert in React and has been with the company for 2 years.",
+        "My manager Tom handles the infrastructure team. He prefers Kubernetes and has 10 years of experience.",
+        "There's also Lisa from the data science team. She primarily uses Python and specializes in machine learning.",
+        "Mike is our DevOps lead. He's really good with Terraform and AWS, been here for 5 years.",
+        "We have a big product launch next quarter. Everyone's been working overtime.",
+        "What does Sarah do and what's her expertise?"
+      ]
+    },
+    {
+      "id": "SCN-004-T07",
+      "scenario_label": "en_multi-entity-004__eval_turn_07",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "entity_disambiguation",
+        "multi_entity",
+        "attribute_mapping"
+      ],
+      "user_id": "d3dda848-0c15-4ea6-ba49-faed5a8f0dbe",
+      "conversation_id": "9d0fa2e2-e7e0-4453-bcc6-751fa0582c0d",
+      "request_id": "32d4e547-0372-4b65-a524-a0dfddc220a7",
+      "original_query": "Who has been at the company the longest — Sarah, Tom, Lisa, or Mike? And who's the newest?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should correctly identify Tom as most experienced (10 years) and Sarah as newest (2 years)."
+      },
+      "expected_facts": [
+        "Tom",
+        "10 years",
+        "Sarah",
+        "2 years"
+      ],
+      "evaluation_notes": "[Multi-Entity Memory] Bot should correctly identify Tom as most experienced (10 years) and Sarah as newest (2 years).",
+      "conversation_history": [
+        "My colleague Sarah works on the frontend team. She's an expert in React and has been with the company for 2 years.",
+        "My manager Tom handles the infrastructure team. He prefers Kubernetes and has 10 years of experience.",
+        "There's also Lisa from the data science team. She primarily uses Python and specializes in machine learning.",
+        "Mike is our DevOps lead. He's really good with Terraform and AWS, been here for 5 years.",
+        "We have a big product launch next quarter. Everyone's been working overtime.",
+        "What does Sarah do and what's her expertise?",
+        "I need to staff a new project that requires frontend work, infrastructure setup, and ML capabilities. Who from my team should I involve and what are their specialties?"
+      ]
+    },
+    {
+      "id": "SCN-005-T02",
+      "scenario_label": "en_implicit-memory-005__eval_turn_02",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "implicit_application",
+        "constraint_recall",
+        "dietary_restriction"
+      ],
+      "user_id": "8f4ecde2-eb3e-4f70-b5c5-770a4a79471a",
+      "conversation_id": "e4e223b5-0639-476c-a1bb-2e88c49a0165",
+      "request_id": "59448ed5-67ea-43b8-99b3-aac810d4ebb8",
+      "original_query": "Can you suggest a high-protein dinner recipe for tonight?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Recipe must be vegetarian AND high-protein.",
+        "should_not_contain": [
+          "chicken",
+          "beef",
+          "pork",
+          "fish",
+          "salmon",
+          "shrimp"
+        ]
+      },
+      "expected_facts": [
+        "vegetarian",
+        "half marathon",
+        "high protein"
+      ],
+      "evaluation_notes": "[Implicit Memory Usage] Recipe must be vegetarian AND high-protein. | Must NOT contain: chicken, beef, pork, fish, salmon, shrimp",
+      "conversation_history": [
+        "I'm allergic to shellfish and I'm vegetarian. I also try to avoid too much gluten when possible.",
+        "I'm training for a half marathon, so I need to eat healthy and get enough protein."
+      ]
+    },
+    {
+      "id": "SCN-005-T03",
+      "scenario_label": "en_implicit-memory-005__eval_turn_03",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "implicit_application",
+        "constraint_recall",
+        "dietary_restriction"
+      ],
+      "user_id": "91c63fb3-88a7-4325-9011-8a9d62451f0a",
+      "conversation_id": "50541180-b3ff-43e9-9139-9c7710a2a9b4",
+      "request_id": "57f99992-479f-49c4-9da2-8bc06bf69f6c",
+      "original_query": "What about a Thai-inspired dish? I love Thai food.",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Thai recipe must be vegetarian AND shellfish-free.",
+        "should_not_contain": [
+          "shrimp",
+          "crab",
+          "lobster",
+          "prawn"
+        ]
+      },
+      "expected_facts": [
+        "vegetarian",
+        "shellfish allergy",
+        "gluten"
+      ],
+      "evaluation_notes": "[Implicit Memory Usage] Thai recipe must be vegetarian AND shellfish-free. | Must NOT contain: shrimp, crab, lobster, prawn",
+      "conversation_history": [
+        "I'm allergic to shellfish and I'm vegetarian. I also try to avoid too much gluten when possible.",
+        "I'm training for a half marathon, so I need to eat healthy and get enough protein.",
+        "Can you suggest a high-protein dinner recipe for tonight?"
+      ]
+    },
+    {
+      "id": "SCN-005-T04",
+      "scenario_label": "en_implicit-memory-005__eval_turn_04",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "implicit_application",
+        "constraint_recall",
+        "dietary_restriction"
+      ],
+      "user_id": "6c1ce655-0b18-4561-9515-ed6719cf03d2",
+      "conversation_id": "e4ac8600-07ea-4296-9955-2f99162d53ed",
+      "request_id": "e01451be-f419-4a2b-b635-cd19abc683e5",
+      "original_query": "Can you suggest a meal prep plan for the week that supports my training?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Meal prep plan must accommodate ALL constraints: vegetarian, shellfish-free, support endurance training."
+      },
+      "expected_facts": [
+        "vegetarian",
+        "shellfish allergy",
+        "half marathon",
+        "high protein"
+      ],
+      "evaluation_notes": "[Implicit Memory Usage] Meal prep plan must accommodate ALL constraints: vegetarian, shellfish-free, support endurance training.",
+      "conversation_history": [
+        "I'm allergic to shellfish and I'm vegetarian. I also try to avoid too much gluten when possible.",
+        "I'm training for a half marathon, so I need to eat healthy and get enough protein.",
+        "Can you suggest a high-protein dinner recipe for tonight?",
+        "What about a Thai-inspired dish? I love Thai food."
+      ]
+    },
+    {
+      "id": "SCN-005-T06",
+      "scenario_label": "en_implicit-memory-005__eval_turn_06",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "implicit_application",
+        "constraint_recall",
+        "dietary_restriction"
+      ],
+      "user_id": "f32a1b46-2dab-47ef-b948-65e611a63103",
+      "conversation_id": "2594e62b-86f0-408d-a282-bce497655e2a",
+      "request_id": "0fcce463-9ae0-4502-9054-b95ba8986a08",
+      "original_query": "I'm meeting friends for dinner tomorrow. Can you suggest what type of cuisine would be good for someone with my dietary needs?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Restaurant recommendations should consider vegetarian options and shellfish allergy risks."
+      },
+      "expected_facts": [
+        "vegetarian",
+        "shellfish allergy"
+      ],
+      "evaluation_notes": "[Implicit Memory Usage] Restaurant recommendations should consider vegetarian options and shellfish allergy risks.",
+      "conversation_history": [
+        "I'm allergic to shellfish and I'm vegetarian. I also try to avoid too much gluten when possible.",
+        "I'm training for a half marathon, so I need to eat healthy and get enough protein.",
+        "Can you suggest a high-protein dinner recipe for tonight?",
+        "What about a Thai-inspired dish? I love Thai food.",
+        "Can you suggest a meal prep plan for the week that supports my training?",
+        "What are some good stretches to do after a long run?"
+      ]
+    },
+    {
+      "id": "SCN-005-T08",
+      "scenario_label": "en_implicit-memory-005__eval_turn_08",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "implicit_application",
+        "constraint_recall",
+        "dietary_restriction"
+      ],
+      "user_id": "1dfa8f34-8634-44be-a3ec-781f930c2f85",
+      "conversation_id": "ad687905-4149-4caa-b730-cfa9e7258ffb",
+      "request_id": "b7dfd882-5301-4fe2-aedf-6a094f751d2f",
+      "original_query": "I want to try making sushi at home. Any suggestions?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Sushi suggestions must be vegetarian and avoid any shellfish.",
+        "should_not_contain": [
+          "salmon",
+          "tuna",
+          "crab",
+          "shrimp",
+          "eel",
+          "fish"
+        ]
+      },
+      "expected_facts": [
+        "vegetarian",
+        "shellfish allergy"
+      ],
+      "evaluation_notes": "[Implicit Memory Usage] Sushi suggestions must be vegetarian and avoid any shellfish. | Must NOT contain: salmon, tuna, crab, shrimp, eel, fish",
+      "conversation_history": [
+        "I'm allergic to shellfish and I'm vegetarian. I also try to avoid too much gluten when possible.",
+        "I'm training for a half marathon, so I need to eat healthy and get enough protein.",
+        "Can you suggest a high-protein dinner recipe for tonight?",
+        "What about a Thai-inspired dish? I love Thai food.",
+        "Can you suggest a meal prep plan for the week that supports my training?",
+        "What are some good stretches to do after a long run?",
+        "I'm meeting friends for dinner tomorrow. Can you suggest what type of cuisine would be good for someone with my dietary needs?",
+        "Wait, can you remind me what dietary restrictions I mentioned?"
+      ]
+    },
+    {
+      "id": "SCN-006-T03",
+      "scenario_label": "en_no-hallucination-006__eval_turn_03",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [
+        "hallucination_prevention",
+        "empty_memory",
+        "factual_accuracy"
+      ],
+      "user_id": "8a3c1ea1-4642-4526-94d3-7a8f8365315e",
+      "conversation_id": "53a13fb9-3e04-4bd6-a858-8a80314a2347",
+      "request_id": "b4cdfb3f-6ecc-43a6-82be-3344f4942dd2",
+      "original_query": "What's my favorite programming language?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should say it doesn't know user's favorite language — it was NEVER mentioned. Bot must NOT guess or fabricate.",
+        "should_not_contain": [
+          "your favorite language is",
+          "you mentioned you prefer",
+          "you told me you like"
+        ]
+      },
+      "expected_facts": [],
+      "evaluation_notes": "[No Memory Hallucination] Bot should say it doesn't know user's favorite language — it was NEVER mentioned. Bot must NOT guess or fabricate. | Must NOT contain: your favorite language is, you mentioned you prefer, you told me you like",
+      "conversation_history": [
+        "Hi, I'd like to learn about machine learning.",
+        "What are the main types of machine learning?",
+        "Can you explain supervised learning in more detail?"
+      ]
+    },
+    {
+      "id": "SCN-006-T05",
+      "scenario_label": "en_no-hallucination-006__eval_turn_05",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [
+        "hallucination_prevention",
+        "empty_memory",
+        "factual_accuracy"
+      ],
+      "user_id": "3a8c0edc-c038-47a4-b606-d0cdf3991c35",
+      "conversation_id": "09597b98-602d-4866-81d6-b4fcf0c38359",
+      "request_id": "55b14eac-0b6d-4cc9-be6e-9cc8196784cd",
+      "original_query": "What do I do for work?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should say it doesn't know user's occupation — never mentioned. Must NOT assume or invent a profession.",
+        "should_not_contain": [
+          "you work as",
+          "your job is",
+          "you mentioned you're a"
+        ]
+      },
+      "expected_facts": [],
+      "evaluation_notes": "[No Memory Hallucination] Bot should say it doesn't know user's occupation — never mentioned. Must NOT assume or invent a profession. | Must NOT contain: you work as, your job is, you mentioned you're a",
+      "conversation_history": [
+        "Hi, I'd like to learn about machine learning.",
+        "What are the main types of machine learning?",
+        "Can you explain supervised learning in more detail?",
+        "What's my favorite programming language?",
+        "What's a good dataset to practice ML with?"
+      ]
+    },
+    {
+      "id": "SCN-006-T06",
+      "scenario_label": "en_no-hallucination-006__eval_turn_06",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [
+        "hallucination_prevention",
+        "empty_memory",
+        "factual_accuracy"
+      ],
+      "user_id": "37aaea9c-4aba-4d89-b430-cecac331bb9f",
+      "conversation_id": "8214961d-0b34-4e12-a511-71ffa51a0216",
+      "request_id": "00de372a-3dff-4356-b360-ac73a7caaa2e",
+      "original_query": "What's my name?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should say it doesn't know user's name — never provided. Must NOT make up a name.",
+        "should_not_contain": [
+          "your name is",
+          "you told me your name",
+          "you mentioned your name"
+        ]
+      },
+      "expected_facts": [],
+      "evaluation_notes": "[No Memory Hallucination] Bot should say it doesn't know user's name — never provided. Must NOT make up a name. | Must NOT contain: your name is, you told me your name, you mentioned your name",
+      "conversation_history": [
+        "Hi, I'd like to learn about machine learning.",
+        "What are the main types of machine learning?",
+        "Can you explain supervised learning in more detail?",
+        "What's my favorite programming language?",
+        "What's a good dataset to practice ML with?",
+        "What do I do for work?"
+      ]
+    },
+    {
+      "id": "SCN-006-T07",
+      "scenario_label": "en_no-hallucination-006__eval_turn_07",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": false,
+        "memory_types": []
+      },
+      "edge_case_tags": [
+        "hallucination_prevention",
+        "empty_memory",
+        "factual_accuracy"
+      ],
+      "user_id": "34b90cc7-81ec-49c6-bf12-f5a92edc8c83",
+      "conversation_id": "85756a6c-99a0-42ae-9368-25f2a19971da",
+      "request_id": "0954ef1a-92f8-42d4-8a6c-a9d29be872d5",
+      "original_query": "How many years of programming experience do I have?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": false,
+        "memory_types": [],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should say it doesn't know user's experience level — never mentioned. Must NOT guess.",
+        "should_not_contain": [
+          "you have",
+          "years of experience",
+          "you mentioned you've been"
+        ]
+      },
+      "expected_facts": [],
+      "evaluation_notes": "[No Memory Hallucination] Bot should say it doesn't know user's experience level — never mentioned. Must NOT guess. | Must NOT contain: you have, years of experience, you mentioned you've been",
+      "conversation_history": [
+        "Hi, I'd like to learn about machine learning.",
+        "What are the main types of machine learning?",
+        "Can you explain supervised learning in more detail?",
+        "What's my favorite programming language?",
+        "What's a good dataset to practice ML with?",
+        "What do I do for work?",
+        "What's my name?"
+      ]
+    },
+    {
+      "id": "SCN-007-T03",
+      "scenario_label": "en_contradiction-007__eval_turn_03",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "contradiction_handling",
+        "context_update",
+        "consistency_check"
+      ],
+      "user_id": "e9f88500-cc5d-40a0-9a31-2157aeaa9d49",
+      "conversation_id": "58cb8ba0-37ea-4b31-8e4f-dd80b06b162d",
+      "request_id": "298e8815-3c5e-4467-b0e6-53be4fc54e7c",
+      "original_query": "Can you review my Python code for the REST API I built last week?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should notice the apparent contradiction — user claimed no experience but asks for code review."
+      },
+      "expected_facts": [
+        "no programming experience",
+        "complete beginner",
+        "never written code"
+      ],
+      "evaluation_notes": "[Contradiction Handling] Bot should notice the apparent contradiction — user claimed no experience but asks for code review.",
+      "conversation_history": [
+        "I don't have any programming experience at all. I'm a complete beginner.",
+        "What programming language would you recommend for a beginner like me?",
+        "I've never written a single line of code in my life."
+      ]
+    },
+    {
+      "id": "SCN-007-T06",
+      "scenario_label": "en_contradiction-007__eval_turn_06",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "contradiction_handling",
+        "context_update",
+        "consistency_check"
+      ],
+      "user_id": "b921aef6-cfe4-4bcc-a990-ee5333e16eb2",
+      "conversation_id": "22b75c26-d514-4a33-a319-9f96a4e8674b",
+      "request_id": "84f51a04-cb56-4a70-8781-7c057c7c0826",
+      "original_query": "Based on what you know about my experience level, what advanced topics should I learn next?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should now use the UPDATED understanding (3 years experience) and suggest genuinely advanced topics."
+      },
+      "expected_facts": [
+        "3 years Python experience",
+        "Flask",
+        "PostgreSQL"
+      ],
+      "evaluation_notes": "[Contradiction Handling] Bot should now use the UPDATED understanding (3 years experience) and suggest genuinely advanced topics.",
+      "conversation_history": [
+        "I don't have any programming experience at all. I'm a complete beginner.",
+        "What programming language would you recommend for a beginner like me?",
+        "I've never written a single line of code in my life.",
+        "Can you review my Python code for the REST API I built last week?",
+        "The API uses Flask and connects to a PostgreSQL database.",
+        "I've actually been using Python professionally for 3 years now."
+      ]
+    },
+    {
+      "id": "SCN-007-T07",
+      "scenario_label": "en_contradiction-007__eval_turn_07",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "contradiction_handling",
+        "context_update",
+        "consistency_check"
+      ],
+      "user_id": "729de4f4-9712-4275-9578-9371f6b51f94",
+      "conversation_id": "80e0e594-1cc0-4646-b4ca-301315cdc943",
+      "request_id": "7d781ea4-40b9-4621-a442-e6fa702981bf",
+      "original_query": "Do you notice anything inconsistent about what I've told you about my experience?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should acknowledge the inconsistency: user first said no experience, then revealed significant professional experience."
+      },
+      "expected_facts": [
+        "no experience claim",
+        "3 years Python professional"
+      ],
+      "evaluation_notes": "[Contradiction Handling] Bot should acknowledge the inconsistency: user first said no experience, then revealed significant professional experience.",
+      "conversation_history": [
+        "I don't have any programming experience at all. I'm a complete beginner.",
+        "What programming language would you recommend for a beginner like me?",
+        "I've never written a single line of code in my life.",
+        "Can you review my Python code for the REST API I built last week?",
+        "The API uses Flask and connects to a PostgreSQL database.",
+        "I've actually been using Python professionally for 3 years now.",
+        "Based on what you know about my experience level, what advanced topics should I learn next?"
+      ]
+    },
+    {
+      "id": "SCN-008-T06",
+      "scenario_label": "en_temporal-memory-008__eval_turn_06",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "temporal_recall",
+        "event_tracking",
+        "deadline_memory"
+      ],
+      "user_id": "64100f1a-5d96-4556-ab74-32a4a7d82a87",
+      "conversation_id": "54d2a8e1-9290-4194-b7f9-7eddcdbf98d8",
+      "request_id": "37d7e832-7769-420f-87bd-4852e2e6d81b",
+      "original_query": "Can you summarize all the upcoming events and deadlines I mentioned?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should list ALL events: Google interview, Japan trip, sister's wedding, and project deadline."
+      },
+      "expected_facts": [
+        "Google interview",
+        "Monday 10 AM",
+        "Japan December 15-30",
+        "sister's wedding November 8",
+        "project proposal Friday"
+      ],
+      "evaluation_notes": "[Temporal and Event Memory] Bot should list ALL events: Google interview, Japan trip, sister's wedding, and project deadline.",
+      "conversation_history": [
+        "I have a job interview at Google next Monday at 10 AM.",
+        "I'm also planning a vacation to Japan in December, specifically from December 15th to 30th.",
+        "My sister's wedding is on November 8th. I'm the best man.",
+        "I need to submit my project proposal by this Friday. It's really important.",
+        "Can you give me some tips for acing a technical interview?",
+        "What are common system design questions asked at big tech companies?"
+      ]
+    },
+    {
+      "id": "SCN-008-T07",
+      "scenario_label": "en_temporal-memory-008__eval_turn_07",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "temporal_recall",
+        "event_tracking",
+        "deadline_memory"
+      ],
+      "user_id": "e57ede7a-53c5-4f64-858f-78bf086dd20e",
+      "conversation_id": "d60a510f-1204-405b-9806-599184d36a22",
+      "request_id": "e644c50f-9da5-4441-8519-ca095b2ac272",
+      "original_query": "When is my Japan trip and how long will I be there?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should state dates (December 15-30) and mention it's about a 2-week trip."
+      },
+      "expected_facts": [
+        "December 15th",
+        "December 30th",
+        "15 days"
+      ],
+      "evaluation_notes": "[Temporal and Event Memory] Bot should state dates (December 15-30) and mention it's about a 2-week trip.",
+      "conversation_history": [
+        "I have a job interview at Google next Monday at 10 AM.",
+        "I'm also planning a vacation to Japan in December, specifically from December 15th to 30th.",
+        "My sister's wedding is on November 8th. I'm the best man.",
+        "I need to submit my project proposal by this Friday. It's really important.",
+        "Can you give me some tips for acing a technical interview?",
+        "What are common system design questions asked at big tech companies?",
+        "Can you summarize all the upcoming events and deadlines I mentioned?"
+      ]
+    },
+    {
+      "id": "SCN-008-T08",
+      "scenario_label": "en_temporal-memory-008__eval_turn_08",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "temporal_recall",
+        "event_tracking",
+        "deadline_memory"
+      ],
+      "user_id": "3996de5b-fa6a-4e8a-8af3-79775a1c995e",
+      "conversation_id": "e7895b8f-e65e-4dfc-af12-16a58a9c3262",
+      "request_id": "b0f259cf-9080-4ecd-b64f-b63cd5ae77e5",
+      "original_query": "What role do I have in my sister's wedding?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should remember user is the best man at the wedding."
+      },
+      "expected_facts": [
+        "best man",
+        "November 8th"
+      ],
+      "evaluation_notes": "[Temporal and Event Memory] Bot should remember user is the best man at the wedding.",
+      "conversation_history": [
+        "I have a job interview at Google next Monday at 10 AM.",
+        "I'm also planning a vacation to Japan in December, specifically from December 15th to 30th.",
+        "My sister's wedding is on November 8th. I'm the best man.",
+        "I need to submit my project proposal by this Friday. It's really important.",
+        "Can you give me some tips for acing a technical interview?",
+        "What are common system design questions asked at big tech companies?",
+        "Can you summarize all the upcoming events and deadlines I mentioned?",
+        "When is my Japan trip and how long will I be there?"
+      ]
+    },
+    {
+      "id": "SCN-008-T09",
+      "scenario_label": "en_temporal-memory-008__eval_turn_09",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "temporal_recall",
+        "event_tracking",
+        "deadline_memory"
+      ],
+      "user_id": "08d4dc69-8bc7-4489-8303-49baf93dea72",
+      "conversation_id": "e4ee1497-f7f9-4279-8a43-b8218b98b30f",
+      "request_id": "973445c1-9616-4c34-8c9b-f44cba78e8bf",
+      "original_query": "What's my most urgent deadline?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should identify the project proposal (this Friday) as most urgent since it's the nearest deadline."
+      },
+      "expected_facts": [
+        "project proposal",
+        "Friday",
+        "really important"
+      ],
+      "evaluation_notes": "[Temporal and Event Memory] Bot should identify the project proposal (this Friday) as most urgent since it's the nearest deadline.",
+      "conversation_history": [
+        "I have a job interview at Google next Monday at 10 AM.",
+        "I'm also planning a vacation to Japan in December, specifically from December 15th to 30th.",
+        "My sister's wedding is on November 8th. I'm the best man.",
+        "I need to submit my project proposal by this Friday. It's really important.",
+        "Can you give me some tips for acing a technical interview?",
+        "What are common system design questions asked at big tech companies?",
+        "Can you summarize all the upcoming events and deadlines I mentioned?",
+        "When is my Japan trip and how long will I be there?",
+        "What role do I have in my sister's wedding?"
+      ]
+    },
+    {
+      "id": "SCN-009-T07",
+      "scenario_label": "en_preference-evolution-009__eval_turn_07",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "preference_update",
+        "context_update",
+        "recommendation"
+      ],
+      "user_id": "ef1064d3-6d1e-4c7b-baf0-49bb0691924a",
+      "conversation_id": "81d47af1-3fdb-4baf-9c47-f9e8008e6299",
+      "request_id": "91f9cd7f-8afb-4218-b638-ff1657611111",
+      "original_query": "Based on everything I've told you, what are my current laptop requirements?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should summarize CURRENT requirements: Mac preference (not Windows), $2000 budget, 16GB+ RAM, good battery, travel use case.",
+        "should_not_contain": [
+          "Windows gaming laptop",
+          "your budget is $1500"
+        ]
+      },
+      "expected_facts": [
+        "Mac",
+        "$2000",
+        "16GB RAM",
+        "battery life",
+        "travel"
+      ],
+      "evaluation_notes": "[Preference Evolution and Updates] Bot should summarize CURRENT requirements: Mac preference (not Windows), $2000 budget, 16GB+ RAM, good battery, travel use case. | Must NOT contain: Windows gaming laptop, your budget is $1500",
+      "conversation_history": [
+        "I'm looking to buy a new laptop. I prefer Windows for gaming.",
+        "My budget is around $1500.",
+        "I need at least 16GB RAM and a dedicated GPU.",
+        "Actually, I've been thinking about switching to Mac for the better build quality. I might game less anyway.",
+        "I could stretch my budget to $2000 for the right machine.",
+        "I also need good battery life since I travel a lot for work.",
+        "What's the difference between M3 and M3 Pro chips?"
+      ]
+    },
+    {
+      "id": "SCN-009-T08",
+      "scenario_label": "en_preference-evolution-009__eval_turn_08",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "preference_update",
+        "context_update",
+        "recommendation"
+      ],
+      "user_id": "4cd0beec-3f43-4b86-a839-9a0317f90706",
+      "conversation_id": "80ce5c95-4931-4d65-a4dc-c877904b530c",
+      "request_id": "1d297e25-c69a-4e5a-94ad-0a3608da8aea",
+      "original_query": "Given my updated preferences and budget, what laptop would you recommend?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Recommendation should be a MacBook within $2000, emphasizing battery life and portability. Should NOT recommend Windows gaming laptop.",
+        "should_not_contain": [
+          "Windows",
+          "gaming laptop",
+          "ASUS",
+          "Razer"
+        ]
+      },
+      "expected_facts": [
+        "Mac",
+        "$2000",
+        "battery life",
+        "16GB RAM"
+      ],
+      "evaluation_notes": "[Preference Evolution and Updates] Recommendation should be a MacBook within $2000, emphasizing battery life and portability. Should NOT recommend Windows gaming laptop. | Must NOT contain: Windows, gaming laptop, ASUS, Razer",
+      "conversation_history": [
+        "I'm looking to buy a new laptop. I prefer Windows for gaming.",
+        "My budget is around $1500.",
+        "I need at least 16GB RAM and a dedicated GPU.",
+        "Actually, I've been thinking about switching to Mac for the better build quality. I might game less anyway.",
+        "I could stretch my budget to $2000 for the right machine.",
+        "I also need good battery life since I travel a lot for work.",
+        "What's the difference between M3 and M3 Pro chips?",
+        "Based on everything I've told you, what are my current laptop requirements?"
+      ]
+    },
+    {
+      "id": "SCN-010-T07",
+      "scenario_label": "en_project-context-010__eval_turn_07",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "project_context",
+        "technical_recall",
+        "multi_attribute"
+      ],
+      "user_id": "2a4256b1-c787-4a87-afc7-465ade061f9b",
+      "conversation_id": "8d13c549-8384-4120-8fe9-462d25cdb2fe",
+      "request_id": "769266ef-3878-4879-a88d-979d76d21b26",
+      "original_query": "Can you remind me what our tech stack is for ArtisanHub?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should recall complete tech stack: Next.js, FastAPI, PostgreSQL, Redis, AWS."
+      },
+      "expected_facts": [
+        "ArtisanHub",
+        "Next.js",
+        "FastAPI",
+        "PostgreSQL",
+        "Redis",
+        "AWS"
+      ],
+      "evaluation_notes": "[Complex Project Context Memory] Bot should recall complete tech stack: Next.js, FastAPI, PostgreSQL, Redis, AWS.",
+      "conversation_history": [
+        "I'm building an e-commerce platform for handmade crafts. It's called 'ArtisanHub'.",
+        "We're using Next.js for the frontend, Python FastAPI for the backend, and PostgreSQL for the database.",
+        "Our team has 3 frontend devs, 2 backend devs, and 1 DevOps engineer.",
+        "We're struggling with implementing real-time inventory updates. Multiple users buying the same item causes race conditions.",
+        "We're hosted on AWS and using Redis for caching.",
+        "What's the best way to handle image optimization for product photos?",
+        "How should we structure our API endpoints for the shopping cart?"
+      ]
+    },
+    {
+      "id": "SCN-010-T08",
+      "scenario_label": "en_project-context-010__eval_turn_08",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "project_context",
+        "technical_recall",
+        "multi_attribute"
+      ],
+      "user_id": "0d803429-f665-4469-9fa6-c8d2f6b373fe",
+      "conversation_id": "f53d6cd1-08d3-4242-a8f7-0ad28d468962",
+      "request_id": "d17bab47-82d3-45cb-b2e8-6d04eb7c8de4",
+      "original_query": "Going back to our race condition problem with inventory — can you suggest a solution using our current infrastructure?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Solution should leverage existing stack (Redis for distributed locks, PostgreSQL transactions). Should address the specific race condition problem."
+      },
+      "expected_facts": [
+        "race conditions",
+        "inventory updates",
+        "Redis",
+        "PostgreSQL"
+      ],
+      "evaluation_notes": "[Complex Project Context Memory] Solution should leverage existing stack (Redis for distributed locks, PostgreSQL transactions). Should address the specific race condition problem.",
+      "conversation_history": [
+        "I'm building an e-commerce platform for handmade crafts. It's called 'ArtisanHub'.",
+        "We're using Next.js for the frontend, Python FastAPI for the backend, and PostgreSQL for the database.",
+        "Our team has 3 frontend devs, 2 backend devs, and 1 DevOps engineer.",
+        "We're struggling with implementing real-time inventory updates. Multiple users buying the same item causes race conditions.",
+        "We're hosted on AWS and using Redis for caching.",
+        "What's the best way to handle image optimization for product photos?",
+        "How should we structure our API endpoints for the shopping cart?",
+        "Can you remind me what our tech stack is for ArtisanHub?"
+      ]
+    },
+    {
+      "id": "SCN-010-T09",
+      "scenario_label": "en_project-context-010__eval_turn_09",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "project_context",
+        "technical_recall",
+        "multi_attribute"
+      ],
+      "user_id": "5c1d5063-34c4-4e66-a031-d8d49b02d7e3",
+      "conversation_id": "b6efdbb1-5116-4ad2-8fce-c7fc9b01cea0",
+      "request_id": "cc4c7395-52ce-4387-a524-9f374e4a62a8",
+      "original_query": "If we need to add real-time features, do we have the right team composition?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should analyze team composition against real-time feature requirements."
+      },
+      "expected_facts": [
+        "3 frontend devs",
+        "2 backend devs",
+        "1 DevOps engineer"
+      ],
+      "evaluation_notes": "[Complex Project Context Memory] Bot should analyze team composition against real-time feature requirements.",
+      "conversation_history": [
+        "I'm building an e-commerce platform for handmade crafts. It's called 'ArtisanHub'.",
+        "We're using Next.js for the frontend, Python FastAPI for the backend, and PostgreSQL for the database.",
+        "Our team has 3 frontend devs, 2 backend devs, and 1 DevOps engineer.",
+        "We're struggling with implementing real-time inventory updates. Multiple users buying the same item causes race conditions.",
+        "We're hosted on AWS and using Redis for caching.",
+        "What's the best way to handle image optimization for product photos?",
+        "How should we structure our API endpoints for the shopping cart?",
+        "Can you remind me what our tech stack is for ArtisanHub?",
+        "Going back to our race condition problem with inventory — can you suggest a solution using our current infrastructure?"
+      ]
+    },
+    {
+      "id": "SCN-011-T04",
+      "scenario_label": "en_health-context-011__eval_turn_04",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "health_constraints",
+        "implicit_application",
+        "safety_critical"
+      ],
+      "user_id": "3a9158fd-0635-4563-a7d8-728a09c74ca8",
+      "conversation_id": "0996c124-9e67-4093-8ed3-4a0d96491998",
+      "request_id": "8be21475-56ee-4560-8fcc-c2805852af8d",
+      "original_query": "What type of cardio would be good for me?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Cardio suggestions must be low-impact (swimming, cycling, elliptical). Should NOT suggest running, jumping, HIIT with jumps.",
+        "should_not_contain": [
+          "running",
+          "jogging",
+          "jumping",
+          "high-impact"
+        ]
+      },
+      "expected_facts": [
+        "bad knee",
+        "no high-impact",
+        "30 minutes walk"
+      ],
+      "evaluation_notes": "[Personal Health Context Memory] Cardio suggestions must be low-impact (swimming, cycling, elliptical). Should NOT suggest running, jumping, HIIT with jumps. | Must NOT contain: running, jogging, jumping, high-impact",
+      "conversation_history": [
+        "I have Type 2 diabetes and high blood pressure. I'm managing both with medication and lifestyle.",
+        "I also have a bad knee from an old injury, so high-impact exercises are out.",
+        "I want to lose about 20 pounds over the next 6 months.",
+        "Right now I walk about 30 minutes a day and try to avoid sugar."
+      ]
+    },
+    {
+      "id": "SCN-011-T07",
+      "scenario_label": "en_health-context-011__eval_turn_07",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "health_constraints",
+        "implicit_application",
+        "safety_critical"
+      ],
+      "user_id": "d1fb4c81-d16c-432b-9c71-ed7236ba447e",
+      "conversation_id": "d79b70fc-e25e-451c-b3ea-ff2b16a29457",
+      "request_id": "6aff2795-0b2e-43a7-8963-24de6ebde67b",
+      "original_query": "Can you summarize my health situation and goals?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Summary should include all health conditions (diabetes, high BP, knee), current activity, and weight loss goal."
+      },
+      "expected_facts": [
+        "Type 2 diabetes",
+        "high blood pressure",
+        "bad knee",
+        "20 pounds",
+        "30 minutes"
+      ],
+      "evaluation_notes": "[Personal Health Context Memory] Summary should include all health conditions (diabetes, high BP, knee), current activity, and weight loss goal.",
+      "conversation_history": [
+        "I have Type 2 diabetes and high blood pressure. I'm managing both with medication and lifestyle.",
+        "I also have a bad knee from an old injury, so high-impact exercises are out.",
+        "I want to lose about 20 pounds over the next 6 months.",
+        "Right now I walk about 30 minutes a day and try to avoid sugar.",
+        "What type of cardio would be good for me?",
+        "What should I eat for breakfast?",
+        "What's a good book on developing healthy habits?"
+      ]
+    },
+    {
+      "id": "SCN-011-T08",
+      "scenario_label": "en_health-context-011__eval_turn_08",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ]
+      },
+      "edge_case_tags": [
+        "health_constraints",
+        "implicit_application",
+        "safety_critical"
+      ],
+      "user_id": "b5d07047-668c-48e0-b716-f9fd1bcda9a1",
+      "conversation_id": "3925c52f-e514-41ff-a406-5e09e282a62a",
+      "request_id": "eebd1b7c-c00c-4211-acca-920a3ea7529a",
+      "original_query": "Create a simple daily routine that considers all my health factors and goals.",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "long_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Routine must accommodate ALL constraints: diabetic-friendly meals, low sodium, low-impact exercise."
+      },
+      "expected_facts": [
+        "Type 2 diabetes",
+        "high blood pressure",
+        "bad knee",
+        "weight loss",
+        "30 minutes walk"
+      ],
+      "evaluation_notes": "[Personal Health Context Memory] Routine must accommodate ALL constraints: diabetic-friendly meals, low sodium, low-impact exercise.",
+      "conversation_history": [
+        "I have Type 2 diabetes and high blood pressure. I'm managing both with medication and lifestyle.",
+        "I also have a bad knee from an old injury, so high-impact exercises are out.",
+        "I want to lose about 20 pounds over the next 6 months.",
+        "Right now I walk about 30 minutes a day and try to avoid sugar.",
+        "What type of cardio would be good for me?",
+        "What should I eat for breakfast?",
+        "What's a good book on developing healthy habits?",
+        "Can you summarize my health situation and goals?"
+      ]
+    },
+    {
+      "id": "SCN-012-T08",
+      "scenario_label": "en_learning-journey-012__eval_turn_08",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "learning_progress",
+        "sequential_recall",
+        "curriculum_building"
+      ],
+      "user_id": "33072aa6-1e1b-4119-9ba0-cb9e24b3d5e1",
+      "conversation_id": "adee055b-4b26-4851-a9ff-232c8d4839fb",
+      "request_id": "af51dd51-9f0a-413d-8f32-780734f3f933",
+      "original_query": "Based on my progress, what's the next logical topic to learn?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Next topic should build on pandas+numpy. Should not repeat what was learned.",
+        "should_not_contain": [
+          "learn pandas",
+          "start with numpy",
+          "begin with Python basics"
+        ]
+      },
+      "expected_facts": [
+        "pandas",
+        "numpy",
+        "beginner"
+      ],
+      "evaluation_notes": "[Learning Journey Memory] Next topic should build on pandas+numpy. Should not repeat what was learned. | Must NOT contain: learn pandas, start with numpy, begin with Python basics",
+      "conversation_history": [
+        "I want to learn data science. I'm a complete beginner but I know some Python basics.",
+        "Can you explain what pandas is and how it's used?",
+        "Great, I practiced with pandas last night. I can now load CSVs and do basic filtering.",
+        "What should I learn next?",
+        "Can you explain numpy arrays?",
+        "I've spent the weekend learning numpy. I understand arrays and basic operations now.",
+        "Quick question — how much do data scientists typically earn?",
+        "What have I learned so far in my data science journey?"
+      ]
+    },
+    {
+      "id": "SCN-012-T09",
+      "scenario_label": "en_learning-journey-012__eval_turn_09",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "learning_progress",
+        "sequential_recall",
+        "curriculum_building"
+      ],
+      "user_id": "dfc4088e-4253-4af6-9116-d4b6c03f969a",
+      "conversation_id": "46764f3d-5369-46af-a9d8-1c2ebefe4dc8",
+      "request_id": "9df76c6b-2fda-4d85-a85e-351cce18cb65",
+      "original_query": "Can you suggest a project that uses the skills I've already learned?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Project should utilize pandas and numpy skills. Should be appropriate for beginner level."
+      },
+      "expected_facts": [
+        "pandas",
+        "CSV loading",
+        "numpy",
+        "arrays",
+        "beginner"
+      ],
+      "evaluation_notes": "[Learning Journey Memory] Project should utilize pandas and numpy skills. Should be appropriate for beginner level.",
+      "conversation_history": [
+        "I want to learn data science. I'm a complete beginner but I know some Python basics.",
+        "Can you explain what pandas is and how it's used?",
+        "Great, I practiced with pandas last night. I can now load CSVs and do basic filtering.",
+        "What should I learn next?",
+        "Can you explain numpy arrays?",
+        "I've spent the weekend learning numpy. I understand arrays and basic operations now.",
+        "Quick question — how much do data scientists typically earn?",
+        "What have I learned so far in my data science journey?",
+        "Based on my progress, what's the next logical topic to learn?"
+      ]
+    },
+    {
+      "id": "SCN-INF-T09",
+      "scenario_label": "en_information_extraction__scattered_facts__personal_profile_t09",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "information_extraction",
+        "scattered_signals",
+        "profile_building",
+        "hallucination_prevention"
+      ],
+      "user_id": "fb4baf1a-53fa-48c1-8e22-658e57554095",
+      "conversation_id": "ed2a9d9e-cfa3-4559-ac73-e0bce4a17d0f",
+      "request_id": "f03d26bc-6bde-4dbe-9179-6becd54d8dc9",
+      "original_query": "Actually, before we continue — can you summarize what you know about me? Like a quick profile?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should compile a coherent profile from scattered conversational details. Should extract: age (36), location (Seattle), job (Senior PM at Amazon), marital status (married to Emma), pet (Cooper the golden retriever), education (UCLA CS 2010), hobbies (guitar ~20 years, woodworking), recent house purchase ($850K). Name was never explicitly given."
+      },
+      "expected_facts": [
+        "age 36",
+        "Seattle",
+        "Amazon",
+        "Senior Product Manager",
+        "Emma",
+        "Cooper",
+        "UCLA",
+        "Computer Science",
+        "guitar",
+        "woodworking",
+        "$850K"
+      ],
+      "evaluation_notes": "[Information Extraction] Profile facts are scattered across 8 casual turns mixed with unrelated context (parents, flight delays, MBA question). Bot must aggregate across all turns without hallucinating facts never stated. Key challenge: user's name was never given; model must not fabricate one. Wife's name (Emma), dog's name (Cooper), and house price ($850K) are single-mention facts that a weak model may drop under context load.",
+      "conversation_history": [
+        "Hey! So I just got back from visiting my parents in Chicago — they're retired now, both in their early 70s. Dad used to be an engineer at Boeing.",
+        "The flight was rough, 3 hours delayed. I fly United usually since I have status with them. Oh, I should mention I live in Seattle now, moved here 2 years ago for my job at Amazon.",
+        "Work's been crazy. I'm a senior product manager — been at Amazon for those same 2 years. Before that I was at Microsoft for 5 years doing similar stuff.",
+        "My wife Emma thinks I work too much. She's probably right — she's a pediatrician at Seattle Children's Hospital. We got married 4 years ago, actually met at a conference in San Francisco.",
+        "We're thinking about having kids soon. Emma's 34 and I just turned 36 last month. We have a golden retriever named Cooper though — he's basically our child right now, just turned 3.",
+        "Anyway, enough about me rambling. I wanted to ask — I'm thinking about going back for an MBA. I did my undergrad at UCLA in computer science, graduated 2010.",
+        "When I'm not working, I'm usually playing guitar — been playing since high school, about 20 years now. Also got into woodworking recently, set up a little shop in my garage.",
+        "The MBA would be expensive though. We just bought a house last year — $850K, still paying that mortgage. Plus Emma has some student loans from med school.",
+        "What are some good MBA programs that offer part-time or executive formats?"
+      ]
+    },
+    {
+      "id": "SCN-MSR-T08",
+      "scenario_label": "en_multi_session_reasoning__cross_session_synthesis__t08",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "multi_session",
+        "cross_session_reasoning",
+        "synthesis",
+        "multi_entity"
+      ],
+      "user_id": "dfd7fa27-f26e-4343-82e5-a5cfa2743794",
+      "conversation_id": "0a9c34cd-7295-469b-9dca-bc4c789c22dc",
+      "request_id": "1592d7a3-c332-4bc5-bd8f-19080ee2ba23",
+      "original_query": "Can you create a summary document that connects all the information about both projects, their risks, and resource situations?",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should create a comprehensive summary connecting ALL information: Alpha (Q1, $500K, 8 engineers, Sarah Chen, fitness app, real-time sync risk, App Store risk), Beta (Q2, $300K, 5 devs, Michael Torres, enterprise dashboard, React/Node, Salesforce risk), resources (3 new hires January, $50K unused contractor budget), personnel (Sarah overwhelmed, Michael underutilized) and recommended actions."
+      },
+      "expected_facts": [
+        "Project Alpha",
+        "$500K",
+        "8 engineers",
+        "Sarah Chen",
+        "real-time sync",
+        "App Store",
+        "Project Beta",
+        "$300K",
+        "5 developers",
+        "Michael Torres",
+        "Salesforce",
+        "React",
+        "Node.js",
+        "$50K contractor",
+        "3 new hires",
+        "Sarah overwhelmed",
+        "Michael underutilized"
+      ],
+      "evaluation_notes": "[Multi-Session Reasoning] Full cross-session synthesis. All 17 discrete facts from 4 conversation 'sessions' must appear in the summary. This is the hardest case: it requires total recall across the entire history with no distractors — a pure test of whether the memory service preserved every detail from every turn.",
+      "conversation_history": [
+        "Let me tell you about our current project situation. We have Project Alpha launching in Q1 — it's our new mobile app for fitness tracking. Budget is $500K and we have 8 engineers on it.",
+        "The main challenge with Alpha is the real-time sync feature. We're also worried about the App Store approval timeline. Lead engineer is Sarah Chen.",
+        "Switching topics — I also need to discuss Project Beta. It's a web dashboard for enterprise clients, launching Q2. Budget is $300K, team of 5 developers.",
+        "Beta's biggest risk is the third-party API integration with Salesforce. Michael Torres is leading that one. We're using React and Node.js for the stack.",
+        "Now about resources — we're planning to hire 3 more engineers in January. We also have a contractor budget of $50K per quarter that's currently unused.",
+        "Sarah from Alpha has mentioned she's feeling overwhelmed. Michael from Beta is actually underutilized — his team finished their milestone early.",
+        "Leadership is asking which project is higher risk for their launch dates. They might approve budget reallocation.",
+        "Based on everything across our discussions, which project has higher launch risk and why?"
+      ]
+    },
+    {
+      "id": "SCN-TMP-T13",
+      "scenario_label": "en_temporal_reasoning__time_based_logic__t13",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "temporal_reasoning",
+        "deadline_calculation",
+        "conflict_detection",
+        "arithmetic_reasoning"
+      ],
+      "user_id": "5cda3847-e958-46c2-a046-82cb2e6ea86c",
+      "conversation_id": "2f4015b2-92e9-40b3-b5bf-4c51c0f039ea",
+      "request_id": "8eb2a949-2b5d-43db-8231-f27534ff137f",
+      "original_query": "Create a timeline of all my upcoming events and deadlines from now through January 2nd, with any action items and their deadlines.",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Bot should produce a complete ordered timeline: Nov 15 (today, start proposal), Nov 17 (team meeting), Nov 19 (proposal due), Nov 20 (friend moving day), Nov 28-29 (ACTION: book wedding flights by Nov 29), Nov 30 (quarterly review, ACTION: prepare self-assessment 2 days prior → start Nov 28), Dec 4 (ACTION: submit PTO by this date), Dec 18 (vacation starts), Dec 20 (brother's wedding), Jan 2 (vacation ends / return). All calculated action deadlines must be present."
+      },
+      "expected_facts": [
+        "November 17",
+        "November 19",
+        "November 20",
+        "November 29",
+        "November 30",
+        "December 4",
+        "December 18",
+        "December 20",
+        "January 2"
+      ],
+      "evaluation_notes": "[Temporal Reasoning] Full timeline synthesis with calculated action items. The hardest temporal case: 9 distinct dates, 3 derived deadlines (flight booking Nov 29, self-assessment start Nov 28, PTO submission Dec 4), and correct ordering. Tests whether the model can hold all temporal facts and apply all rules consistently.",
+      "conversation_history": [
+        "Today is Monday, November 15th, 2024. I need help planning some things.",
+        "I have a project proposal due this Friday, November 19th. It needs at least 3 days of work.",
+        "Every Wednesday, I have a standing team meeting from 2-4 PM. Can't miss those.",
+        "My brother's wedding is December 20th. I need to book flights at least 3 weeks in advance to get good prices, and I need to request PTO 2 weeks before any time off.",
+        "I started at this company on March 1st, 2022. Time flies.",
+        "For the December holidays, I want to take December 18th through January 2nd off. But remember, I need to submit PTO 2 weeks before.",
+        "There's also a quarterly review on November 30th. I need to prepare my self-assessment, which takes about 2 days.",
+        "Oh, I also promised to help my friend move on Saturday, November 20th. That's an all-day thing."
+      ]
+    },
+    {
+      "id": "SCN-KUP-T10",
+      "scenario_label": "en_knowledge_updates__state_tracking__startup_snapshot_t10",
+      "matrix_cell": {
+        "should_rewrite": false,
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ]
+      },
+      "edge_case_tags": [
+        "state_tracking",
+        "context_update",
+        "correction_handling",
+        "stale_value_prevention"
+      ],
+      "user_id": "9443d2ba-71be-41fe-9fe9-94ff3be63558",
+      "conversation_id": "845fe8ee-0907-4d61-ba28-4b30721f2bda",
+      "request_id": "3a17894a-b8a5-4111-a55c-60d44cef2433",
+      "original_query": "Give me a complete current snapshot of the company, reflecting all updates.",
+      "recent_messages": [],
+      "conversation_summary": "",
+      "expected_output": {
+        "should_rewrite": false,
+        "final_query": "",
+        "rewrite_rationale": "none",
+        "should_retrieve": true,
+        "memory_types": [
+          "short_term"
+        ],
+        "retrieval_budget_ms_range": [
+          0,
+          2000
+        ],
+        "answer": "Complete snapshot must reflect ALL final updates: Location: San Francisco (NOT Austin), Employees: 25 (NOT 12 or 15), Customers: 60, MRR: $45K, Funding: $6.8M total (Series A from Sequoia), CEO: Marcus Thompson (incoming), Chairman: Jennifer Walsh (former CEO). Must NOT present any superseded values as current.",
+        "should_not_contain": [
+          "Austin",
+          "12 employees",
+          "$2M",
+          "Jennifer is CEO",
+          "Jennifer Walsh is CEO"
+        ]
+      },
+      "expected_facts": [
+        "B2B SaaS",
+        "inventory management",
+        "San Francisco",
+        "25 employees",
+        "60 customers",
+        "$45K MRR",
+        "$6.8M",
+        "Sequoia",
+        "Marcus Thompson",
+        "Jennifer Walsh",
+        "Chairman"
+      ],
+      "evaluation_notes": "[Knowledge Updates] Full state-tracking test across 5 distinct updates: employees (12→15→25), funding ($2M→corrected $1.8M→$6.8M after Series A), customers (50→60), MRR ($30K→$45K), location (Austin→San Francisco), CEO (Jennifer Walsh→Marcus Thompson, Jennifer→Chairman). Every field was updated at least once; funding was also corrected before a further update. A model that retains stale values (Austin, 12 employees, $2M, Jennifer as CEO) fails. The funding chain is the hardest: initial $2M → correction to $1.8M → +$5M Series A = $6.8M. should_not_contain guards against stale-state hallucination.",
+      "conversation_history": [
+        "Let me give you the current status of our startup. We have 12 employees, $2M in funding, and we're based in Austin, Texas.",
+        "Our product is a B2B SaaS platform for inventory management. We have 50 customers and $30K MRR. Our CEO is Jennifer Walsh.",
+        "Update: we just hired 3 more people last week, so we're now at 15 employees.",
+        "Great news — we closed 10 new customers this month! So we're at 60 customers now.",
+        "Those new customers bumped our MRR to $45K. We're growing faster than expected.",
+        "Actually, I need to correct something. I said we had $2M in funding, but I miscounted. It's actually $1.8M — I forgot we spent $200K on equipment.",
+        "BIG NEWS: We just closed a Series A round! We raised $5M from Sequoia. So total funding is now $6.8M ($1.8M + $5M).",
+        "With the new funding, Jennifer (CEO) is stepping into a Chairman role. We're bringing in a new CEO, Marcus Thompson, who starts next month.",
+        "Also, we're moving! The new office will be in San Francisco. Austin was getting too small for our growth.",
+        "The Series A means we're hiring aggressively. We've added 10 more people this week alone. So total is now 25 employees."
+      ]
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Conversation Memory Test</title>
+    <title>Golden Dataset – Chatsmith Conv 02</title>
     <style>
         * {
             margin: 0;
@@ -19,6 +19,8 @@
             --green-dark:   #38a169;
             --amber:        #ed8936;
             --amber-dark:   #dd6b20;
+            --teal:         #38b2ac;
+            --teal-dark:    #2c7a7b;
             --bg:           #f8fafc;
             --card:         #ffffff;
             --border:       #e2e8f0;
@@ -64,9 +66,7 @@
             color: white;
             padding: 20px 20px 18px;
         }
-        .page-header-top {
-            margin-bottom: 10px;
-        }
+        .page-header-top { margin-bottom: 10px; }
         .back-link {
             color: rgba(255,255,255,0.8);
             text-decoration: none;
@@ -104,11 +104,7 @@
             letter-spacing: 0.06em;
             margin-bottom: 10px;
         }
-        .filter-pills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 7px;
-        }
+        .filter-pills { display: flex; flex-wrap: wrap; gap: 7px; }
         .filter-pill {
             padding: 6px 13px;
             border-radius: 20px;
@@ -122,15 +118,8 @@
             white-space: nowrap;
             min-height: 34px;
         }
-        .filter-pill:hover {
-            border-color: var(--purple);
-            color: var(--purple);
-        }
-        .filter-pill.active {
-            background: var(--purple);
-            border-color: var(--purple);
-            color: white;
-        }
+        .filter-pill:hover { border-color: var(--purple); color: var(--purple); }
+        .filter-pill.active { background: var(--purple); border-color: var(--purple); color: white; }
 
         .cases-list {
             padding: 16px 20px;
@@ -199,11 +188,7 @@
             margin-bottom: 10px;
             line-height: 1.5;
         }
-        .case-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
+        .case-meta { display: flex; flex-wrap: wrap; gap: 5px; }
         .meta-tag {
             font-size: 11px;
             padding: 3px 8px;
@@ -211,12 +196,11 @@
             font-weight: 600;
         }
         .tag-steps        { background: #ebf4ff; color: #2b6cb0; }
-        .tag-rewrite      { background: #fef3c7; color: #92400e; }
         .tag-short-term   { background: #d1fae5; color: #065f46; }
         .tag-long-term    { background: #ede9fe; color: #4c1d95; }
-        .tag-both-memory  { background: #fee2e2; color: #7f1d1d; }
+        .tag-no-retrieve  { background: #fef3c7; color: #92400e; }
         .tag-edge         { background: #f3f4f6; color: #374151; }
-        .tag-context      { background: #fce7f3; color: #831843; }
+        .tag-tom          { background: #fee2e2; color: #7f1d1d; }
 
         .empty-state {
             text-align: center;
@@ -252,15 +236,8 @@
             transition: background 0.2s;
         }
         .runner-back:hover { background: rgba(255,255,255,0.3); }
-        .runner-case-id {
-            font-size: 14px;
-            font-weight: 700;
-        }
-        .step-counter {
-            font-size: 13px;
-            opacity: 0.9;
-            font-weight: 600;
-        }
+        .runner-case-id { font-size: 14px; font-weight: 700; }
+        .step-counter { font-size: 13px; opacity: 0.9; font-weight: 600; }
         .progress-bar-track {
             background: rgba(255,255,255,0.25);
             border-radius: 4px;
@@ -280,7 +257,6 @@
             margin: 0 auto;
         }
 
-        /* Message card */
         .message-card {
             background: white;
             border-radius: 16px;
@@ -320,28 +296,9 @@
             line-height: 1.65;
             color: var(--text);
             font-weight: 500;
-        }
-        .expected-rewrite {
-            margin-top: 16px;
-            padding-top: 14px;
-            border-top: 1px solid var(--border);
-        }
-        .expected-rewrite-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 6px;
-        }
-        .expected-rewrite-text {
-            font-size: 15px;
-            color: var(--green-dark);
-            font-style: italic;
-            line-height: 1.5;
+            white-space: pre-wrap;
         }
 
-        /* Copy button */
         .copy-section { margin-bottom: 14px; }
         .copy-main-btn {
             width: 100%;
@@ -378,12 +335,7 @@
         }
         @media (hover: hover) { .keyboard-hint { display: block; } }
 
-        /* Nav buttons */
-        .nav-section {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 0;
-        }
+        .nav-section { display: flex; gap: 10px; margin-bottom: 0; }
         .nav-btn {
             flex: 1;
             padding: 14px;
@@ -397,18 +349,9 @@
             transition: all 0.2s;
             min-height: 50px;
         }
-        .nav-btn:hover {
-            border-color: var(--purple);
-            color: var(--purple);
-        }
-        .nav-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-        .nav-btn:disabled:hover {
-            border-color: var(--border);
-            color: var(--text-sm);
-        }
+        .nav-btn:hover { border-color: var(--purple); color: var(--purple); }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .nav-btn:disabled:hover { border-color: var(--border); color: var(--text-sm); }
         .restart-btn {
             background: var(--purple);
             border-color: var(--purple);
@@ -420,13 +363,13 @@
             color: white;
         }
 
-        /* Collapsible panels */
         .panel-section { margin-top: 16px; }
         .panel-card {
             background: white;
             border-radius: 14px;
             border: 1.5px solid var(--border);
             overflow: hidden;
+            margin-bottom: 10px;
         }
         .panel-header {
             padding: 13px 18px;
@@ -445,18 +388,11 @@
             transition: background 0.2s;
         }
         .panel-header:hover { background: #edf2f7; }
-        .panel-chevron {
-            font-size: 10px;
-            transition: transform 0.2s;
-        }
+        .panel-chevron { font-size: 10px; transition: transform 0.2s; }
         .panel-chevron.open { transform: rotate(180deg); }
-        .panel-body {
-            padding: 14px 18px;
-            display: none;
-        }
+        .panel-body { padding: 14px 18px; display: none; }
         .panel-body.open { display: block; }
 
-        /* Outcome rows */
         .outcome-row {
             display: flex;
             align-items: flex-start;
@@ -477,27 +413,28 @@
         .outcome-val.is-true  { color: #276749; font-weight: 600; }
         .outcome-val.is-false { color: var(--text-muted); }
 
-        /* Context messages */
-        .ctx-msg {
-            border-radius: 10px;
-            padding: 10px 14px;
-            font-size: 13px;
-            line-height: 1.55;
-            margin-bottom: 8px;
+        .facts-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
         }
-        .ctx-msg:last-child { margin-bottom: 0; }
-        .ctx-msg.user  { background: #ebf8ff; border-left: 3px solid #63b3ed; }
-        .ctx-msg.model { background: var(--bg); border-left: 3px solid var(--border); }
-        .ctx-msg-role {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
-            opacity: 0.65;
-            margin-bottom: 4px;
+        .fact-chip {
+            background: #d1fae5;
+            color: #065f46;
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 13px;
+            font-weight: 600;
         }
 
-        /* Manual copy modal (bottom sheet) */
+        .eval-notes-text {
+            font-size: 13px;
+            color: var(--text-sm);
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
         .modal-overlay {
             display: none;
             position: fixed;
@@ -547,7 +484,6 @@
             cursor: pointer;
         }
 
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 72px;
@@ -565,10 +501,7 @@
             white-space: nowrap;
             pointer-events: none;
         }
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         @media (max-width: 400px) {
             .message-text  { font-size: 16px; }
@@ -588,14 +521,14 @@
 <div id="list-view" class="view">
     <div class="page-header">
         <div class="page-header-top">
-            <a href="../index.html" class="back-link">← Back to Index</a>
+            <a href="../../index.html" class="back-link">← Back to Index</a>
         </div>
-        <h1>🧠 Conversation Memory Tests</h1>
+        <h1>🧪 Golden Dataset – Chatsmith Conv 02</h1>
         <p class="stats" id="list-stats"></p>
     </div>
 
     <div class="filter-bar">
-        <div class="filter-label">Filter by scenario</div>
+        <div class="filter-label">Filter</div>
         <div class="filter-pills" id="filter-pills"></div>
     </div>
 
@@ -632,41 +565,36 @@
 
 <script>
     /* ── STATE ─────────────────────────────────────────────────────── */
-    let dataset     = null;
+    let dataset      = null;
     let activeFilter = 'all';
     let _keyHandler  = null;
     let _toastTimer  = null;
 
     /* ── FILTERS ───────────────────────────────────────────────────── */
     const FILTERS = [
-        { id: 'all',         label: 'All' },
-        { id: 'no_rewrite',  label: 'No Rewrite' },
-        { id: 'rewrite',     label: 'Rewrite' },
-        { id: 'no_retrieve', label: 'No Retrieve' },
-        { id: 'short_term',  label: 'Short-term' },
-        { id: 'long_term',   label: 'Long-term' },
-        { id: 'both',        label: 'Both Memory' },
-        { id: 'edge',        label: 'Edge Cases' },
+        { id: 'all',          label: 'All' },
+        { id: 'short_term',   label: 'Short-term' },
+        { id: 'long_term',    label: 'Long-term' },
+        { id: 'no_retrieve',  label: 'No Retrieve' },
+        { id: 'edge',         label: 'Has Edge Tags' },
+        { id: 'tom',          label: 'Theory of Mind' },
     ];
 
     function matchesFilter(c, f) {
         const m = c.matrix_cell;
-        const isEdge = c.scenario_label.startsWith('edge');
         if (f === 'all')         return true;
-        if (f === 'no_rewrite')  return !m.should_rewrite && !isEdge;
-        if (f === 'rewrite')     return m.should_rewrite;
-        if (f === 'no_retrieve') return !m.should_retrieve && !isEdge;
         if (f === 'short_term')  return m.memory_types.length === 1 && m.memory_types[0] === 'short_term';
         if (f === 'long_term')   return m.memory_types.length === 1 && m.memory_types[0] === 'long_term';
-        if (f === 'both')        return m.memory_types.length === 2;
-        if (f === 'edge')        return isEdge;
+        if (f === 'no_retrieve') return !m.should_retrieve;
+        if (f === 'edge')        return (c.edge_case_tags || []).length > 0;
+        if (f === 'tom')         return (c.edge_case_tags || []).includes('theory_of_mind');
         return true;
     }
 
     /* ── INIT ──────────────────────────────────────────────────────── */
     async function init() {
         try {
-            const res = await fetch('../test-data/golden_dataset_orchestrator_with_history.json');
+            const res = await fetch('./golden_dataset_chatsmith_conv_02.json');
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             dataset = await res.json();
             document.getElementById('loading-screen').style.display = 'none';
@@ -730,9 +658,10 @@
     function renderList() {
         if (!dataset) return;
 
-        const withCtx = dataset.cases.filter(c => c.recent_messages?.length > 0).length;
+        const totalCases = dataset.cases.length;
+        const withEdge   = dataset.cases.filter(c => (c.edge_case_tags || []).length > 0).length;
         document.getElementById('list-stats').textContent =
-            `${dataset.total_cases} cases · ${withCtx} with context messages`;
+            `${totalCases} cases · ${withEdge} with edge-case tags`;
 
         const filtered = dataset.cases.filter(c => matchesFilter(c, activeFilter));
 
@@ -751,22 +680,24 @@
             const tags = [
                 `<span class="meta-tag tag-steps">📋 ${totalSteps} steps</span>`,
             ];
-            if (m.should_rewrite)  tags.push(`<span class="meta-tag tag-rewrite">✏️ Rewrite</span>`);
             if (m.memory_types.length === 1 && m.memory_types[0] === 'short_term')
                 tags.push(`<span class="meta-tag tag-short-term">🔵 Short-term</span>`);
             if (m.memory_types.length === 1 && m.memory_types[0] === 'long_term')
                 tags.push(`<span class="meta-tag tag-long-term">🟣 Long-term</span>`);
             if (m.memory_types.length === 2)
-                tags.push(`<span class="meta-tag tag-both-memory">🔴 Both</span>`);
-            if (c.recent_messages?.length)
-                tags.push(`<span class="meta-tag tag-context">💬 ${c.recent_messages.length} ctx</span>`);
-            if (c.scenario_label.startsWith('edge'))
-                tags.push(`<span class="meta-tag tag-edge">⚡ Edge</span>`);
+                tags.push(`<span class="meta-tag tag-long-term">🔴 Both</span>`);
+            if (!m.should_retrieve)
+                tags.push(`<span class="meta-tag tag-no-retrieve">⛔ No Retrieve</span>`);
+            const edgeTags = c.edge_case_tags || [];
+            if (edgeTags.includes('theory_of_mind'))
+                tags.push(`<span class="meta-tag tag-tom">🧠 ToM</span>`);
+            else if (edgeTags.length > 0)
+                tags.push(`<span class="meta-tag tag-edge">⚡ ${edgeTags[0]}${edgeTags.length > 1 ? ` +${edgeTags.length - 1}` : ''}</span>`);
 
             return `
             <div class="case-card" onclick="location.hash='run/${c.id}/0'">
                 <div class="case-card-header">
-                    <span class="case-id-badge">${c.id}</span>
+                    <span class="case-id-badge">${escHtml(c.id)}</span>
                     <button class="run-btn"
                             onclick="event.stopPropagation(); location.hash='run/${c.id}/0'">
                         ▶ Run
@@ -784,31 +715,22 @@
         const c = dataset?.cases.find(x => x.id === caseId);
         if (!c) { goList(); return; }
 
-        const msgs       = [...c.conversation_history, c.original_query];
-        const total      = msgs.length;
-        const isFinal    = step === total - 1;
-        const pct        = Math.round(((step + 1) / total) * 100);
-        const exp        = c.expected_output;
+        const msgs    = [...c.conversation_history, c.original_query];
+        const total   = msgs.length;
+        const isFinal = step === total - 1;
+        const pct     = Math.round(((step + 1) / total) * 100);
+        const exp     = c.expected_output;
 
-        /* Header */
-        document.getElementById('rn-case-id').textContent     = caseId;
-        document.getElementById('rn-step-counter').textContent = `${step + 1} / ${total}`;
-        document.getElementById('rn-progress').style.width    = pct + '%';
+        document.getElementById('rn-case-id').textContent      = caseId;
+        document.getElementById('rn-step-counter').textContent  = `${step + 1} / ${total}`;
+        document.getElementById('rn-progress').style.width     = pct + '%';
 
-        /* Message card */
         let cardHtml;
         if (isFinal) {
-            const rewriteBlock = (exp.should_rewrite && exp.final_query)
-                ? `<div class="expected-rewrite">
-                       <div class="expected-rewrite-label">Expected rewrite →</div>
-                       <div class="expected-rewrite-text">"${escHtml(exp.final_query)}"</div>
-                   </div>`
-                : '';
             cardHtml = `
             <div class="message-card is-final">
                 <div class="final-badge">⭐ Final Query</div>
                 <div class="message-text">${escHtml(msgs[step])}</div>
-                ${rewriteBlock}
             </div>`;
         } else {
             cardHtml = `
@@ -818,7 +740,6 @@
             </div>`;
         }
 
-        /* Copy button */
         const copyBtnClass = `copy-main-btn${isFinal ? ' is-final-btn' : ''}`;
         const copyBtnLabel = isFinal ? '📋&nbsp; Copy Final Query' : '📋&nbsp; Copy Message';
         const copyHtml = `
@@ -831,7 +752,6 @@
             <div class="keyboard-hint">Space / Enter to copy &nbsp;·&nbsp; ← → to navigate</div>
         </div>`;
 
-        /* Nav buttons */
         const prevDisabled = step === 0 ? 'disabled' : '';
         const navHtml = isFinal
             ? `<button class="nav-btn" ${prevDisabled}
@@ -843,18 +763,16 @@
                <button class="nav-btn"
                        onclick="goStep('${caseId}', ${step + 1})">Next →</button>`;
 
-        /* Expected outcome panel (always visible on final step) */
         let outcomeHtml = '';
         if (isFinal) {
             const memLabel = exp.memory_types.length ? exp.memory_types.join(', ') : 'none';
             const rows = [
-                ['should_rewrite',  exp.should_rewrite],
                 ['should_retrieve', exp.should_retrieve],
                 ['memory_types',    memLabel],
-                ...(exp.final_query ? [['expected rewrite', exp.final_query]] : []),
-                ...(exp.rewrite_rationale && exp.rewrite_rationale !== 'none'
-                    ? [['rewrite_rationale', exp.rewrite_rationale]]
+                ...(exp.retrieval_budget_ms_range
+                    ? [['budget_ms', exp.retrieval_budget_ms_range.join(' – ') + ' ms']]
                     : []),
+                ...(exp.answer ? [['answer', exp.answer]] : []),
             ].map(([k, v]) =>
                 `<div class="outcome-row">
                     <span class="outcome-key">${escHtml(String(k))}</span>
@@ -863,37 +781,59 @@
                     </span>
                  </div>`
             ).join('');
+
+            const factsHtml = (c.expected_facts || []).length
+                ? `<div class="outcome-row" style="flex-direction:column;gap:8px">
+                       <span class="outcome-key">expected_facts</span>
+                       <div class="facts-list">
+                           ${(c.expected_facts).map(f => `<span class="fact-chip">${escHtml(f)}</span>`).join('')}
+                       </div>
+                   </div>`
+                : '';
+
             outcomeHtml = `
             <div class="panel-section">
                 <div class="panel-card">
                     <div class="panel-header" onclick="togglePanel('outcome-body','outcome-chev')">
                         <span>🎯 Expected outcome</span>
-                        <span class="panel-chevron" id="outcome-chev">▼</span>
+                        <span class="panel-chevron open" id="outcome-chev">▼</span>
                     </div>
-                    <div class="panel-body open" id="outcome-body">${rows}</div>
+                    <div class="panel-body open" id="outcome-body">${rows}${factsHtml}</div>
                 </div>
             </div>`;
-        }
 
-        /* Context panel (recent_messages) */
-        let contextHtml = '';
-        if (c.recent_messages?.length) {
-            const ctxMsgs = c.recent_messages.map(m =>
-                `<div class="ctx-msg ${m.role}">
-                    <div class="ctx-msg-role">${m.role === 'model' ? 'AI' : 'User'}</div>
-                    ${escHtml(m.content)}
-                 </div>`
-            ).join('');
-            contextHtml = `
+            if (c.evaluation_notes) {
+                outcomeHtml += `
             <div class="panel-section">
                 <div class="panel-card">
-                    <div class="panel-header" onclick="togglePanel('ctx-body','ctx-chev')">
-                        <span>💬 Context already in app (${c.recent_messages.length} msgs)</span>
-                        <span class="panel-chevron" id="ctx-chev">▼</span>
+                    <div class="panel-header" onclick="togglePanel('notes-body','notes-chev')">
+                        <span>📝 Evaluation notes</span>
+                        <span class="panel-chevron" id="notes-chev">▼</span>
                     </div>
-                    <div class="panel-body" id="ctx-body">${ctxMsgs}</div>
+                    <div class="panel-body" id="notes-body">
+                        <p class="eval-notes-text">${escHtml(c.evaluation_notes)}</p>
+                    </div>
                 </div>
             </div>`;
+            }
+
+            const edgeTags = c.edge_case_tags || [];
+            if (edgeTags.length) {
+                outcomeHtml += `
+            <div class="panel-section">
+                <div class="panel-card">
+                    <div class="panel-header" onclick="togglePanel('tags-body','tags-chev')">
+                        <span>🏷️ Edge-case tags</span>
+                        <span class="panel-chevron" id="tags-chev">▼</span>
+                    </div>
+                    <div class="panel-body" id="tags-body">
+                        <div class="facts-list">
+                            ${edgeTags.map(t => `<span class="fact-chip" style="background:#e0e7ff;color:#3730a3">${escHtml(t)}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            }
         }
 
         document.getElementById('runner-body').innerHTML = `
@@ -901,7 +841,6 @@
             ${copyHtml}
             <div class="nav-section">${navHtml}</div>
             ${outcomeHtml}
-            ${contextHtml}
             <div style="height:40px"></div>
         `;
 
@@ -950,11 +889,6 @@
     }
 
     /* ── CLIPBOARD ─────────────────────────────────────────────────── */
-
-    /**
-     * Resolve the text to copy from the button's data attributes.
-     * Using data attributes avoids any escaping issues in onclick HTML.
-     */
     function getTextForBtn(btn) {
         const caseId = btn.getAttribute('data-caseid');
         const step   = parseInt(btn.getAttribute('data-step'), 10);
@@ -967,47 +901,36 @@
     function handleCopy(btn) {
         const text = getTextForBtn(btn);
         if (!text) return;
-
-        /* Tier 1 — Clipboard API (HTTPS / localhost, iOS 13.4+, modern Chrome) */
         if (navigator.clipboard?.writeText) {
             navigator.clipboard.writeText(text)
                 .then(() => showCopiedFeedback(btn))
                 .catch(() => fallbackCopy(text, btn));
             return;
         }
-
-        /* Tier 2 — execCommand fallback */
         fallbackCopy(text, btn);
     }
 
     function fallbackCopy(text, btn) {
         const ta = document.createElement('textarea');
         ta.value = text;
-        /* Off-screen but still focusable & selectable (display:none blocks selection) */
         ta.style.cssText = 'position:fixed;left:-9999px;top:50%;opacity:0;pointer-events:none;';
         document.body.appendChild(ta);
         ta.focus();
         ta.select();
-        ta.setSelectionRange(0, ta.value.length); /* iOS requires this */
+        ta.setSelectionRange(0, ta.value.length);
         let ok = false;
-        try { ok = document.execCommand('copy'); } catch (_) { /* swallow */ }
+        try { ok = document.execCommand('copy'); } catch (_) {}
         document.body.removeChild(ta);
-
-        if (ok) {
-            showCopiedFeedback(btn);
-        } else {
-            /* Tier 3 — show manual copy modal */
-            showManualCopyModal(text);
-        }
+        if (ok) showCopiedFeedback(btn);
+        else showManualCopyModal(text);
     }
 
     function showCopiedFeedback(btn) {
         if (!btn) return;
-        const isFinal  = btn.classList.contains('is-final-btn');
-        const original = btn.innerHTML;
-        btn.innerHTML  = '✓&nbsp; Copied!';
+        const isFinal = btn.classList.contains('is-final-btn');
+        btn.innerHTML = '✓&nbsp; Copied!';
         btn.classList.add('copied');
-        btn.disabled   = true;
+        btn.disabled  = true;
         showToast('Copied to clipboard!');
         setTimeout(() => {
             btn.innerHTML = isFinal ? '📋&nbsp; Copy Final Query' : '📋&nbsp; Copy Message';
@@ -1021,11 +944,7 @@
         const ta = document.getElementById('manual-text');
         ta.value = text;
         document.getElementById('manual-modal').classList.add('show');
-        setTimeout(() => {
-            ta.focus();
-            ta.select();
-            ta.setSelectionRange(0, ta.value.length);
-        }, 200);
+        setTimeout(() => { ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length); }, 200);
     }
 
     function closeManualModal() {

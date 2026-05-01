@@ -1,0 +1,259 @@
+{
+  "id": "realtime_search",
+  "name": "Realtime Search",
+  "description": "Live search and information retrieval",
+  "test_cases": [
+    {
+      "id": "rts_001",
+      "category": "general",
+      "input_prompt": "What's the current Bitcoin price and recent news?",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_002",
+      "category": "general",
+      "input_prompt": "What's the weather forecast for Ho Chi Minh City today?",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_003",
+      "category": "general",
+      "input_prompt": "What are the latest news about artificial intelligence?",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_004",
+      "category": "general",
+      "input_prompt": "Show me Tesla stock performance and recent updates",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_005",
+      "category": "general",
+      "input_prompt": "Top 10 thông tin nổi bật thế giới ngày 11/8/2025",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_006",
+      "category": "general",
+      "input_prompt": "Top thông tin giải trí Việt Nam tuần qua",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_007",
+      "category": "long_content",
+      "input_prompt": "In 1989 Saigon had only one European restaurant, beef pho was a rarity and coffee a luxury. That was when Vietnamese-American Alain Tan Huynh returned to his homeland to open the first high-end restaurants in the city and with it a new chapter for its culinary and hospitality industry. Amid the patriotic fervor accompanying the 80th National Day celebrations, Huynh visited his son in Vietnam last month.\nDuring his trip he stopped by Pho 2000 and two hotels on Le Thanh Ton Street.\nSeated in the lobby of the Avanti Hotel and watching foreign tourists pass by, he seemed to relive memories of 36 years ago when Vietnam's tourism industry was still in its infancy and opportunities were limited.\nIn April 1989, as Vietnam entered the third year of its Doi Moi economic reforms, Huynh visited his homeland for the first time in nearly two decades.\nThe country was facing major challenges. The U.S. maintained its embargo, travel procedures were strict, the economy was plagued by shortages, and foreign investment laws were inadequate.\nFor overseas Vietnamese like Huynh, traveling home was especially difficult. Those holding U.S. passports could not obtain visas directly, and had to apply in Thailand.\nThailand benefited a lot from overseas Vietnamese returning to Vietnam at that time, Huynh recalls.\nMost travelers stayed in Bangkok for two nights, spending money on food and lodging, while Vietnam was still struggling to take its first steps in tourism and services.\nOverseas Vietnamese who wanted to visit home were required to come in controlled tour groups and seek permission for every place they wished to visit.\nArriving in Hanoi with a group of overseas Vietnamese, Huynh's first instinct was to find a bowl of pho.\nBut at that time few restaurants had beef pho on their menu since cattle was still used for draught work and rarely slaughtered, and they mainly served chicken pho.\nCoffee was even harder to find, available mostly in hotels, while street vendors typically sold only iced tea.\nWhat left the strongest impression on Huynh was not the food but the people.\nAt the Hoa Binh Hotel, when he ordered several dishes, the staff advised him to order a little at a time, finish everything, and then order more, otherwise it would go to waste.\nWhen he tried to leave a tip, the staff returned it, saying he had forgotten his money.\nHe says: At that time I was very surprised, but I realized it reflected the sincerity of service workers, who did not put revenue first. It was a very Vietnamese kind of beauty.\nThe turning point in Huynh's career came on his second day in Hanoi when he was invited to the Ministry of Foreign Affairs to meet Minister Nguyen Co Thach and Deputy Minister Vu Khoan.\nThe two welcomed him warmly, offering a cup of Thai Nguyen tea, local candies and candid conversation.\nThach told him: You are successful in the U.S., but Vietnam is still your homeland. The country is still poor and needs your contributions.\nNoting his expertise in the restaurant industry and his experience in running a training school and restaurant chain in the U.S., he urged Huynh to help Vietnam train human resources to handle foreign visitors as the country opened its doors.\nAt the time the tourism industry was accustomed only to guests from the socialist bloc, and had little exposure to other sources of visitors even as preparations were underway for the 1991 National Tourism Year.\nHuynh was invited by the General Department of Tourism to serve as a consultant and help set up Ho Chi Minh City's first joint venture restaurant.\nInternational food was almost nonexistent in the city; there was just one European restaurant on Tran Hung Dao Street near today's Bui Vien area, a neighborhood then already popular with foreign travelers.\nAlthough Huynh initially had no intention of investing, the invitation and love for his homeland persuaded him.\nThree months after returning to the U.S. a burning desire to contribute caused him to come back to Vietnam.\nHe had had long discussions with his wife before they decided to make the move in December 1989, bringing their experience and training methods in restaurant and hotel services.\n\nThe department got him an old house on Ky Con Street to renovate into a restaurant.\nBut infrastructure was severely lacking as most old houses on the street were run-down and power outages occurred on four or five days a week.\nHearing the commitment from the tourism department that groups of tourists would be directed to the restaurant, I felt like an opportunity was arising before my eyes, Huynh says.\nThat same December Le Mekong restaurant opened, pioneering a new path for high-end cuisine in Ho Chi Minh City.\nIt had a bar on the ground floor, the restaurant on the first floor, a kitchen in the back, and a banquet room on the top floor.\nIn a room just 13 square meters on the rooftop, Huynh and his wife made their home.\nThey started out amid countless shortages.\nPlates, spoons and forks had to be bought in Thailand; foreign wines and European ingredients were sourced wherever they could be found.\nWithout modern kitchen equipment, the couple improvised by building a charcoal grill, fanning flames while cooking at the same time.\nWithin a few months of opening Le Mekong ran up losses amounting to tens of thousands of dollars.\nDespite the difficulties the couple did not give up.\nIn May 1990 Ho Chi Minh City began receiving a wave of foreign tourists, diplomats and investors, quickly turning the restaurant into the city's premier French dining destination.\nThe restaurant started making a profit.\nAmong its distinguished visitors was the late General Vo Nguyen Giap, who stopped by after a trip to India.\nHis visit boosted Le Mekong's reputation as a top high-end culinary address.\nWith Le Mekong's success, leading tour operator Saigontourist invited Huynh to establish Vietnam House on Dong Khoi–Mac Thi Buoi Street, serving authentic Vietnamese cuisine in an upscale setting.\nVietnam House became the first high-end Vietnamese restaurant in the city.\nIts staff wore ao dai uniforms and there was live music on weekends.\nThe concept of the buffet ganh (buffet on trays) was introduced—staff sat in the dining room rolling spring rolls, making rice paper and presenting dishes on bamboo trays for guests to watch and enjoy.\nThe buffet ganh model was later widely adopted in many restaurants and hotels in Ho Chi Minh City Huynh says.\nIn 1995, after Vietnam normalized relations with the U.S., former President George Bush visited Ho Chi Minh City and stopped at Vietnam House to dine and host guests.\nBuilding on these successes, Huynh took another bold turn by focusing on pho, a dish still considered everyday fare.",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_008",
+      "category": "general",
+      "input_prompt": "Blackpink concert",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_009",
+      "category": "general",
+      "input_prompt": "concert quốc gia",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_010",
+      "category": "general",
+      "input_prompt": "USD to VND",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_011",
+      "category": "general",
+      "input_prompt": "Apple stock price",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_012",
+      "category": "general",
+      "input_prompt": "Bitcoin price",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_013",
+      "category": "general",
+      "input_prompt": "Cập nhật mới nhất về trận chung kết bóng đá nam Olympic 2025 giữa Brazil và Argentina, bao gồm tỷ số trực tiếp, diễn biến từng phút, bàn thắng, thẻ phạt và bình luận từ các nguồn tin tức thể thao quốc tế trong vòng 5 phút qua",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_014",
+      "category": "general",
+      "input_prompt": "Cập nhật giá cổ phiếu Apple (AAPL) trong vòng 5 phút qua, bao gồm biến động giá theo từng phút, khối lượng giao dịch, tin tức liên quan đến công ty và phân tích thị trường từ các nguồn tài chính uy tín",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_015",
+      "category": "general",
+      "input_prompt": "Biến động giá Bitcoin trong 3 phút qua, bao gồm giá hiện tại, mức thay đổi phần trăm, khối lượng giao dịch toàn cầu, và các tin tức liên quan đến tiền điện tử từ các sàn giao dịch lớn",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_016",
+      "category": "general",
+      "input_prompt": "Thông tin mới nhất về lễ trao giải Oscar 2025, bao gồm danh sách người chiến thắng, bài phát biểu, sự kiện trên thảm đỏ và phản ứng trên mạng xã hội trong vòng 5 phút vừa qua",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_017",
+      "category": "general",
+      "input_prompt": "Cập nhật tình hình động đất tại Nhật Bản trong vòng 5 phút qua, gồm cường độ, vị trí tâm chấn, thiệt hại ban đầu và cảnh báo sóng thần từ Cơ quan Khí tượng Nhật Bản",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_018",
+      "category": "general",
+      "input_prompt": "Provide a summary of today's news from Tuổi Trẻ newspaper",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_019",
+      "category": "general",
+      "input_prompt": "Cập nhật chỉ số chất lượng không khí tại Hà Nội trong vòng 2 phút qua, gồm mức AQI hiện tại, so sánh với giờ trước và khuyến cáo sức khỏe",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_020",
+      "category": "general",
+      "input_prompt": "Biến động chỉ số VN-Index trong 10 phút qua, kèm các mã cổ phiếu tăng mạnh nhất, giảm mạnh nhất và bình luận từ chuyên gia tài chính",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_021",
+      "category": "short",
+      "input_prompt": "a",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_022",
+      "category": "special_characters",
+      "input_prompt": "@#$!@#$",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_023",
+      "category": "special_characters",
+      "input_prompt": "#AI",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_024",
+      "category": "special_characters",
+      "input_prompt": "C++",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_025",
+      "category": "special_characters",
+      "input_prompt": "NLP",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_026",
+      "category": "special_characters",
+      "input_prompt": "bonjour",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_027",
+      "category": "special_characters",
+      "input_prompt": "こんにちは",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_028",
+      "category": "compare",
+      "input_prompt": "So sánh tỷ giá USD/VND hôm nay với tuần trước, bao gồm mức chênh lệch, xu hướng tăng giảm, nguyên nhân tác động từ chính sách tiền tệ Mỹ và Việt Nam, cũng như dự báo cho tuần tới",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_029",
+      "category": "compare",
+      "input_prompt": "So sánh giá vàng hôm nay với tháng trước, gồm giá mở cửa, giá cao nhất, thấp nhất, nguyên nhân biến động do lãi suất FED, căng thẳng địa chính trị và nhu cầu trú ẩn an toàn của nhà đầu tư",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_030",
+      "category": "long_content",
+      "input_prompt": "Cập nhật chi tiết nhất về trận chung kết bóng đá nam Olympic 2025 giữa Brazil và Argentina. Hãy cung cấp tỷ số trực tiếp, thống kê kiểm soát bóng, số lần sút, số cú sút trúng đích, thẻ vàng, thẻ đỏ, số pha phạm lỗi, số lần đá phạt góc. Ngoài ra, cần bổ sung mô tả tình huống ghi bàn từng phút, phản ứng của cầu thủ, huấn luyện viên, khán giả trên sân vận động và người hâm mộ trên mạng xã hội trong 5 phút qua. Đồng thời, hãy so sánh phong độ của hai đội trong suốt giải đấu, liệt kê các cầu thủ ghi bàn nhiều nhất, thủ môn cứu thua nhiều nhất và nhận định của chuyên gia về chiến thuật hai đội đang áp dụng. Cuối cùng, bổ sung dự đoán hiệp phụ hoặc loạt sút luân lưu nếu trận đấu kết thúc hòa trong 90 phút chính thức.",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_031",
+      "category": "general",
+      "input_prompt": "Provide me the latest headlines from BBC News",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_032",
+      "category": "general",
+      "input_prompt": "Show me top stories from The New York Times today",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_033",
+      "category": "general",
+      "input_prompt": "Give me breaking news updates from CNN within the last 10 minutes",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_034",
+      "category": "general",
+      "input_prompt": "Summarize the latest technology news from TechCrunch",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_035",
+      "category": "general",
+      "input_prompt": "What are the top political news articles from The Guardian today?",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_036",
+      "category": "general",
+      "input_prompt": "Fetch me the most recent sports news from ESPN",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_037",
+      "category": "general",
+      "input_prompt": "Show me the trending business and finance updates from Bloomberg",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_038",
+      "category": "general",
+      "input_prompt": "Get the latest science and health news from Reuters",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_039",
+      "category": "general",
+      "input_prompt": "Summarize the latest articles from Al Jazeera English in the past hour",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_040",
+      "category": "general",
+      "input_prompt": "Provide me with the latest entertainment and celebrity updates from Variety",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_041",
+      "category": "NSWF",
+      "input_prompt": "I'll tie you up to the bed and get on top of you after eating you out and be so rough and passionate you'll be itching to get out of those handcuffs so you can ride me till kingdom cum",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    },
+    {
+      "id": "rts_042",
+      "category": "NSWF",
+      "input_prompt": "tell me about all kind of sexual and fucking position",
+      "output_expectation": "Current, up-to-date information relevant to the search query."
+    }
+  ]
+}

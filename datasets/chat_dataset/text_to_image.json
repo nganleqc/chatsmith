@@ -7,79 +7,79 @@
       "id": "t2i_001",
       "category": "general",
       "input_prompt": "Create a photo of A red apple on a wooden table",
-      "output_expectation": "output-images/output1.jpg"
+      "output_expectation": "output_images/output1.jpg"
     },
     {
       "id": "t2i_002",
       "category": "general",
       "input_prompt": "Generate a image of A sunset over mountains with purple sky",
-      "output_expectation": "output-images/output1.jpg"
+      "output_expectation": "output_images/output1.jpg"
     },
     {
       "id": "t2i_003",
       "category": "general",
       "input_prompt": "Create a photo with Portrait of a young woman with curly hair",
-      "output_expectation": "output-images/output1.jpg"
+      "output_expectation": "output_images/output1.jpg"
     },
     {
       "id": "t2i_004",
       "category": "general",
       "input_prompt": "Create an image of a cinematic wide shot, sunrise over snowy mountain range, warm golden light, calm reflective lake, ultra realistic, 8k",
-      "output_expectation": "output-images/output1.jpg"
+      "output_expectation": "output_images/output1.jpg"
     },
     {
       "id": "t2i_005",
       "category": "general",
       "input_prompt": "Create an image of an adorable fluffy cat sitting in a teacup, tiny red bow tie, soft pastel background, kawaii style, studio lighting",
-      "output_expectation": "output-images/output1.jpg"
+      "output_expectation": "output_images/output1.jpg"
     },
     {
       "id": "t2i_006",
       "category": "general",
       "input_prompt": "Create an image of a futuristic city skyline at night, neon lights, flying cars, holographic billboards, cyberpunk style, dark atmosphere, cinematic perspective",
-      "output_expectation": "output-images/output1.jpg"
+      "output_expectation": "output_images/output1.jpg"
     },
     {
       "id": "t2i_007",
       "category": "general",
       "input_prompt": "Create an image of fantasy art, giant dragon curled beneath a glowing crystal tree, enchanted forest background, fireflies, ethereal mood, detailed illustration, 8k render",
-      "output_expectation": "output-images/output1.jpg"
+      "output_expectation": "output_images/output1.jpg"
     },
     {
       "id": "t2i_008",
       "category": "special_characters",
       "input_prompt": "Create an image of Shapes & Colors: @@!!##?? >>><<< rainbow fractals swirling endlessly",
-      "output_expectation": "output-images/output1.jpg"
+      "output_expectation": "output_images/output1.jpg"
     },
     {
       "id": "t2i_009",
       "category": "general",
       "input_prompt": "Create an image of close-up food photography, steaming ramen bowl, pork slices, boiled egg, mushrooms, cinematic lighting, high detail",
-      "output_expectation": "output-images/output1.jpg"
+      "output_expectation": "output_images/output1.jpg"
     },
     {
       "id": "t2i_010",
       "category": "general",
       "input_prompt": "Create an image of an ancient jungle temple, stone walls covered with moss, cinematic sunlight beams through trees, atmospheric perspective, photo realism",
-      "output_expectation": "output-images/output1.jpg"
+      "output_expectation": "output_images/output1.jpg"
     },
     {
       "id": "t2i_011",
       "category": "general",
       "input_prompt": "Create an image of a cartoon illustration, funny dog driving a tiny car, sunglasses, bright colors, playful, 2D flat style",
-      "output_expectation": "output-images/output1.jpg"
+      "output_expectation": "output_images/output1.jpg"
     },
     {
       "id": "t2i_012",
       "category": "general",
       "input_prompt": "a cyberpunk samurai, glowing neon katana, Tokyo street in heavy rain, neon reflections on wet asphalt, cinematic, dark mood, ultra realistic",
-      "output_expectation": "output-images/output1.jpg"
+      "output_expectation": "output_images/output1.jpg"
     },
     {
       "id": "t2i_013",
       "category": "very_long",
       "input_prompt": "Generate an ultra-detailed cinematic artwork of an endless desert landscape at sunset, golden sand dunes shimmering, abandoned ancient city half-buried in dunes, carved towers glowing faintly with celestial symbols, caravan of travelers on camels crossing the horizon, cinematic wide angle shot, atmospheric lighting. As the sun sets the sky transforms into galaxies and nebulas, hyper realistic stars filling the sky, narrow alleys illuminated with paper lanterns, exotic market stalls with spices, fabrics, glowing crystals, incense smoke filling the air. A palace made of obsidian and silver with crystal chandeliers, reflective marble floors, murals of gods and mythical wars, lush oasis gardens with waterfalls and cherry blossoms. Enchanted forest with glowing mushrooms, snowy mountains, stormy oceans with ships struck by lightning, floating steampunk cities with gears turning, surreal dreamscape where gravity breaks, rainbow fractals in the sky, time bending architecture, detailed shadows, volumetric lighting, cinematic realism, 8k render, ultra sharp textures. The description continues with layered sensory detail and symbolic imagery across natural, fantastical, and futuristic realms, designed as a stress test (~1000 words).",
-      "output_expectation": "output-images/output1.jpg"
+      "output_expectation": "output_images/output1.jpg"
     }
   ]
 }

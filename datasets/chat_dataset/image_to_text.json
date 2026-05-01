@@ -7,21 +7,21 @@
       "id": "i2t_001",
       "category": "document",
       "input_prompt": "Extract all text from this document",
-      "input_image": "images/Screenshot 2025-08-19 at 22.58.28.png",
+      "input_image": "images/Screenshot_2025_08_19_at_22.58.28.png",
       "output_expectation": "Extracted text content from the document with accurate OCR results."
     },
     {
       "id": "i2t_002",
       "category": "scene",
       "input_prompt": "Describe what you see in this image",
-      "input_image": "images/istockphoto-1190043570-612x612.jpg",
+      "input_image": "images/istockphoto_1190043570_612x612.jpg",
       "output_expectation": "Detailed description of the scene including objects, people, setting, and visual elements."
     },
     {
       "id": "i2t_003",
       "category": "chart",
       "input_prompt": "What data does this chart show?",
-      "input_image": "images/browser-ChatSmith-1.png",
+      "input_image": "images/browser_ChatSmith_1.png",
       "output_expectation": "Analysis of the chart data including values, trends, and key insights."
     }
   ]

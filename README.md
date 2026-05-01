@@ -35,3 +35,9 @@ Public QE datasets and HTML viewers for Chat Smith. Hosted from repository root 
 - **Folder:** `reports/gpt5nano_compare_configs/`.
 - **Format:** self-contained static HTML exported from the private evaluation pipeline (no separate JSON viewer).
 - **Current snapshot:** `gpt5nano_scenario_comparison_16_04_2026_01.html` — linked from **`reports/index.html`**. When you add a new export, copy the file here and **add or update a card** on the hub (paths are not auto-discovered).
+
+### System prompt regression
+
+- **Folder:** `reports/sysprompt_regression/`.
+- **Format:** self-contained static HTML (before vs after system prompt), exported from the private pipeline—used to verify issues such as **redundant headings** and related regressions after prompt updates.
+- **Current snapshot:** `sysprompt_before_after_29_04_2026_05.html` — linked from **`reports/index.html`**. New runs: copy the HTML here and **update the hub card** (and this line) manually.

@@ -1,0 +1,55 @@
+{
+  "id": "deeplinks",
+  "name": "Deeplinks",
+  "description": "Collection of deeplink URLs for testing navigation to target features",
+  "test_cases": [
+    {
+      "id": "AI_keyboard",
+      "category": "ios",
+      "input_link": "gpt://chatsmith.ai/features/keyboard",
+      "output_expectation": "Successful navigation to the target feature/screen."
+    },
+    {
+      "id": "quote",
+      "category": "ios",
+      "input_link": "aichat://chatsmith.ai/features/quote",
+      "output_expectation": "Successful navigation to the target feature/screen."
+    },
+    {
+      "id": "chat",
+      "category": "ios",
+      "input_link": "gpt://chatsmith.ai/features/chat",
+      "output_expectation": "Successful navigation to the target feature/screen."
+    },
+    {
+      "id": "pdf",
+      "category": "ios",
+      "input_link": "chatgptchatbot://chatsmith.ai/features/pdf",
+      "output_expectation": "Successful navigation to the target feature/screen."
+    },
+    {
+      "id": "writing",
+      "category": "ios",
+      "input_link": "aichat://chatsmith.ai/assistants?category_id=writing",
+      "output_expectation": "Successful navigation to the target feature/screen."
+    },
+    {
+      "id": "language tool",
+      "category": "ios",
+      "input_link": "aichat://chatsmith.ai/assistants?category_id=languageTools",
+      "output_expectation": "Successful navigation to the target feature/screen."
+    },
+    {
+      "id": "math",
+      "category": "ios",
+      "input_link": "chatsmith://chatsmith.ai/features/assistants/math",
+      "output_expectation": "Successful navigation to the target feature/screen."
+    },
+    {
+      "id": "search",
+      "category": "ios",
+      "input_link": "chatsmith://chatsmith.ai/features/search",
+      "output_expectation": "Successful navigation to the target feature/screen."
+    }
+  ]
+}

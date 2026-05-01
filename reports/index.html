@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports — Chat Smith QE</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 50px;
+            text-align: center;
+            max-width: 640px;
+            width: 90%;
+        }
+        .nav-top { margin-bottom: 20px; text-align: left; }
+        .nav-top a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .nav-top a:hover { text-decoration: underline; }
+        h1 {
+            color: #2d3748;
+            font-size: 2.2em;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+        .subtitle {
+            color: #718096;
+            font-size: 1.05em;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+        .reports-grid {
+            display: grid;
+            gap: 18px;
+            margin-top: 8px;
+        }
+        .report-card {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 22px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            text-align: left;
+        }
+        .report-card:hover {
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+        }
+        .badge {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .report-title {
+            font-size: 1.25em;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        .report-description {
+            color: #718096;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-top">
+            <a href="../index.html">← QE home</a>
+        </div>
+        <h1>📊 Quality reports</h1>
+        <p class="subtitle">Published evaluation outputs: generated images, before/after comparisons, and additional report types as the team adds them.</p>
+        <div class="reports-grid">
+            <a href="./image_generation/image_generations_index.html" class="report-card">
+                <div class="badge">Available</div>
+                <div class="report-title">Image generation</div>
+                <div class="report-description">
+                    Staging batch results: request and response images, style, model, and generation latency—supporting quality checks and regression review for Chat Smith image generation.
+                </div>
+            </a>
+            <a href="./gpt5nano_compare_configs/gpt5nano_scenario_comparison_16_04_2026_01.html" class="report-card">
+                <div class="badge">Available</div>
+                <div class="report-title">GPT-5 Nano — scenario comparison</div>
+                <div class="report-description">
+                    Three-way evaluation scenarios on 15 cases: win counts, judge-backed scores, latency, and per-case responses. Snapshot generated 2026-04-16 UTC (prod slot)—open for stakeholder review.
+                </div>
+            </a>
+            <a href="./sysprompt_regression/sysprompt_before_after_29_04_2026_05.html" class="report-card">
+                <div class="badge">Available</div>
+                <div class="report-title">System prompt regression — before vs after</div>
+                <div class="report-description">
+                    Compares assistant outputs under the old vs new system prompt on 15 cases, focusing on redundant-heading behaviour and related quality signals. Snapshot generated 2026-04-29 UTC (prod slot)—side-by-side threads, verdicts, and metrics for release review.
+                </div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

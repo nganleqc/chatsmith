@@ -1,0 +1,14 @@
+{
+  "id": "chat_with_pdf",
+  "name": "Chat with PDF",
+  "description": "Chat with PDF documents and extract information",
+  "test_cases": [
+    {
+      "id": "cwp_003",
+      "category": "technical_review",
+      "input_prompt": "What are the main technical specifications mentioned in this manual?",
+      "input_pdf": "pdfs/Danh sách bệnh viện bảo lãnh.PDF",
+      "output_expectation": "Relevant information extracted from the PDF document."
+    }
+  ]
+}

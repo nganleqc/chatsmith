@@ -1,0 +1,155 @@
+{
+  "id": "chat_with_link",
+  "name": "Chat with Link",
+  "description": "Chat with web content from multiple sources",
+  "test_cases": [
+    {
+      "id": "cwl_001",
+      "category": "general",
+      "input_prompt": "What are the main points from these news articles?",
+      "input_links": [
+        "https://techcrunch.com/2025/09/05/roblox-announces-short-form-video-feed-for-gameplay-clips-new-ai-tools-for-creators-and-more/",
+        "https://techcrunch.com/2025/09/04/iphone-17-the-thinnest-iphone-ever-and-everything-else-were-expecting-out-of-apples-hardware-event/",
+        "https://techcrunch.com/2025/09/05/roblox-announces-short-form-video-feed-for-gameplay-clips-new-ai-tools-for-creators-and-more/"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    },
+    {
+      "id": "cwl_002",
+      "category": "general",
+      "input_prompt": "Compare the information from these",
+      "input_links": [
+        "https://www.bbc.com/travel/article/20250808-the-lost-art-of-hitchhiking",
+        "https://www.bbc.com/travel/article/20250812-a-hiking-trail-linking-forty-six-ancient-greek-villages"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    },
+    {
+      "id": "cwl_003",
+      "category": "general",
+      "input_prompt": "Help me understand the API from these docs",
+      "input_links": [
+        "https://platform.openai.com/docs/guides/latest-model",
+        "https://platform.openai.com/docs/guides"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    },
+    {
+      "id": "cwl_004",
+      "category": "general",
+      "input_prompt": "Summarize the support options and knowledge base provided on this site.",
+      "input_links": [
+        "https://vulcanlabs.freshdesk.com/en/support/home"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    },
+    {
+      "id": "cwl_005",
+      "category": "general",
+      "input_prompt": "Explain the main features and usage of iCloud from this link.",
+      "input_links": [
+        "https://www.icloud.com/"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    },
+    {
+      "id": "cwl_006",
+      "category": "general",
+      "input_prompt": "What are the top news headlines and main stories on this site?",
+      "input_links": [
+        "https://vnexpress.net/"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    },
+    {
+      "id": "cwl_007",
+      "category": "general",
+      "input_prompt": "List popular cooker options and summarize key product features.",
+      "input_links": [
+        "https://www.amazon.com/s?k=cooker&_encoding=UTF8&content-id=amzn1.sym.2f889ce0-246f-467a-a086-d9a721167240&pd_rd_r=ef9f7174-7cb1-4b5c-908a-1b94e787bf55&pd_rd_w=drGnp&pd_rd_wg=2J4dR&pf_rd_p=2f889ce0-246f-467a-a086-d9a721167240&pf_rd_r=Y7BRT9DX1JPKMCSXR8AC&ref=pd_hp_d_atf_unk"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    },
+    {
+      "id": "cwl_008",
+      "category": "general",
+      "input_prompt": "Explain step-by-step how to exit vim based on this StackOverflow discussion.",
+      "input_links": [
+        "https://stackoverflow.com/questions/11828270/how-do-i-exit-vim"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    },
+    {
+      "id": "cwl_009",
+      "category": "Long content",
+      "input_prompt": "Summarize the Fermi Paradox explanation in this article.",
+      "input_links": [
+        "https://waitbutwhy.com/2014/05/fermi-paradox.html"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    },
+    {
+      "id": "cwl_010",
+      "category": "German",
+      "input_prompt": "Provide a summary of the German Wikipedia page on Artificial Intelligence.",
+      "input_links": [
+        "https://de.wikipedia.org/wiki/K%C3%BCnstliche_Intelligenz"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    },
+    {
+      "id": "cwl_011",
+      "category": "page not workingws",
+      "input_prompt": "Summarize the latest news articles from this Vietnamese news site.",
+      "input_links": [
+        "https://dsf.tuoitre.vn/"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    },
+    {
+      "id": "cwl_012",
+      "category": "empty link",
+      "input_prompt": "Give an overview of Vulcan Labs' Jira workspace and its typical use cases.",
+      "input_links": [
+        "vulcanlabs.atlassian.net"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    },
+    {
+      "id": "cwl_013",
+      "category": "20s timeout",
+      "input_prompt": "Explain the response behavior of this HTTP status testing link.",
+      "input_links": [
+        "http://httpstat.us/200?sleep=20000"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    },
+    {
+      "id": "cwl_014",
+      "category": "Black list",
+      "input_prompt": "Summarize the main content of this YouTube video.",
+      "input_links": [
+        "https://www.youtube.com/watch?v=cZwAwnIsPPY"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    },
+    {
+      "id": "cwl_015",
+      "category": "pdf",
+      "input_prompt": "Summarize the key findings and arguments from this academic paper.",
+      "input_links": [
+        "https://www.lboro.ac.uk/media/media/research/o3c/pdf/Ross_Chadwick_Vaccari_-_Online_public_opinion_cues_biases_vulnerabilities_Jan_14_2021.pdf"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    },
+    {
+      "id": "cwl_016",
+      "category": "link redirect",
+      "input_prompt": "Expand this TinyURL and summarize the content of the destination page.",
+      "input_links": [
+        "https://tinyurl.com/597mzzkd"
+      ],
+      "output_expectation": "Comprehensive summary of web content from provided links."
+    }
+  ]
+}

@@ -1,0 +1,203 @@
+{
+  "id": "image_to_image",
+  "name": "Image to Image",
+  "description": "Image transformation and editing",
+  "test_cases": [
+    {
+      "id": "i2i_001",
+      "category": "style_transfer",
+      "input_prompt": "Convert this photo to cartoon style",
+      "input_image": "images/original_photo.jpg",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_002",
+      "category": "enhancement",
+      "input_prompt": "Enhance the quality and brightness of this image",
+      "input_image": "images/test_scene.JPG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_003",
+      "category": "filter",
+      "input_prompt": "Apply vintage filter to this image",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_004",
+      "category": "general",
+      "input_prompt": "Make this look like a watercolor painting",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_005",
+      "category": "general",
+      "input_prompt": "Turn this photo into a pixar-style cartoon",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_006",
+      "category": "general",
+      "input_prompt": "Improve brightness and sharpness",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_007",
+      "category": "general",
+      "input_prompt": "Add sunset effect",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_008",
+      "category": "general",
+      "input_prompt": "Change background to a forest",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_009",
+      "category": "general",
+      "input_prompt": "Convert this to...",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_010",
+      "category": "general",
+      "input_prompt": "Make the person...",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_011",
+      "category": "general",
+      "input_prompt": "Turn the photo into a comic book cover, with dramatic lighting and bold lines",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_012",
+      "category": "general",
+      "input_prompt": "Make it look like an 80s movie poster",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_013",
+      "category": "general",
+      "input_prompt": "Add a fantasy castle in the background",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_014",
+      "category": "general",
+      "input_prompt": "Trích dẫn nổi tiếng \"paint it in style of Da Vinci\"",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_015",
+      "category": "forbidden",
+      "input_prompt": "Prompt cấm...",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_016",
+      "category": "general",
+      "input_prompt": "Prompt chứa emoji 😀🔥🌸",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_017",
+      "category": "general",
+      "input_prompt": "Prompt mơ hồ \"Do it cooler\"",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_018",
+      "category": "general",
+      "input_prompt": "Make this perfect",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_019",
+      "category": "general",
+      "input_prompt": "Same scene but more detailed",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_020",
+      "category": "general",
+      "input_prompt": "Wearing sunglasses",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_021",
+      "category": "anime",
+      "input_prompt": "Here is a photo I took during my last trip to Japan. Could you turn it into something that looks like it belongs in a Studio Ghibli movie, keeping the same setting but adding that magical animated atmosphere?",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_022",
+      "category": "anime",
+      "input_prompt": "Can you tell me what's happening in this photo and also suggest how it might look if reimagined in an anime style?",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_023",
+      "category": "fantasy",
+      "input_prompt": "I took this picture during sunset at the beach. I'm wondering if you could both describe the key elements of the image and give it a fantasy-style makeover, like something from a fairy tale",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_024",
+      "category": "anime",
+      "input_prompt": "This is a photo from my recent hiking trip. I want to preserve the scene but make it feel like it’s a part of a Naruto episode — same setting, just animated and stylized. Can you do that?",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_025",
+      "category": "analysis",
+      "input_prompt": "Does this photo have visual traits commonly seen in anime, or does it look more like something else",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_026",
+      "category": "analysis",
+      "input_prompt": "I’m not sure if this image has an anime feel or something more like South Park — what do you think?",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_027",
+      "category": "cartoon",
+      "input_prompt": "Simpson",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    },
+    {
+      "id": "i2i_028",
+      "category": "special",
+      "input_prompt": "Hãy tạo cho tôi một mô hình tượng mini biếm hoạ siêu thực, mô phỏng chân dung chính xác gương mặt của người trong ảnh. Nhân vật chính: Là chân dung siêu thực của người trong ảnh gốc, giữ đúng đường nét khuôn mặt, kiểu tóc, và biểu cảm nhẹ nhàng – tự nhiên – thân thiện. Thiết kế theo tỷ lệ đầu to – thân nhỏ (bobblehead style), phong cách như mô hình đồ chơi sưu tầm cao cấp. Trang phục thể hiện tinh thần dân tộc và ngày lễ 30/4: Nếu là nữ: mặc áo dài đỏ, ngực có ngôi sao vàng. Nếu là nam: mặc áo thun cờ đỏ sao vàng. Tay cầm lá cờ Việt Nam, giơ lên tự hào. Trên đầu có thể đeo băng đô “Tôi yêu Việt Nam” hoặc khăn rằn Nam Bộ, tăng không khí lễ hội. Bệ mô hình và bối cảnh phía sau: Nhân vật đứng trên nền mô hình thu nhỏ bản đồ Việt Nam, thiết kế nhiều tầng, màu sắc rực rỡ, sinh động. Phía sau là mô hình Dinh Độc Lập (TP.HCM) hoặc Lăng Bác với chi tiết kiến trúc đặc trưng: hàng cột, bậc tam cấp, cờ bay trên nóc, cây xanh và kênh nước mini.",
+      "input_image": "images/IMG_2248.PNG",
+      "output_expectation": "output_images/output1.jpg"
+    }
+  ]
+}

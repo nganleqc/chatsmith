@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -397,12 +397,12 @@
 <body>
     <div class="container">
         <div style="margin-bottom:12px">
-            <a href="../index.html" style="color:#667eea;text-decoration:none;font-size:14px;font-weight:600;">← Back to Index</a>
+            <a href="../../index.html" style="color:#667eea;text-decoration:none;font-size:14px;font-weight:600;">← Back to Index</a>
         </div>
         <div class="header">
-            <h1 id="projectName">Loading...</h1>
-            <p id="projectDescription">Loading dataset...</p>
-            <small id="projectInfo">Loading...</small>
+            <h1>Chat Smith Test Dataset</h1>
+            <p>Simplified test data collection for Chat Smith features</p>
+            <small>Last updated: 2025 | Version: 1.0</small>
         </div>
         
         <div id="loading" class="loading">
@@ -429,20 +429,33 @@
     
     <script>
         let dataset = null;
-        
-        // Load data from JSON file
+
+        const FEATURE_ORDER = [
+            'text_to_text', 'text_to_image', 'image_to_text', 'image_to_image',
+            'chat_with_pdf', 'deeplinks', 'chat_with_link', 'deep_research', 'realtime_search'
+        ];
+
         async function loadData() {
             try {
                 document.getElementById('loading').style.display = 'block';
                 document.getElementById('error').style.display = 'none';
                 document.getElementById('content').style.display = 'none';
-                
-                const response = await fetch('./data.json');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+
+                const features = {};
+                for (const key of FEATURE_ORDER) {
+                    const res = await fetch(`./${key}.json`);
+                    if (!res.ok) {
+                        throw new Error(`HTTP error loading ${key}.json: ${res.status}`);
+                    }
+                    const body = await res.json();
+                    features[key] = {
+                        name: body.name,
+                        description: body.description || '',
+                        test_cases: body.test_cases || []
+                    };
                 }
-                
-                dataset = await response.json();
+
+                dataset = { features };
                 renderDataset();
                 
             } catch (error) {
@@ -456,12 +469,6 @@
         // Render the dataset
         function renderDataset() {
             if (!dataset) return;
-            
-            // Update header
-            document.getElementById('projectName').textContent = dataset.project_info.name;
-            document.getElementById('projectDescription').textContent = dataset.project_info.description;
-            document.getElementById('projectInfo').textContent = 
-                `Last updated: ${dataset.project_info.last_updated} | Version: ${dataset.project_info.version}`;
             
             // Generate tabs
             const tabs = generateTabButtons();
@@ -667,13 +674,12 @@
                 `;
             }
             
-            // Output Expectation - SPECIAL HANDLING cho text-to-image và image-to-image
+            // Output expectation: special handling for text-to-image and image-to-image
             if (testCase.output_expectation) {
-                // Check nếu là text-to-image hoặc image-to-image
                 const isImageGeneration = testCase.id.startsWith('t2i_') || testCase.id.startsWith('i2i_');
-                
+
                 if (isImageGeneration && (testCase.output_expectation.endsWith('.jpg') || testCase.output_expectation.endsWith('.png') || testCase.output_expectation.endsWith('.jpeg'))) {
-                    // Hiển thị hình ảnh thay vì text
+                    // Show expected image instead of plain text
                     html += `
                         <div class="test-field">
                             <div class="field-label">OUTPUT EXPECTATION:</div>
@@ -693,7 +699,7 @@
                         </div>
                     `;
                 } else {
-                    // Hiển thị text như bình thường
+                    // Show text as usual
                     html += `
                         <div class="test-field">
                             <div class="field-label">OUTPUT EXPECTATION:</div>

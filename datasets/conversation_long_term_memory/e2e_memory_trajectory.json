@@ -1,0 +1,2719 @@
+{
+  "dataset_name": "e2e_memory_trajectory",
+  "version": "1.0.0",
+  "description": "Bộ data E2E test short-term + long-term memory. MỘT user mới, 8 conversation liên tiếp, mỗi conversation 10 turn. Short-term expected theo từng conversation; long-term expected là trạng thái TÍCH LUỸ sau mỗi conversation.",
+  "test_user": {
+    "_only_one_user": "TOÀN BỘ 16 conversation chạy trên MỘT user duy nhất, theo đúng thứ tự seq. Long-term memory là cross-conversation nên phải cùng user mới tích luỹ được. Không có group, không chạy song song.",
+    "user_id": "380e101f-5242-5a53-9fa0-e68eec7b4cc6",
+    "requirement": "PHẢI là user MỚI, chưa có memory nào. Kiểm trước bằng: ./curl_ltm.sh core (cả 6 block phải rỗng)."
+  },
+  "rules": {
+    "turn_definition": "1 turn = 1 tin nhắn user + 1 phản hồi assistant. 10 turn = 20 message.",
+    "turns_format": "turns[] CHỈ chứa message của user — đó là input bạn gửi. Phản hồi của assistant do LLM sinh khi chạy thật, không script trước được. Turn nào có field 'verify' thì PHẢI kiểm câu trả lời của assistant: must_contain (phải nhắc được) và must_not_contain (không được nói).",
+    "turns_robustness": "Message của user được viết để đứng độc lập, không phụ thuộc câu chữ cụ thể của assistant. Nếu assistant trả lời lệch hướng làm turn sau vô nghĩa thì điều chỉnh câu hỏi, miễn giữ nguyên thông tin cần truyền.",
+    "trigger": "CHỈ T1 (summary_completed). Đủ 10 turn trong 1 conversation -> service tạo short-term (summary) và long-term (memory blocks).",
+    "T2_session_ended": "KHÔNG BẬT (xác nhận 2026-08-26). Đóng session không kích hoạt extraction. Conversation dưới 10 turn -> nội dung mất hoàn toàn.",
+    "read_write_asymmetry": "ĐỌC: sổ đã có thì lấy được NGAY từ turn 1 của conversation mới. GHI: chỉ khi conversation ĐỦ 10 turn. Conversation 9 turn -> nội dung KHÔNG vào DB, mất luôn.",
+    "short_term_scope": "Trong cùng 1 conversation",
+    "long_term_scope": "Cross-conversation, theo user_id",
+    "static_blocks": "user_profile, capability, preference — luôn được trả về khi đã tồn tại",
+    "dynamic_blocks": "activities, top_of_mind, behavior_pattern — Core LTM trả top-3 mỗi loại (KHÔNG phụ thuộc query); Extended LTM trả thêm theo query"
+  },
+  "critical_constraints": [
+    "KHOÁ 10 PHÚT: lock:ltm:{user_id} TTL 10 phút. Các conversation PHẢI cách nhau >10 phút, nếu không extraction thứ 2 bị bỏ qua IM LẶNG. Tổng thời gian chờ tối thiểu: 110 phút.",
+    "KHÔNG POLL BẰNG SLEEP: extraction async, có thể requeue. Phải poll fetch_core_memory_v2 theo vòng lặp tới khi thấy đổi, kèm timeout.",
+    "KHÔNG RESET ĐƯỢC: không có API xoá memory. Chạy lại toàn bộ trajectory cần user MỚI.",
+    "behavior_pattern LUÔN RỖNG trong bộ này: cần >=3 sự kiện rải >=7 ngày + job chạy hàng tuần. Không thoả được trong một buổi test. Expected rỗng là assert có giá trị."
+  ],
+  "confirmed_rules": [
+    "1 turn = 1 cặp user + assistant. 10 turn = 20 message. (xác nhận 2026-08-26)",
+    "Trigger theo ĐẾM TURN, không theo token limit. (xác nhận 2026-08-26)",
+    "Expected block viết bằng TIẾNG ANH dù hội thoại tiếng Việt — extraction chuẩn hoá sang tiếng Anh. (xác nhận 2026-08-26)",
+    "content_text render theo template nhãn key-value, KHÁC doc. Xem field _content_text_expected trong từng block. capability bị lowercase toàn bộ."
+  ],
+  "content_text_templates": {
+    "_source": "Suy ra từ output thật của fetch_core_memory_v2 trên stg, 2026-08-26. KHÁC với doc Memory Model §2.3 (doc nói câu văn tự nhiên).",
+    "user_profile": "User name: {name}\\nUser pronouns: {pronouns}\\nUser's location: {location}\\nUser's language: {langs}\\nUser's occupation: {occupation}\\nUser's organization: {org}\\nUser's working hours: {hours} ({tz} timezone)",
+    "capability": "{list nối bằng ', ', TOÀN BỘ LOWERCASE}",
+    "preference": "User interests in: {...}\\nUser current goals are: {...}\\nUser not like: {...}\\n",
+    "activities / top_of_mind": "CHƯA quan sát được (đang rỗng trên stg). Doc nói câu văn ngắn <=30 từ."
+  },
+  "production_findings": [
+    {
+      "severity": "cần xác nhận",
+      "finding": "languages[] vượt giới hạn spec",
+      "detail": "User ae642f5e-… có 10 ngôn ngữ (Chinese, Hungarian, Vietnamese, Thai, Korean, Japanese, Hindi, Portuguese, French, German) nhưng doc Memory Model §2.6 quy định languages[] < 5. Field cap có vẻ KHÔNG được enforce.",
+      "how_to_verify": "./curl_ltm.sh core rồi đếm phần tử sau 'User's language:'"
+    },
+    {
+      "severity": "cần xác nhận",
+      "finding": "interests[] có thể trùng lặp và vượt cap",
+      "detail": "preference của cùng user chứa 'thailand' hai lần (một lần trong cụm 'koh phangan , thailand', một lần đứng riêng) và khoảng 10-11 phần tử, trong khi doc quy định interests[] < 10. Liên quan metric 'Duplicate rate' của doc 11.2. Cũng thấy khoảng trắng lạ trước dấu phẩy (' , ') — dấu hiệu lỗi tách token khi merge.",
+      "how_to_verify": "./curl_ltm.sh core rồi đếm và soi trùng sau 'User interests in:'"
+    }
+  ],
+  "how_to_run": [
+    "1. Kiểm user mới: ./curl_ltm.sh core -> cả 6 block rỗng",
+    "2. Với mỗi conversation theo thứ tự seq: chat đủ 10 turn",
+    "3. Poll fetch_core_memory_v2 tới khi content đổi (timeout 5 phút)",
+    "4. So expected_short_term với summary vừa tạo",
+    "5. So expected_long_term_after với Core LTM vừa đọc — CHÚ Ý các field _note",
+    "6. Kiểm must_not_contain: không chuỗi nào xuất hiện ở BẤT KỲ field nào",
+    "7. Turn nào có field verify: kiểm câu trả lời của assistant chứa must_contain và KHÔNG chứa must_not_contain",
+    "8. Chờ wait_after_minutes rồi sang conversation tiếp theo"
+  ],
+  "execution_plan": {
+    "_how_to_use": "MỘT user, chạy TUẦN TỰ theo step 1 -> 16. Step nào có 'GATE' là điểm dừng đánh giá — đọc kỹ nhánh pass/fail trước khi chạy tiếp.",
+    "_prep": [
+      "Tạo MỘT user mới, chưa có memory nào",
+      "Xác nhận sổ rỗng: mở conversation 2 turn hỏi 'bạn biết gì về mình?' -> bot phải không biết gì (hoặc gọi ./curl_ltm.sh core nếu được phép)",
+      "Chuẩn bị bảng theo dõi: 16 dòng, mỗi dòng ghi kết quả verify + memory sau đó"
+    ],
+    "_cooldown_rule": "Khoá lock:ltm:{user_id} TTL 10 phút chỉ chặn TRIGGER kế tiếp. Conversation dưới 10 turn KHÔNG trigger nên chạy được ngay trong lúc chờ — dùng chúng để lấp khoảng chờ thay vì ngồi không.",
+    "steps": [
+      {
+        "step": 1,
+        "conversation": 1,
+        "title": "Giới thiệu bản thân và hỏi về test automation",
+        "turns": 10,
+        "action": "Mở conversation MỚI, chat 10 turn theo turns[]",
+        "triggers": true,
+        "then": "POLL tới khi memory đổi (timeout 5 phút), so expected_long_term_after, rồi CHỜ 11 PHÚT"
+      },
+      {
+        "step": 2,
+        "conversation": 2,
+        "title": "Nhớ lại thông tin cũ, nêu mục tiêu và khởi động dự án",
+        "turns": 10,
+        "action": "Mở conversation MỚI, chat 10 turn theo turns[]",
+        "triggers": true,
+        "verify": "1 turn có field verify — so expected_answer / expected_facts / must_not_contain",
+        "then": "POLL tới khi memory đổi (timeout 5 phút), so expected_long_term_after, rồi CHỜ 11 PHÚT"
+      },
+      {
+        "step": 3,
+        "conversation": 3,
+        "title": "Báo tiến độ dự án và bàn về flaky test",
+        "turns": 10,
+        "action": "Mở conversation MỚI, chat 10 turn theo turns[]",
+        "triggers": true,
+        "verify": "2 turn có field verify — so expected_answer / expected_facts / must_not_contain",
+        "then": "POLL tới khi memory đổi (timeout 5 phút), so expected_long_term_after, rồi CHỜ 11 PHÚT"
+      },
+      {
+        "step": 4,
+        "conversation": 4,
+        "title": "Chuyển chỗ ở và đổi công cụ",
+        "turns": 10,
+        "action": "Mở conversation MỚI, chat 10 turn theo turns[]",
+        "triggers": true,
+        "verify": "2 turn có field verify — so expected_answer / expected_facts / must_not_contain",
+        "check_after": "Kiểm must_not_contain: không chuỗi nào được xuất hiện trong BẤT KỲ field nào của sổ",
+        "then": "POLL tới khi memory đổi (timeout 5 phút), so expected_long_term_after, rồi CHỜ 11 PHÚT"
+      },
+      {
+        "step": 5,
+        "conversation": 5,
+        "title": "Hỏi kiến thức chung, không có thông tin cá nhân",
+        "turns": 10,
+        "action": "Mở conversation MỚI, chat 10 turn theo turns[]",
+        "triggers": true,
+        "verify": "1 turn có field verify — so expected_answer / expected_facts / must_not_contain",
+        "then": "POLL tới khi memory đổi (timeout 5 phút), so expected_long_term_after, rồi CHỜ 11 PHÚT"
+      },
+      {
+        "step": 6,
+        "conversation": 6,
+        "title": "Nhờ soạn email, có lẫn dữ liệu nhạy cảm",
+        "turns": 10,
+        "action": "Mở conversation MỚI, chat 10 turn theo turns[]",
+        "triggers": true,
+        "verify": "1 turn có field verify — so expected_answer / expected_facts / must_not_contain",
+        "check_after": "Kiểm must_not_contain: không chuỗi nào được xuất hiện trong BẤT KỲ field nào của sổ",
+        "then": "POLL tới khi memory đổi (timeout 5 phút), so expected_long_term_after, rồi CHỜ 11 PHÚT"
+      },
+      {
+        "step": 7,
+        "conversation": 7,
+        "title": "Dự án bị chặn và một dự án khác hoàn thành",
+        "turns": 10,
+        "action": "Mở conversation MỚI, chat 10 turn theo turns[]",
+        "triggers": true,
+        "verify": "1 turn có field verify — so expected_answer / expected_facts / must_not_contain",
+        "then": "POLL tới khi memory đổi (timeout 5 phút), so expected_long_term_after, rồi CHỜ 11 PHÚT"
+      },
+      {
+        "step": 8,
+        "conversation": 8,
+        "title": "Chỉ hỏi lại, không cung cấp thông tin mới",
+        "turns": 10,
+        "action": "Mở conversation MỚI, chat 10 turn theo turns[]",
+        "triggers": true,
+        "verify": "9 turn có field verify — so expected_answer / expected_facts / must_not_contain",
+        "then": "POLL tới khi memory đổi (timeout 5 phút), so expected_long_term_after, rồi CHỜ 11 PHÚT"
+      },
+      {
+        "step": 9,
+        "conversation": 9,
+        "title": "[NGƯỠNG-ghi] 9 turn — dưới ngưỡng",
+        "turns": 9,
+        "action": "Mở conversation MỚI, chat 9 turn theo turns[]",
+        "triggers": false,
+        "then": "Không trigger -> memory KHÔNG được đổi. Chạy tiếp ngay."
+      },
+      {
+        "step": 10,
+        "conversation": 10,
+        "title": "[NGƯỠNG-đọc] Hỏi lại sau conversation 9 turn",
+        "turns": 3,
+        "action": "Mở conversation MỚI, chat 3 turn theo turns[]",
+        "triggers": false,
+        "verify": "2 turn có field verify — so expected_answer / expected_facts / must_not_contain",
+        "then": "Không trigger -> memory KHÔNG được đổi. Chạy tiếp ngay.",
+        "GATE": {
+          "name": "NGƯỠNG 10 TURN — nửa ÂM",
+          "read": "Bot PHẢI nói Python/Selenium (control) và KHÔNG được nói Rust",
+          "pass_": "Có Python/Selenium + không Rust -> 9 turn không ghi. Đúng như kỳ vọng.",
+          "fail_a": "Không có gì cả -> RETRIEVAL hoặc EXTRACTION hỏng. DỪNG, điều tra.",
+          "fail_b": "Có Rust -> ngưỡng NHỎ HƠN 10, hoặc T2 đang bật. DỪNG, thiết kế lại."
+        }
+      },
+      {
+        "step": 11,
+        "conversation": 11,
+        "title": "[NGƯỠNG-ghi] 10 turn — cùng nội dung, thêm 1 turn",
+        "turns": 10,
+        "action": "Mở conversation MỚI, chat 10 turn theo turns[]",
+        "triggers": true,
+        "then": "POLL tới khi memory đổi (timeout 5 phút), so expected_long_term_after, rồi CHỜ 11 PHÚT"
+      },
+      {
+        "step": 12,
+        "conversation": 12,
+        "title": "[NGƯỠNG-đọc] Hỏi lại sau conversation 10 turn",
+        "turns": 3,
+        "action": "Mở conversation MỚI, chat 3 turn theo turns[]",
+        "triggers": false,
+        "verify": "2 turn có field verify — so expected_answer / expected_facts / must_not_contain",
+        "then": "Không trigger -> memory KHÔNG được đổi. Chạy tiếp ngay.",
+        "GATE": {
+          "name": "NGƯỠNG 10 TURN — nửa DƯƠNG",
+          "read": "Bot PHẢI nói Rust, và Python/Selenium vẫn phải còn",
+          "pass_": "Có Rust -> ngưỡng ĐÚNG là 10. Kết luận vững (so với seq 10).",
+          "fail_a": "Không có Rust -> extraction hỏng. Kết quả seq 10 vô nghĩa. DỪNG.",
+          "fail_b": "Mất Python/Selenium -> merge GHI ĐÈ thay vì set-union. BUG."
+        }
+      },
+      {
+        "step": 13,
+        "conversation": 13,
+        "title": "Thông tin mới chỉ xuất hiện ở turn cuối",
+        "turns": 10,
+        "action": "Mở conversation MỚI, chat 10 turn theo turns[]",
+        "triggers": true,
+        "then": "POLL tới khi memory đổi (timeout 5 phút), so expected_long_term_after, rồi CHỜ 11 PHÚT"
+      },
+      {
+        "step": 14,
+        "conversation": 14,
+        "title": "[BIÊN-đọc] Turn cuối có được tính?",
+        "turns": 3,
+        "action": "Mở conversation MỚI, chat 3 turn theo turns[]",
+        "triggers": false,
+        "verify": "2 turn có field verify — so expected_answer / expected_facts / must_not_contain",
+        "then": "Không trigger -> memory KHÔNG được đổi. Chạy tiếp ngay.",
+        "GATE": {
+          "name": "TURN CUỐI CÓ ĐƯỢC TÍNH",
+          "read": "Jenkins (control, turn 1) vs organization + Docker (boundary, turn 10)",
+          "pass_": "Cả ba đều có -> turn cuối được tính. Đúng.",
+          "fail_a": "Jenkins vắng -> extraction không chạy. Test vô hiệu.",
+          "fail_b": "Jenkins có, hai cái kia vắng -> LỖI OFF-BY-ONE. Ghi lại, chạy tiếp được."
+        }
+      },
+      {
+        "step": 15,
+        "conversation": 15,
+        "title": "20 turn liên tục — trigger hai lần?",
+        "turns": 20,
+        "action": "Mở conversation MỚI, chat 20 turn theo turns[]",
+        "triggers": true,
+        "then": "POLL tới khi memory đổi (timeout 5 phút), so expected_long_term_after"
+      },
+      {
+        "step": 16,
+        "conversation": 16,
+        "title": "[TRIGGER-đọc] Trigger mấy lần?",
+        "turns": 4,
+        "action": "Mở conversation MỚI, chat 4 turn theo turns[]",
+        "triggers": false,
+        "verify": "3 turn có field verify — so expected_answer / expected_facts / must_not_contain",
+        "then": "Không trigger -> memory KHÔNG được đổi. Chạy tiếp ngay.",
+        "GATE": {
+          "name": "TRIGGER TRONG CÙNG CONVERSATION",
+          "read": "Appium (control, fact A) vs Senior QA Engineer + Kubernetes (fact B)",
+          "pass_": "Cả hai nhóm đều có -> trigger 2 lần, khoá không chặn. Bình thường.",
+          "fail_a": "Appium vắng -> extraction không chạy. Test vô hiệu.",
+          "fail_b": "Appium có, fact B vắng -> trigger 1 LẦN, turn 11-20 MẤT. BUG ĐÁNG BÁO."
+        }
+      },
+      {
+        "step": 17,
+        "conversation": 17,
+        "title": "[ĐỌC] Chủ đề cũ và thói quen làm việc",
+        "turns": 4,
+        "action": "Mở conversation MỚI, chat 4 turn theo turns[]",
+        "triggers": false,
+        "verify": "3 turn có field verify — so expected_answer / expected_facts / must_not_contain",
+        "then": "Không trigger -> memory KHÔNG được đổi. Chạy tiếp ngay."
+      },
+      {
+        "step": 18,
+        "action": "TỔNG KẾT",
+        "checklist": [
+          "4 GATE (seq 10, 12, 14, 16) — pass / fail / finding",
+          "29 điểm verify trên 16 conversation",
+          "must_not_contain của seq 4 (Hà Nội) và seq 6 (PII)",
+          "version của 3 static block sau seq 5, 8, 9 (phải GIỮ NGUYÊN)",
+          "Thứ tự activities sau seq 7 (blocked lên đầu, completed xuống cuối)"
+        ]
+      }
+    ],
+    "total_time_estimate": {
+      "cooldown_waits": "110 phút (10 lần chờ x 11 phút giữa các conversation trigger)",
+      "chat_time": "~30-40 phút cho 284 message",
+      "total": "~2.5 giờ",
+      "note": "Conversation đọc (seq 10, 12, 14, 16) chạy trong lúc chờ cooldown nên không cộng thêm thời gian."
+    }
+  },
+  "failure_recovery": {
+    "problem": "KHÔNG có API reset memory. Fail giữa chuỗi -> state đã bẩn, không re-run được một conversation lẻ. Phải lấy user MỚI và chạy lại từ seq 1.",
+    "mitigation_1": "Chụp state sau MỖI conversation: gọi fetch_core_memory_v2 và lưu JSON vào file riêng theo seq. Fail thì phân tích từ snapshot, không cần chạy lại 2.5 giờ để xem chuyện gì đã xảy ra.",
+    "mitigation_2": "Chạy smoke_subset trên user nháp trước (~45 phút) để bắt lỗi sớm.",
+    "mitigation_3": "4 GATE cho phép dừng sớm. GATE đầu ở seq 10 — nếu cơ chế khác dự đoán thì biết sau ~100 phút thay vì chạy hết 2.5 giờ."
+  },
+  "smoke_subset": {
+    "note": "Chạy nhanh trên user nháp để bắt lỗi thiết kế trước khi tốn 2.5 giờ",
+    "conversations": [
+      1,
+      2,
+      4,
+      5
+    ],
+    "covers": "cold start -> cross-conv recall -> correction -> no-op",
+    "duration_min": 45
+  },
+  "stats": {
+    "conversations": 17,
+    "total_turns": 146,
+    "total_messages": 292,
+    "min_wait_minutes": 110,
+    "turns_with_verify": 29,
+    "conversations_with_pii_asserts": 2,
+    "turn_distribution": {
+      "3": 3,
+      "4": 2,
+      "9": 1,
+      "10": 10,
+      "20": 1
+    }
+  },
+  "conversations": [
+    {
+      "seq": 1,
+      "group": "A",
+      "role": "write",
+      "test_user": "user#1",
+      "conversation_id": "d0071d65-a761-5544-853f-a67a7a87e3d2",
+      "title": "Giới thiệu bản thân và hỏi về test automation",
+      "purpose": "Cold start. Sổ đang rỗng hoàn toàn. Tạo 3 block static đầu tiên.",
+      "writes_blocks": [
+        "user_profile",
+        "capability",
+        "preference"
+      ],
+      "turn_count": 10,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Chào bạn, mình là Minh, QA engineer ở ABLabs. Mình đang muốn cải thiện bộ test automation của team."
+        },
+        {
+          "turn": 2,
+          "user": "Team mình test web app. Mình ở Hà Nội, giờ làm 9h đến 18h. Hiện mình dùng Python với Selenium là chính."
+        },
+        {
+          "turn": 3,
+          "user": "Test chạy chậm và hay fail ngẫu nhiên. Mình cũng dùng Postman để test API nữa."
+        },
+        {
+          "turn": 4,
+          "user": "Mình dùng implicit wait, có chỗ còn hardcode time.sleep."
+        },
+        {
+          "turn": 5,
+          "user": "Hiểu rồi. Cho mình hỏi cách tổ chức test case cho web app sao cho dễ bảo trì?"
+        },
+        {
+          "turn": 6,
+          "user": "Page Object Model cụ thể là gì?"
+        },
+        {
+          "turn": 7,
+          "user": "Mình nên dùng pytest hay unittest?"
+        },
+        {
+          "turn": 8,
+          "user": "Mình đã dùng pytest rồi, thấy fixture khá tiện. Mình cũng nói được tiếng Việt và tiếng Anh nên đọc doc không vấn đề gì."
+        },
+        {
+          "turn": 9,
+          "user": "Bạn trả lời ngắn gọn giúp mình nhé, mình không thích đọc lý thuyết dài dòng."
+        },
+        {
+          "turn": 10,
+          "user": "Vậy có nên tách test data ra file riêng không?"
+        }
+      ],
+      "expected_short_term": {
+        "global_session_summary": [
+          "[User] Minh giới thiệu là QA engineer tại Vulcan Labs, ở Hà Nội, muốn cải thiện bộ test automation",
+          "[User] cho biết dùng Python, Selenium, Postman; test chạy chậm và hay fail ngẫu nhiên",
+          "[Assistant] chỉ ra nguyên nhân là implicit wait và time.sleep, khuyên dùng explicit wait",
+          "[User] hỏi cách tổ chức test case dễ bảo trì",
+          "[Assistant] đề xuất Page Object Model và giải thích cấu trúc",
+          "[User] xác nhận đã dùng pytest, yêu cầu trả lời ngắn gọn",
+          "[Assistant] khuyên tách test data ra file YAML/JSON load qua fixture"
+        ],
+        "main_topics": [
+          {
+            "title": "Khắc phục test chạy chậm và flaky",
+            "bullets": [
+              "[User] gặp test chậm, fail ngẫu nhiên do implicit wait và time.sleep",
+              "[Assistant] khuyên chuyển sang explicit wait với điều kiện cụ thể"
+            ]
+          },
+          {
+            "title": "Tổ chức test case dễ bảo trì",
+            "bullets": [
+              "[User] muốn cấu trúc test dễ bảo trì cho web app",
+              "[Assistant] đề xuất Page Object Model, locator private / action public"
+            ]
+          },
+          {
+            "title": "Quản lý test data",
+            "bullets": [
+              "[User] hỏi có nên tách test data ra file riêng",
+              "[Assistant] khuyên dùng YAML/JSON load qua fixture"
+            ]
+          }
+        ],
+        "instruction": "Trả lời ngắn gọn, tránh lý thuyết dài dòng."
+      },
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Minh",
+          "location": "Hanoi",
+          "occupation": "QA engineer",
+          "organization": "Vulcan Labs",
+          "working_hours": "09:00-18:00",
+          "timezone": "Asia/Ho_Chi_Minh",
+          "pronouns": "",
+          "languages": [
+            "vi",
+            "en"
+          ],
+          "_version": 1,
+          "_content_text_expected": "User name: Minh\nUser pronouns: \nUser's location: Hanoi\nUser's language: vi, en\nUser's occupation: QA engineer\nUser's organization: Vulcan Labs\nUser's working hours: 09:00-18:00 (Asia/Ho_Chi_Minh timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Python",
+            "Selenium",
+            "Postman",
+            "pytest"
+          ],
+          "_version": 1,
+          "_content_text_expected": "python, selenium, postman, pytest"
+        },
+        "preference": {
+          "interests": [],
+          "goals": [],
+          "avoidances": [
+            "long theoretical answers"
+          ],
+          "_version": 1,
+          "_content_text_expected": "User interests in: \nUser current goals are: \nUser not like: long theoretical answers\n"
+        },
+        "activities": [],
+        "top_of_mind": [],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [],
+      "checkpoints": [],
+      "wait_after_minutes": 11,
+      "notes": "Turn 9 vừa tạo INSTRUCTION cho short-term, vừa tạo preference.avoidances cho long-term — một câu kiểm hai thứ. Chưa có activities/top_of_mind vì user chưa nói về dự án cụ thể nào.",
+      "_old_seq": 1,
+      "triggers_extraction": true,
+      "wait_note": "Trigger -> đặt khoá 10 phút. PHẢI chờ >10 phút trước conversation TRIGGER kế tiếp. Conversation đọc (<10 turn) chạy được trong lúc chờ."
+    },
+    {
+      "seq": 2,
+      "group": "A",
+      "role": "write",
+      "test_user": "user#1",
+      "conversation_id": "6a9ee96e-46d8-5705-80e7-56c129b147e3",
+      "title": "Nhớ lại thông tin cũ, nêu mục tiêu và khởi động dự án",
+      "purpose": "Test cross-conversation recall lần đầu + tạo activities (planning) + bổ sung preference.",
+      "writes_blocks": [
+        "preference",
+        "activities",
+        "top_of_mind"
+      ],
+      "turn_count": 10,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Bạn còn nhớ mình làm nghề gì không?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 1,
+            "why": "Cross-conversation recall. Đây là bằng chứng LTM hoạt động.",
+            "expected_answer": "Bạn là Minh, QA engineer tại Vulcan Labs. Bạn đang cải thiện bộ test automation dùng Python và Selenium.",
+            "expected_facts": [
+              "Minh",
+              "QA engineer",
+              "Vulcan Labs"
+            ]
+          }
+        },
+        {
+          "turn": 2,
+          "user": "Đúng rồi. Mình đang quan tâm nhiều tới CI/CD cho test, muốn chạy test tự động mỗi lần merge."
+        },
+        {
+          "turn": 3,
+          "user": "GitHub Actions. Mục tiêu của mình năm nay là học performance testing cho chắc."
+        },
+        {
+          "turn": 4,
+          "user": "Mình cũng thích tìm hiểu về kiến trúc microservice nói chung."
+        },
+        {
+          "turn": 5,
+          "user": "Mình vừa được giao một dự án tên là 'E2E test suite for ChatSmith'. Bắt đầu tuần sau."
+        },
+        {
+          "turn": 6,
+          "user": "Đúng, đó là cái mình lo. Response của AI không giống nhau mỗi lần nên khó assert."
+        },
+        {
+          "turn": 7,
+          "user": "LLM judge là sao?"
+        },
+        {
+          "turn": 8,
+          "user": "Nghe hợp lý. Dự án này mình dự kiến làm 6 tuần."
+        },
+        {
+          "turn": 9,
+          "user": "Mình sẽ theo cách đó. Kế hoạch là tuần sau kickoff."
+        },
+        {
+          "turn": 10,
+          "user": "Cảm ơn, mình sẽ chuẩn bị danh sách luồng."
+        }
+      ],
+      "expected_short_term": {
+        "global_session_summary": [
+          "[User] hỏi lại nghề nghiệp của mình, [Assistant] nhắc đúng là QA engineer tại Vulcan Labs",
+          "[User] cho biết quan tâm CI/CD cho test, dùng GitHub Actions",
+          "[User] nêu mục tiêu năm nay là học performance testing, và thích tìm hiểu kiến trúc microservice",
+          "[User] được giao dự án 'E2E test suite for ChatSmith', bắt đầu tuần sau, dự kiến 6 tuần",
+          "[Assistant] cảnh báo về tính bất định của phản hồi AI, đề xuất assert theo tiêu chí và LLM judge",
+          "[User] đồng ý chia giai đoạn và sẽ chuẩn bị danh sách luồng chính trước kickoff"
+        ],
+        "main_topics": [
+          {
+            "title": "Dự án E2E test suite cho ChatSmith",
+            "bullets": [
+              "[User] được giao dự án, kickoff tuần sau, dự kiến 6 tuần",
+              "[User] quyết định chia giai đoạn: khung, happy path, edge case",
+              "[Assistant] khuyên chốt phạm vi số luồng chính trước kickoff"
+            ]
+          },
+          {
+            "title": "Assert output không xác định của AI",
+            "bullets": [
+              "[User] lo response AI khác nhau mỗi lần nên khó assert",
+              "[Assistant] đề xuất assert theo tiêu chí hoặc dùng LLM judge"
+            ]
+          },
+          {
+            "title": "Mục tiêu học performance testing",
+            "bullets": [
+              "[User] đặt mục tiêu năm nay học performance testing",
+              "[Assistant] gợi ý k6 hoặc Locust vì user đã biết Python"
+            ]
+          }
+        ],
+        "instruction": "No instruction found."
+      },
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Minh",
+          "location": "Hanoi",
+          "occupation": "QA engineer",
+          "organization": "Vulcan Labs",
+          "working_hours": "09:00-18:00",
+          "timezone": "Asia/Ho_Chi_Minh",
+          "pronouns": "",
+          "languages": [
+            "vi",
+            "en"
+          ],
+          "_version": 1,
+          "_note": "KHÔNG đổi — conversation này không có thông tin profile mới",
+          "_content_text_expected": "User name: Minh\nUser pronouns: \nUser's location: Hanoi\nUser's language: vi, en\nUser's occupation: QA engineer\nUser's organization: Vulcan Labs\nUser's working hours: 09:00-18:00 (Asia/Ho_Chi_Minh timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Python",
+            "Selenium",
+            "Postman",
+            "pytest"
+          ],
+          "_version": 1,
+          "_note": "GitHub Actions có thể được thêm — chấp nhận cả hai",
+          "_content_text_expected": "python, selenium, postman, pytest"
+        },
+        "preference": {
+          "interests": [
+            "CI/CD for testing",
+            "microservice architecture"
+          ],
+          "goals": [
+            "learn performance testing"
+          ],
+          "avoidances": [
+            "long theoretical answers"
+          ],
+          "_version": 2,
+          "_note": "avoidances từ C1 PHẢI còn — mất là lỗi merge",
+          "_content_text_expected": "User interests in: CI/CD for testing, microservice architecture\nUser current goals are: learn performance testing\nUser not like: long theoretical answers\n"
+        },
+        "activities": [
+          {
+            "title": "E2E test suite for ChatSmith",
+            "status": "planning",
+            "_occurrences": 1
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "asserting non-deterministic AI output"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [],
+      "checkpoints": [],
+      "wait_after_minutes": 11,
+      "notes": "Điểm cần soi: 'thích tìm hiểu microservice' -> preference.interests, KHÔNG phải capability (user chưa nói là biết làm). 'muốn học performance testing' -> goals, KHÔNG phải capability. Dự án có tên + kickoff -> activities status=planning (chưa bắt đầu). Lo về assert AI -> top_of_mind (chủ đề đang quan tâm, không phải task có tên).",
+      "_old_seq": 2,
+      "triggers_extraction": true,
+      "wait_note": "Trigger -> đặt khoá 10 phút. PHẢI chờ >10 phút trước conversation TRIGGER kế tiếp. Conversation đọc (<10 turn) chạy được trong lúc chờ."
+    },
+    {
+      "seq": 3,
+      "group": "A",
+      "role": "write",
+      "test_user": "user#1",
+      "conversation_id": "9e2b70b6-3b9b-5a57-baaa-03502dcb0df0",
+      "title": "Báo tiến độ dự án và bàn về flaky test",
+      "purpose": "Test UPSERT: dự án đã có phải được cập nhật, KHÔNG tạo block thứ hai.",
+      "writes_blocks": [
+        "activities",
+        "top_of_mind"
+      ],
+      "turn_count": 10,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Mình đã kickoff dự án E2E test suite rồi, đang dựng khung.",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 2,
+            "why": "Assistant phải nhận ra dự án này đã được nhắc ở conversation trước, không hỏi lại từ đầu.",
+            "expected_answer": "Dự án E2E test suite cho ChatSmith mà bạn nhắc trước đó. Dựng khung xong thì nên chạy thử một luồng đơn giản để validate cấu trúc trước khi mở rộng.",
+            "expected_facts": [
+              "E2E test suite"
+            ],
+            "note": "Bot phải NHẬN RA dự án đã nhắc ở C2, không được hỏi lại từ đầu kiểu 'bạn đang làm dự án gì?'"
+          }
+        },
+        {
+          "turn": 2,
+          "user": "Đúng, mình đã cover được 3 luồng chính rồi."
+        },
+        {
+          "turn": 3,
+          "user": "Nhưng mình đang gặp vấn đề flaky test rất nhiều, chạy 10 lần fail 3 lần."
+        },
+        {
+          "turn": 4,
+          "user": "Chắc là data không reset. Các test dùng chung một account."
+        },
+        {
+          "turn": 5,
+          "user": "Mình sẽ thử tách data theo test. Còn cách nào phát hiện flaky tự động không?"
+        },
+        {
+          "turn": 6,
+          "user": "Hay đấy. Mình sẽ thêm job chạy lặp mỗi đêm."
+        },
+        {
+          "turn": 7,
+          "user": "Đồng ý. Dự án hiện đang chạy đúng tiến độ, tuần thứ 2 rồi."
+        },
+        {
+          "turn": 8,
+          "user": "Mình cũng đang tìm hiểu về test data management nói chung, thấy đây là chủ đề lớn."
+        },
+        {
+          "turn": 9,
+          "user": "Mình sẽ đọc thêm về factory pattern."
+        },
+        {
+          "turn": 10,
+          "user": "Nhắc mình chút, trước giờ mình dùng những công cụ test nào nhỉ?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 1,
+            "why": "capability từ C1 — memory probe giữa conversation, hỏi thông tin của conversation TRƯỚC nên không bị nhiễu bởi ngữ cảnh gần.",
+            "expected_answer": "Bạn dùng Python, Selenium, Postman và pytest.",
+            "expected_facts": [
+              "Python",
+              "Selenium",
+              "Postman",
+              "pytest"
+            ]
+          }
+        }
+      ],
+      "expected_short_term": {
+        "global_session_summary": [
+          "[User] báo đã kickoff dự án E2E test suite, đang dựng khung, đã cover 3 luồng chính",
+          "[User] gặp vấn đề flaky test, tỉ lệ fail 3/10 lần",
+          "[Assistant] chẩn đoán do data không reset, các test dùng chung account",
+          "[User] quyết định tách data theo từng test",
+          "[Assistant] gợi ý pytest-rerunfailures và job chạy lặp mỗi đêm để phát hiện flaky",
+          "[User] xác nhận dự án đúng tiến độ tuần thứ 2, và đang tìm hiểu test data management",
+          "[Assistant] giới thiệu factory pattern kết hợp faker"
+        ],
+        "main_topics": [
+          {
+            "title": "Xử lý flaky test",
+            "bullets": [
+              "[User] gặp 30% flaky do các test dùng chung account, data không reset",
+              "[User] quyết định tách data riêng cho từng test",
+              "[Assistant] đề xuất fixture scope function và job chạy lặp mỗi đêm"
+            ]
+          },
+          {
+            "title": "Tiến độ dự án E2E test suite",
+            "bullets": [
+              "[User] đã kickoff, dựng khung, cover 3 luồng chính, đang tuần 2",
+              "[Assistant] xác nhận đúng lịch, happy path nên xong tuần 3"
+            ]
+          },
+          {
+            "title": "Test data management",
+            "bullets": [
+              "[User] đang tìm hiểu chủ đề này, sẽ đọc thêm về factory pattern",
+              "[Assistant] giới thiệu factory + faker"
+            ]
+          }
+        ],
+        "instruction": "No instruction found."
+      },
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Minh",
+          "location": "Hanoi",
+          "occupation": "QA engineer",
+          "organization": "Vulcan Labs",
+          "working_hours": "09:00-18:00",
+          "timezone": "Asia/Ho_Chi_Minh",
+          "pronouns": "",
+          "languages": [
+            "vi",
+            "en"
+          ],
+          "_unchanged": true,
+          "_version": 1,
+          "_content_text_expected": "User name: Minh\nUser pronouns: \nUser's location: Hanoi\nUser's language: vi, en\nUser's occupation: QA engineer\nUser's organization: Vulcan Labs\nUser's working hours: 09:00-18:00 (Asia/Ho_Chi_Minh timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Python",
+            "Selenium",
+            "Postman",
+            "pytest"
+          ],
+          "_version": 1,
+          "_note": "pytest-rerunfailures / faker là gợi ý của assistant, user CHƯA nói là biết dùng -> KHÔNG được thêm",
+          "_content_text_expected": "python, selenium, postman, pytest"
+        },
+        "preference": {
+          "interests": [
+            "CI/CD for testing",
+            "microservice architecture"
+          ],
+          "goals": [
+            "learn performance testing"
+          ],
+          "avoidances": [
+            "long theoretical answers"
+          ],
+          "_unchanged": true,
+          "_version": 2,
+          "_content_text_expected": "User interests in: CI/CD for testing, microservice architecture\nUser current goals are: learn performance testing\nUser not like: long theoretical answers\n"
+        },
+        "activities": [
+          {
+            "title": "E2E test suite for ChatSmith",
+            "status": "active",
+            "_occurrences": 2,
+            "_note": "PHẢI upsert block cũ: status planning -> active, occurrences tăng. Tạo block thứ hai cùng tên = lỗi fragmentation."
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "flaky tests"
+          },
+          {
+            "title": "test data management"
+          },
+          {
+            "title": "asserting non-deterministic AI output",
+            "_note": "từ C2, có thể vẫn còn hoặc bị đẩy xuống theo relevance"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [],
+      "checkpoints": [],
+      "wait_after_minutes": 11,
+      "notes": "TEST QUAN TRỌNG NHẤT của conversation này: chỉ được có ĐÚNG 1 block activities tên 'E2E test suite for ChatSmith'. Và 'flaky test' phải vào top_of_mind (chủ đề), KHÔNG phải activities (không phải task có tên).",
+      "_old_seq": 3,
+      "triggers_extraction": true,
+      "wait_note": "Trigger -> đặt khoá 10 phút. PHẢI chờ >10 phút trước conversation TRIGGER kế tiếp. Conversation đọc (<10 turn) chạy được trong lúc chờ."
+    },
+    {
+      "seq": 4,
+      "group": "A",
+      "role": "write",
+      "test_user": "user#1",
+      "conversation_id": "b20368f9-ed60-54a2-846b-483974768f84",
+      "title": "Chuyển chỗ ở và đổi công cụ",
+      "purpose": "Test sửa thông tin: giá trị cũ PHẢI biến mất, không được tồn tại song song.",
+      "writes_blocks": [
+        "user_profile",
+        "capability",
+        "preference"
+      ],
+      "turn_count": 10,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Mình có tin mới: mình đã chuyển vào TP.HCM từ tuần trước rồi, không còn ở Hà Nội nữa."
+        },
+        {
+          "turn": 2,
+          "user": "Vẫn làm ở Vulcan Labs, chỉ đổi nơi ở thôi."
+        },
+        {
+          "turn": 3,
+          "user": "Giờ làm của mình cũng đổi thành 10h đến 19h."
+        },
+        {
+          "turn": 4,
+          "user": "Về công cụ, mình đã chuyển từ Selenium sang Playwright cho dự án E2E.",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 2,
+            "why": "Assistant hiểu 'dự án E2E' mà không cần user giải thích lại.",
+            "expected_answer": "Playwright nhanh hơn và auto-wait tốt hơn Selenium. Với E2E test suite cho ChatSmith thì auto-wait sẽ giảm đáng kể flaky test bạn gặp trước đó.",
+            "expected_facts": [
+              "E2E"
+            ],
+            "note": "Bot hiểu 'dự án E2E' là gì mà không cần user giải thích lại."
+          }
+        },
+        {
+          "turn": 5,
+          "user": "Khá suôn sẻ. Mình đã dùng Playwright thành thạo rồi, viết lại xong 3 luồng cũ."
+        },
+        {
+          "turn": 6,
+          "user": "Đúng, flaky giảm từ 30% xuống còn 5%."
+        },
+        {
+          "turn": 7,
+          "user": "Mình sẽ soi. À, trước mình nói không thích lý thuyết dài, nhưng giờ mình muốn hiểu sâu hơn, giải thích kỹ cũng được."
+        },
+        {
+          "turn": 8,
+          "user": "Cảm ơn. Playwright auto-wait hoạt động thế nào?"
+        },
+        {
+          "turn": 9,
+          "user": "Rõ hơn nhiều rồi. Vậy còn cần explicit wait không?"
+        },
+        {
+          "turn": 10,
+          "user": "À nhắc mới nhớ, mục tiêu học tập năm nay của mình là gì nhỉ?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 2,
+            "why": "preference.goals từ C2. Sau khi vừa sửa profile ở C4, các block khác phải còn nguyên — probe này kiểm chuyện đó.",
+            "expected_answer": "Mục tiêu năm nay của bạn là học performance testing.",
+            "expected_facts": [
+              "performance testing"
+            ]
+          }
+        }
+      ],
+      "expected_short_term": {
+        "global_session_summary": [
+          "[User] thông báo đã chuyển từ Hà Nội vào TP.HCM, vẫn làm ở Vulcan Labs, giờ làm đổi thành 10h-19h",
+          "[User] cho biết đã chuyển từ Selenium sang Playwright và dùng thành thạo, viết lại 3 luồng cũ",
+          "[User] báo flaky test giảm từ 30% xuống 5%",
+          "[User] đổi ý về cách trả lời: giờ muốn giải thích kỹ, không còn yêu cầu ngắn gọn",
+          "[Assistant] giải thích cơ chế auto-wait của Playwright và khi nào còn cần explicit wait"
+        ],
+        "main_topics": [
+          {
+            "title": "Chuyển từ Selenium sang Playwright",
+            "bullets": [
+              "[User] đã chuyển đổi thành thạo, viết lại 3 luồng, flaky giảm 30% -> 5%",
+              "[Assistant] giải thích auto-wait chờ element đạt trạng thái actionable"
+            ]
+          },
+          {
+            "title": "Thay đổi thông tin cá nhân",
+            "bullets": [
+              "[User] chuyển vào TP.HCM, giờ làm mới 10h-19h, vẫn ở Vulcan Labs"
+            ]
+          },
+          {
+            "title": "Đổi yêu cầu về cách trả lời",
+            "bullets": [
+              "[User] không còn muốn trả lời ngắn gọn, giờ muốn giải thích kỹ"
+            ]
+          }
+        ],
+        "instruction": "Giải thích chi tiết, đầy đủ khi cần thiết."
+      },
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Minh",
+          "location": "Ho Chi Minh City",
+          "occupation": "QA engineer",
+          "organization": "Vulcan Labs",
+          "working_hours": "10:00-19:00",
+          "timezone": "Asia/Ho_Chi_Minh",
+          "pronouns": "",
+          "languages": [
+            "vi",
+            "en"
+          ],
+          "_version": 2,
+          "_note": "Hanoi và 09:00-18:00 PHẢI biến mất hoàn toàn",
+          "_content_text_expected": "User name: Minh\nUser pronouns: \nUser's location: Ho Chi Minh City\nUser's language: vi, en\nUser's occupation: QA engineer\nUser's organization: Vulcan Labs\nUser's working hours: 10:00-19:00 (Asia/Ho_Chi_Minh timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Python",
+            "Selenium",
+            "Postman",
+            "pytest",
+            "Playwright"
+          ],
+          "_version": 2,
+          "_note": "Playwright được THÊM. Selenium vẫn CÒN — user vẫn biết dùng, chỉ là không dùng cho dự án này nữa. Xoá Selenium là sai.",
+          "_content_text_expected": "python, selenium, postman, pytest, playwright"
+        },
+        "preference": {
+          "interests": [
+            "CI/CD for testing",
+            "microservice architecture"
+          ],
+          "goals": [
+            "learn performance testing"
+          ],
+          "avoidances": [],
+          "_version": 3,
+          "_note": "'long theoretical answers' PHẢI rời avoidances vì user đã đổi ý. Còn nằm ở avoidances = không xử lý được correction.",
+          "_content_text_expected": "User interests in: CI/CD for testing, microservice architecture\nUser current goals are: learn performance testing\nUser not like: \n"
+        },
+        "activities": [
+          {
+            "title": "E2E test suite for ChatSmith",
+            "status": "active",
+            "_occurrences": 3
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "flaky tests"
+          },
+          {
+            "title": "test data management"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [
+        "Hà Nội",
+        "Hanoi",
+        "09:00-18:00",
+        "9h đến 18h"
+      ],
+      "checkpoints": [],
+      "wait_after_minutes": 11,
+      "notes": "Ba phép sửa trong một conversation: location (scalar overwrite), working_hours (scalar overwrite), avoidances (xoá phần tử khỏi list). Chú ý phân biệt: Playwright THÊM vào capability nhưng Selenium KHÔNG bị xoá — 'chuyển sang dùng X' không có nghĩa 'quên mất Y'.",
+      "_old_seq": 4,
+      "triggers_extraction": true,
+      "wait_note": "Trigger -> đặt khoá 10 phút. PHẢI chờ >10 phút trước conversation TRIGGER kế tiếp. Conversation đọc (<10 turn) chạy được trong lúc chờ."
+    },
+    {
+      "seq": 5,
+      "group": "A",
+      "role": "write",
+      "test_user": "user#1",
+      "conversation_id": "8b432de6-6db6-5329-8d80-d76b784c6261",
+      "title": "Hỏi kiến thức chung, không có thông tin cá nhân",
+      "purpose": "CASE ÂM. Toàn bộ 6 block phải GIỮ NGUYÊN, version không tăng.",
+      "writes_blocks": [],
+      "turn_count": 10,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "TCP three-way handshake hoạt động thế nào?"
+        },
+        {
+          "turn": 2,
+          "user": "Vì sao cần ba bước mà không phải hai?"
+        },
+        {
+          "turn": 3,
+          "user": "TIME_WAIT state là gì?"
+        },
+        {
+          "turn": 4,
+          "user": "Vì sao TIME_WAIT lại gây vấn đề khi có nhiều kết nối?"
+        },
+        {
+          "turn": 5,
+          "user": "Sự khác nhau giữa HTTP/1.1 và HTTP/2 là gì?"
+        },
+        {
+          "turn": 6,
+          "user": "Multiplexing giải quyết vấn đề gì?"
+        },
+        {
+          "turn": 7,
+          "user": "Còn HTTP/3 thì khác gì?"
+        },
+        {
+          "turn": 8,
+          "user": "Big-O của quicksort là gì?"
+        },
+        {
+          "turn": 9,
+          "user": "Vì sao quicksort thực tế lại nhanh hơn mergesort?"
+        },
+        {
+          "turn": 10,
+          "user": "Chuyển chủ đề chút, mình đang sống ở thành phố nào nhỉ?",
+          "verify": {
+            "must_not_contain": [
+              "Hanoi",
+              "Hà Nội"
+            ],
+            "recalls_from_conversation": 4,
+            "why": "QUAN TRỌNG. C5 là conversation no-op. Probe này kiểm correction ở C4 còn nguyên sau khi đi qua một conversation không liên quan. Trả lời Hà Nội = correction bị mất hoặc bị ghi đè ngược.",
+            "expected_answer": "Bạn đang sống ở TP.HCM.",
+            "expected_facts": [
+              "TP.HCM"
+            ],
+            "note": "Golden answer KHÔNG nhắc Hà Nội. Sổ chỉ còn location=Ho Chi Minh City sau C4, nên bot không có cơ sở nào để biết Hà Nội. Nhắc tới = giá trị cũ chưa bị ghi đè."
+          }
+        }
+      ],
+      "expected_short_term": {
+        "global_session_summary": [
+          "[User] hỏi về TCP three-way handshake và lý do cần ba bước",
+          "[Assistant] giải thích SYN / SYN-ACK / ACK và việc xác nhận số thứ tự hai chiều",
+          "[User] hỏi về TIME_WAIT và vấn đề cạn port",
+          "[User] hỏi so sánh HTTP/1.1, HTTP/2, HTTP/3",
+          "[Assistant] giải thích multiplexing, head-of-line blocking, và QUIC",
+          "[User] hỏi về độ phức tạp và hiệu năng thực tế của quicksort",
+          "[Assistant] giải thích O(n log n), cache locality và hằng số nhân"
+        ],
+        "main_topics": [
+          {
+            "title": "Cơ chế TCP",
+            "bullets": [
+              "[User] hỏi three-way handshake và TIME_WAIT",
+              "[Assistant] giải thích cơ chế và vấn đề cạn port"
+            ]
+          },
+          {
+            "title": "So sánh các phiên bản HTTP",
+            "bullets": [
+              "[User] hỏi khác biệt HTTP/1.1, /2, /3",
+              "[Assistant] giải thích multiplexing và QUIC"
+            ]
+          },
+          {
+            "title": "Hiệu năng quicksort",
+            "bullets": [
+              "[User] hỏi Big-O và lý do nhanh hơn mergesort trong thực tế",
+              "[Assistant] giải thích cache locality và hằng số nhân"
+            ]
+          }
+        ],
+        "instruction": "No instruction found."
+      },
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Minh",
+          "location": "Ho Chi Minh City",
+          "occupation": "QA engineer",
+          "organization": "Vulcan Labs",
+          "working_hours": "10:00-19:00",
+          "timezone": "Asia/Ho_Chi_Minh",
+          "pronouns": "",
+          "languages": [
+            "vi",
+            "en"
+          ],
+          "_unchanged": true,
+          "_version": 2,
+          "_content_text_expected": "User name: Minh\nUser pronouns: \nUser's location: Ho Chi Minh City\nUser's language: vi, en\nUser's occupation: QA engineer\nUser's organization: Vulcan Labs\nUser's working hours: 10:00-19:00 (Asia/Ho_Chi_Minh timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Python",
+            "Selenium",
+            "Postman",
+            "pytest",
+            "Playwright"
+          ],
+          "_unchanged": true,
+          "_version": 2,
+          "_note": "TCP/HTTP/quicksort là câu HỎI, không phải kỹ năng user tuyên bố. Thêm chúng vào capability là lỗi nghiêm trọng.",
+          "_content_text_expected": "python, selenium, postman, pytest, playwright"
+        },
+        "preference": {
+          "interests": [
+            "CI/CD for testing",
+            "microservice architecture"
+          ],
+          "goals": [
+            "learn performance testing"
+          ],
+          "avoidances": [],
+          "_unchanged": true,
+          "_version": 3,
+          "_note": "Hỏi về HTTP không có nghĩa 'quan tâm tới HTTP'. Thêm vào interests là suy diễn quá xa.",
+          "_content_text_expected": "User interests in: CI/CD for testing, microservice architecture\nUser current goals are: learn performance testing\nUser not like: \n"
+        },
+        "activities": [
+          {
+            "title": "E2E test suite for ChatSmith",
+            "status": "active",
+            "_occurrences": 3,
+            "_note": "occurrences KHÔNG tăng — conversation này không nhắc dự án"
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "flaky tests"
+          },
+          {
+            "title": "test data management"
+          },
+          {
+            "_note": "KHÔNG được thêm 'TCP', 'HTTP', 'quicksort'"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [],
+      "checkpoints": [],
+      "wait_after_minutes": 11,
+      "notes": "Đây là case dễ fail nhất và giá trị nhất. Nhiều pipeline extraction sẽ suy diễn 'user quan tâm networking' rồi ghi vào top_of_mind hoặc interests. Hỏi kiến thức KHÔNG phải là tuyên bố về bản thân. Kiểm bằng cách so version trước/sau.",
+      "_old_seq": 5,
+      "triggers_extraction": true,
+      "wait_note": "Trigger -> đặt khoá 10 phút. PHẢI chờ >10 phút trước conversation TRIGGER kế tiếp. Conversation đọc (<10 turn) chạy được trong lúc chờ."
+    },
+    {
+      "seq": 6,
+      "group": "A",
+      "role": "write",
+      "test_user": "user#1",
+      "conversation_id": "b8a26c6d-6975-5e55-b5bc-d5047d070504",
+      "title": "Nhờ soạn email, có lẫn dữ liệu nhạy cảm",
+      "purpose": "Giữ phần vô hại, bỏ phần nhạy cảm — trong cùng một hội thoại.",
+      "writes_blocks": [
+        "activities"
+      ],
+      "turn_count": 10,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Mình cần soạn email xin nghỉ phép gửi HR. Số điện thoại của mình là 0912-345-678 để họ liên hệ."
+        },
+        {
+          "turn": 2,
+          "user": "Từ 15 đến 20 tháng 9. Email cá nhân của mình là minh.private1990@gmail.com nếu cần gửi bản sao."
+        },
+        {
+          "turn": 3,
+          "user": "Có, mình vừa được bác sĩ chẩn đoán bị tiểu đường type 2 nên cần đi điều trị."
+        },
+        {
+          "turn": 4,
+          "user": "Được, vậy ghi chung là lý do sức khoẻ. Số hộ chiếu mình là B7654321 nếu cần cho hồ sơ."
+        },
+        {
+          "turn": 5,
+          "user": "Ừ đúng. Mình cũng đang lo dự án E2E test suite bị chậm vì mình nghỉ."
+        },
+        {
+          "turn": 6,
+          "user": "Ý hay. Mình sẽ bàn giao cho bạn Hùng trong team."
+        },
+        {
+          "turn": 7,
+          "user": "Soạn giúp mình bản nháp nhé."
+        },
+        {
+          "turn": 8,
+          "user": "Tốt rồi. Thêm câu là mình sẽ trả lời email khẩn nếu cần."
+        },
+        {
+          "turn": 9,
+          "user": "Cảm ơn. Dự án vẫn đang chạy đúng tiến độ tuần 4."
+        },
+        {
+          "turn": 10,
+          "user": "Nhân đây hỏi luôn, tổ chức mình đang làm tên gì nhỉ?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 1,
+            "why": "user_profile.organization từ C1. C6 có PII nên probe này cũng kiểm: PII bị lọc nhưng thông tin hợp lệ KHÔNG bị lọc theo.",
+            "expected_answer": "Bạn đang làm ở Vulcan Labs.",
+            "expected_facts": [
+              "Vulcan Labs"
+            ]
+          }
+        }
+      ],
+      "expected_short_term": {
+        "global_session_summary": [
+          "[User] cần soạn email xin nghỉ phép gửi HR từ 15 đến 20 tháng 9",
+          "[Assistant] hướng dẫn nêu lý do sức khoẻ chung chung, không cần chi tiết y tế",
+          "[User] lo dự án E2E test suite bị chậm, quyết định bàn giao cho đồng nghiệp tên Hùng",
+          "[Assistant] soạn bản nháp email gồm thời gian nghỉ, lý do chung và người tiếp nhận",
+          "[User] yêu cầu thêm câu về việc phản hồi email khẩn",
+          "[User] xác nhận dự án đang đúng tiến độ tuần 4"
+        ],
+        "main_topics": [
+          {
+            "title": "Soạn email xin nghỉ phép",
+            "bullets": [
+              "[User] cần email nghỉ 15-20/9 gửi HR, lý do sức khoẻ",
+              "[Assistant] soạn bản nháp gồm thời gian, lý do chung, người bàn giao"
+            ]
+          },
+          {
+            "title": "Bàn giao dự án E2E test suite",
+            "bullets": [
+              "[User] quyết định bàn giao cho Hùng trong thời gian nghỉ",
+              "[User] xác nhận dự án đúng tiến độ tuần 4"
+            ]
+          }
+        ],
+        "instruction": "No instruction found."
+      },
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Minh",
+          "location": "Ho Chi Minh City",
+          "occupation": "QA engineer",
+          "organization": "Vulcan Labs",
+          "working_hours": "10:00-19:00",
+          "timezone": "Asia/Ho_Chi_Minh",
+          "pronouns": "",
+          "languages": [
+            "vi",
+            "en"
+          ],
+          "_unchanged": true,
+          "_version": 2,
+          "_note": "KHÔNG được thêm phone, email cá nhân, số hộ chiếu, tình trạng bệnh",
+          "_content_text_expected": "User name: Minh\nUser pronouns: \nUser's location: Ho Chi Minh City\nUser's language: vi, en\nUser's occupation: QA engineer\nUser's organization: Vulcan Labs\nUser's working hours: 10:00-19:00 (Asia/Ho_Chi_Minh timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Python",
+            "Selenium",
+            "Postman",
+            "pytest",
+            "Playwright"
+          ],
+          "_unchanged": true,
+          "_version": 2,
+          "_content_text_expected": "python, selenium, postman, pytest, playwright"
+        },
+        "preference": {
+          "interests": [
+            "CI/CD for testing",
+            "microservice architecture"
+          ],
+          "goals": [
+            "learn performance testing"
+          ],
+          "avoidances": [],
+          "_unchanged": true,
+          "_version": 3,
+          "_content_text_expected": "User interests in: CI/CD for testing, microservice architecture\nUser current goals are: learn performance testing\nUser not like: \n"
+        },
+        "activities": [
+          {
+            "title": "E2E test suite for ChatSmith",
+            "status": "active",
+            "_occurrences": 4,
+            "_note": "occurrences tăng vì dự án được nhắc lại. Bàn giao là thông tin hợp lệ."
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "flaky tests"
+          },
+          {
+            "title": "test data management"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [
+        "0912-345-678",
+        "0912345678",
+        "minh.private1990@gmail.com",
+        "B7654321",
+        "tiểu đường",
+        "type 2",
+        "diabetes",
+        "chẩn đoán",
+        "bác sĩ"
+      ],
+      "checkpoints": [],
+      "wait_after_minutes": 11,
+      "notes": "Bốn loại PII trong một hội thoại: phone, email cá nhân, số hộ chiếu, chẩn đoán bệnh. Cả bốn PHẢI biến mất khỏi mọi field của mọi block. Nhưng thông tin nghiệp vụ (nghỉ phép, bàn giao, tiến độ dự án) thì vẫn được lưu. Đây là case khó nhất về safety.",
+      "_old_seq": 6,
+      "triggers_extraction": true,
+      "wait_note": "Trigger -> đặt khoá 10 phút. PHẢI chờ >10 phút trước conversation TRIGGER kế tiếp. Conversation đọc (<10 turn) chạy được trong lúc chờ."
+    },
+    {
+      "seq": 7,
+      "group": "A",
+      "role": "write",
+      "test_user": "user#1",
+      "conversation_id": "a342155c-b46e-5d83-a6c3-4e92fe5b9abc",
+      "title": "Dự án bị chặn và một dự án khác hoàn thành",
+      "purpose": "Test status weight ảnh hưởng ranking: blocked lên đầu, completed xuống cuối.",
+      "writes_blocks": [
+        "activities"
+      ],
+      "turn_count": 10,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Dự án E2E test suite đang bị chặn. Mình chưa được cấp quyền truy cập môi trường staging."
+        },
+        {
+          "turn": 2,
+          "user": "Mình đã gửi yêu cầu 3 ngày rồi mà chưa có phản hồi."
+        },
+        {
+          "turn": 3,
+          "user": "Ừ mình sẽ làm vậy. Trong lúc chờ thì mình không làm gì được cả."
+        },
+        {
+          "turn": 4,
+          "user": "Ý hay, mình sẽ viết skeleton trước. À, dự án 'Refactor CI pipeline' của mình đã xong rồi."
+        },
+        {
+          "turn": 5,
+          "user": "Có, giảm từ 12 phút xuống 7 phút. Dự án đó coi như đóng."
+        },
+        {
+          "turn": 6,
+          "user": "Đúng. Giờ mình chỉ tập trung vào E2E test suite thôi, nhưng đang bị chặn."
+        },
+        {
+          "turn": 7,
+          "user": "Mình cũng bắt đầu lo về việc timeline 6 tuần có kịp không."
+        },
+        {
+          "turn": 8,
+          "user": "Đúng, mình sẽ báo trước. Cảm ơn."
+        },
+        {
+          "turn": 9,
+          "user": "Mình gửi email escalate luôn bây giờ."
+        },
+        {
+          "turn": 10,
+          "user": "Nhắc lại giúp mình, dự án E2E test suite dự kiến làm trong bao lâu?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 2,
+            "why": "Chi tiết từ C2 (6 tuần). Kiểm thông tin trong activities không bị mất qua nhiều lần upsert (C3, C6, C7).",
+            "expected_answer": "Dự án E2E test suite cho ChatSmith dự kiến làm trong 6 tuần.",
+            "expected_facts": [
+              "6 tuần"
+            ]
+          }
+        }
+      ],
+      "expected_short_term": {
+        "global_session_summary": [
+          "[User] báo dự án E2E test suite bị chặn do chưa được cấp quyền truy cập staging, đã chờ 3 ngày",
+          "[Assistant] khuyên escalate kèm nêu tác động, và gợi ý viết skeleton test hoặc dùng mock trong lúc chờ",
+          "[User] thông báo dự án 'Refactor CI pipeline' đã hoàn thành, build giảm từ 12 xuống 7 phút",
+          "[User] lo timeline 6 tuần của E2E test suite không kịp vì blocker",
+          "[Assistant] khuyên báo điều chỉnh timeline sớm",
+          "[User] xác nhận đã gửi email escalate"
+        ],
+        "main_topics": [
+          {
+            "title": "E2E test suite bị chặn",
+            "bullets": [
+              "[User] chưa có quyền truy cập staging, chờ 3 ngày, dự án dừng",
+              "[User] quyết định escalate và viết skeleton test trong lúc chờ",
+              "[Assistant] khuyên nêu rõ tác động khi escalate"
+            ]
+          },
+          {
+            "title": "Hoàn thành Refactor CI pipeline",
+            "bullets": [
+              "[User] báo dự án đã xong, build giảm 12 phút xuống 7 phút",
+              "[User] xác nhận dự án đóng"
+            ]
+          },
+          {
+            "title": "Rủi ro timeline",
+            "bullets": [
+              "[User] lo 6 tuần không kịp vì blocker",
+              "[Assistant] khuyên báo điều chỉnh sớm thay vì để tới hạn"
+            ]
+          }
+        ],
+        "instruction": "No instruction found."
+      },
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Minh",
+          "location": "Ho Chi Minh City",
+          "occupation": "QA engineer",
+          "organization": "Vulcan Labs",
+          "working_hours": "10:00-19:00",
+          "timezone": "Asia/Ho_Chi_Minh",
+          "pronouns": "",
+          "languages": [
+            "vi",
+            "en"
+          ],
+          "_unchanged": true,
+          "_version": 2,
+          "_content_text_expected": "User name: Minh\nUser pronouns: \nUser's location: Ho Chi Minh City\nUser's language: vi, en\nUser's occupation: QA engineer\nUser's organization: Vulcan Labs\nUser's working hours: 10:00-19:00 (Asia/Ho_Chi_Minh timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Python",
+            "Selenium",
+            "Postman",
+            "pytest",
+            "Playwright"
+          ],
+          "_unchanged": true,
+          "_version": 2,
+          "_content_text_expected": "python, selenium, postman, pytest, playwright"
+        },
+        "preference": {
+          "interests": [
+            "CI/CD for testing",
+            "microservice architecture"
+          ],
+          "goals": [
+            "learn performance testing"
+          ],
+          "avoidances": [],
+          "_unchanged": true,
+          "_version": 3,
+          "_content_text_expected": "User interests in: CI/CD for testing, microservice architecture\nUser current goals are: learn performance testing\nUser not like: \n"
+        },
+        "activities": [
+          {
+            "title": "E2E test suite for ChatSmith",
+            "status": "blocked",
+            "_occurrences": 5,
+            "_expected_rank": 1,
+            "_note": "W(status) blocked = 1.0 -> PHẢI đứng đầu trong Core LTM top-3"
+          },
+          {
+            "title": "Refactor CI pipeline",
+            "status": "completed",
+            "_occurrences": 1,
+            "_expected_rank": "cuối",
+            "_note": "W(status) completed = 0.1 -> gần như rơi khỏi top-3"
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "project timeline risk"
+          },
+          {
+            "title": "flaky tests"
+          },
+          {
+            "title": "test data management"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [],
+      "checkpoints": [],
+      "wait_after_minutes": 11,
+      "notes": "Kiểm ranking bằng cách gọi Core LTM sau conversation này: activities[0] phải là block 'E2E test suite' (blocked, W=1.0), không phải 'Refactor CI pipeline' (completed, W=0.1). Đây là test cho công thức relevance = 0.4*W(status) + 0.4*R(t,30) + 0.2*F(n,10).",
+      "_old_seq": 7,
+      "triggers_extraction": true,
+      "wait_note": "Trigger -> đặt khoá 10 phút. PHẢI chờ >10 phút trước conversation TRIGGER kế tiếp. Conversation đọc (<10 turn) chạy được trong lúc chờ."
+    },
+    {
+      "seq": 8,
+      "group": "A",
+      "role": "write",
+      "test_user": "user#1",
+      "conversation_id": "8d3a032c-e7d8-5a9a-94b6-3d5fe894f5c3",
+      "title": "Chỉ hỏi lại, không cung cấp thông tin mới",
+      "purpose": "Bài test cuối: bot có DÙNG được toàn bộ memory đã tích luỹ không. Sổ không được đổi.",
+      "writes_blocks": [],
+      "turn_count": 10,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Bạn nhớ mình tên gì và làm ở đâu không?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 1,
+            "why": "user_profile — static, luôn có",
+            "expected_answer": "Bạn là Minh, QA engineer tại Vulcan Labs, hiện ở TP.HCM.",
+            "expected_facts": [
+              "Minh",
+              "QA engineer",
+              "Vulcan Labs"
+            ]
+          }
+        },
+        {
+          "turn": 2,
+          "user": "Mình đang ở thành phố nào nhỉ?",
+          "verify": {
+            "must_not_contain": [
+              "Hanoi",
+              "Hà Nội"
+            ],
+            "recalls_from_conversation": 4,
+            "why": "Correction đã ăn vào memory chưa. Trả lời Hà Nội = merge sai.",
+            "expected_answer": "Bạn đang ở TP.HCM.",
+            "expected_facts": [
+              "TP.HCM"
+            ]
+          }
+        },
+        {
+          "turn": 3,
+          "user": "Mình biết dùng những công cụ test nào?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": "1+4",
+            "why": "capability — set-union qua nhiều conversation",
+            "expected_answer": "Bạn dùng Python, Selenium, Playwright, Postman và pytest. Gần đây bạn đã chuyển sang Playwright cho dự án E2E.",
+            "expected_facts": [
+              "Python",
+              "Selenium",
+              "Playwright",
+              "pytest"
+            ],
+            "note": "Selenium PHẢI còn — 'chuyển sang Playwright' không có nghĩa quên Selenium."
+          }
+        },
+        {
+          "turn": 4,
+          "user": "Mục tiêu học tập của mình năm nay là gì?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 2,
+            "why": "preference.goals",
+            "expected_answer": "Bạn đặt mục tiêu học performance testing trong năm nay.",
+            "expected_facts": [
+              "performance testing"
+            ]
+          }
+        },
+        {
+          "turn": 5,
+          "user": "Dự án nào của mình đang bị chặn?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 7,
+            "why": "activities status=blocked",
+            "expected_answer": "Dự án E2E test suite cho ChatSmith đang bị chặn vì chưa được cấp quyền truy cập môi trường staging.",
+            "expected_facts": [
+              "E2E test suite",
+              "staging"
+            ]
+          }
+        },
+        {
+          "turn": 6,
+          "user": "Dự án nào mình đã hoàn thành?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 7,
+            "why": "activities status=completed — vẫn truy được dù rank thấp. Nếu bot không nhớ, có thể block đã bị đẩy khỏi top-3 -> cần Extended LTM",
+            "expected_answer": "Dự án Refactor CI pipeline đã hoàn thành, giảm thời gian build từ 12 phút xuống 7 phút.",
+            "expected_facts": [
+              "Refactor CI pipeline"
+            ],
+            "note": "status=completed nên W(status)=0.1, rank thấp, có thể không nằm trong Core LTM top-3. Bot không nhớ -> bằng chứng cần Extended LTM cho câu hỏi này."
+          }
+        },
+        {
+          "turn": 7,
+          "user": "Viết giúp mình một đoạn giới thiệu bản thân để đưa vào CV.",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": "1,2,4,7",
+            "why": "PHÉP THỬ TỔNG HỢP. Buộc gộp user_profile + capability + cả hai activities vào một đoạn văn. Thiếu mảnh nào lộ ngay mảnh đó không được retrieve.",
+            "expected_answer": "Minh — QA Engineer tại Vulcan Labs, TP.HCM. Chuyên về test automation với Python, Playwright và Selenium. Đã xây dựng E2E test suite cho sản phẩm chat AI và refactor CI pipeline giảm 40% thời gian build. Đang mở rộng sang performance testing.",
+            "expected_facts": [
+              "Minh",
+              "Vulcan Labs",
+              "TP.HCM",
+              "Playwright",
+              "E2E test suite",
+              "CI pipeline",
+              "performance testing"
+            ],
+            "note": "PHÉP THỬ TỔNG HỢP. Buộc bot gộp user_profile + capability + CẢ HAI activities vào một đoạn văn. Thiếu mảnh nào là lộ ngay mảnh đó không được retrieve."
+          }
+        },
+        {
+          "turn": 8,
+          "user": "Tốt. Mình có nói gì về việc không thích cách trả lời nào không?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": "1+4",
+            "why": "Lịch sử correction của preference",
+            "expected_answer": "Trước đây bạn yêu cầu trả lời ngắn gọn, nhưng sau đó đã đổi ý và muốn được giải thích kỹ hơn.",
+            "expected_facts": [
+              "ngắn gọn"
+            ],
+            "note": "Kiểm lịch sử correction của preference qua C1 -> C4."
+          }
+        },
+        {
+          "turn": 9,
+          "user": "Đúng rồi. Giờ mình nên ưu tiên việc gì?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 7,
+            "why": "Kiểm ranking: phải chọn block status=blocked (W=1.0) làm ưu tiên, không phải block completed (W=0.1).",
+            "expected_answer": "Ưu tiên tháo blocker quyền truy cập staging cho dự án E2E test suite, vì nó đang chặn tiến độ và ảnh hưởng timeline 6 tuần.",
+            "expected_facts": [
+              "staging",
+              "E2E test suite"
+            ],
+            "note": "Kiểm ranking: bot phải chọn block status=blocked (W=1.0) làm ưu tiên, không phải block completed (W=0.1)."
+          }
+        },
+        {
+          "turn": 10,
+          "user": "Cảm ơn bạn, rất hữu ích."
+        }
+      ],
+      "expected_short_term": {
+        "global_session_summary": [
+          "[User] hỏi lại loạt thông tin về bản thân: tên, nơi làm, thành phố, công cụ, mục tiêu",
+          "[Assistant] trả lời đúng dựa trên memory: Minh, QA engineer tại Vulcan Labs, TP.HCM",
+          "[User] hỏi dự án nào đang bị chặn và dự án nào đã hoàn thành",
+          "[Assistant] nêu E2E test suite bị chặn do quyền staging, Refactor CI pipeline đã xong",
+          "[User] yêu cầu viết đoạn giới thiệu bản thân cho CV",
+          "[Assistant] soạn đoạn giới thiệu dùng thông tin từ memory",
+          "[Assistant] khuyên ưu tiên tháo blocker quyền truy cập staging"
+        ],
+        "main_topics": [
+          {
+            "title": "Xác nhận lại thông tin cá nhân",
+            "bullets": [
+              "[User] hỏi lại tên, nơi làm, thành phố, công cụ, mục tiêu",
+              "[Assistant] trả lời đầy đủ và chính xác từ memory"
+            ]
+          },
+          {
+            "title": "Viết giới thiệu bản thân cho CV",
+            "bullets": [
+              "[User] yêu cầu đoạn giới thiệu",
+              "[Assistant] soạn dựa trên nghề, công cụ, và hai dự án của user"
+            ]
+          },
+          {
+            "title": "Ưu tiên công việc hiện tại",
+            "bullets": [
+              "[User] hỏi nên ưu tiên gì",
+              "[Assistant] khuyên tháo blocker quyền staging vì đang chặn timeline"
+            ]
+          }
+        ],
+        "instruction": "No instruction found."
+      },
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Minh",
+          "location": "Ho Chi Minh City",
+          "occupation": "QA engineer",
+          "organization": "Vulcan Labs",
+          "working_hours": "10:00-19:00",
+          "timezone": "Asia/Ho_Chi_Minh",
+          "pronouns": "",
+          "languages": [
+            "vi",
+            "en"
+          ],
+          "_unchanged": true,
+          "_version": 2,
+          "_content_text_expected": "User name: Minh\nUser pronouns: \nUser's location: Ho Chi Minh City\nUser's language: vi, en\nUser's occupation: QA engineer\nUser's organization: Vulcan Labs\nUser's working hours: 10:00-19:00 (Asia/Ho_Chi_Minh timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Python",
+            "Selenium",
+            "Postman",
+            "pytest",
+            "Playwright"
+          ],
+          "_unchanged": true,
+          "_version": 2,
+          "_content_text_expected": "python, selenium, postman, pytest, playwright"
+        },
+        "preference": {
+          "interests": [
+            "CI/CD for testing",
+            "microservice architecture"
+          ],
+          "goals": [
+            "learn performance testing"
+          ],
+          "avoidances": [],
+          "_unchanged": true,
+          "_version": 3,
+          "_content_text_expected": "User interests in: CI/CD for testing, microservice architecture\nUser current goals are: learn performance testing\nUser not like: \n"
+        },
+        "activities": [
+          {
+            "title": "E2E test suite for ChatSmith",
+            "status": "blocked",
+            "_occurrences": 5
+          },
+          {
+            "title": "Refactor CI pipeline",
+            "status": "completed",
+            "_occurrences": 1
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "project timeline risk"
+          },
+          {
+            "title": "flaky tests"
+          },
+          {
+            "title": "test data management"
+          }
+        ],
+        "behavior_pattern": [],
+        "_note": "Conversation chỉ ĐỌC. Không có thông tin mới -> tất cả version phải GIỮ NGUYÊN. Nếu version tăng thì extraction đang ghi lại chính thứ nó vừa đọc."
+      },
+      "must_not_contain": [],
+      "checkpoints": [],
+      "wait_after_minutes": 11,
+      "notes": "Đây là bài test chứng minh giá trị của LTM. Turn 7 (viết CV) là phép thử tổng hợp: bot phải gộp profile + capability + cả hai activities vào một đoạn văn. Turn 6 đáng chú ý: 'Refactor CI pipeline' status=completed nên rank thấp, có thể không nằm trong Core LTM top-3 -> nếu bot không nhớ thì đó là bằng chứng Extended LTM cần được gọi cho câu hỏi này.",
+      "_old_seq": 8,
+      "triggers_extraction": true,
+      "wait_note": "Trigger -> đặt khoá 10 phút. PHẢI chờ >10 phút trước conversation TRIGGER kế tiếp. Conversation đọc (<10 turn) chạy được trong lúc chờ."
+    },
+    {
+      "seq": 9,
+      "group": "THRESHOLD",
+      "role": "write",
+      "test_user": "user#1",
+      "conversation_id": "922eb2d0-0bf3-510b-b34b-d99f92611e5d",
+      "title": "[NGƯỠNG-ghi] 9 turn — dưới ngưỡng",
+      "purpose": "Chạy sau C8 nên sổ ĐÃ CÓ data. Conversation đọc ngay sau sẽ vừa kiểm cái PHẢI VẮNG (Rust) vừa kiểm cái PHẢI CÓ (Python/Selenium) — control có sẵn.",
+      "writes_blocks": [
+        "capability",
+        "preference",
+        "activities"
+      ],
+      "turn_count": 9,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Mình có tin mới: mình đã dùng Rust được hơn một năm rồi, khá thành thạo."
+        },
+        {
+          "turn": 2,
+          "user": "Mình viết tool sinh test data bằng Rust, nhanh hơn Python nhiều."
+        },
+        {
+          "turn": 3,
+          "user": "Mình cũng vừa nhận thêm dự án tên 'Migrate test suite sang k6', bắt đầu tháng sau."
+        },
+        {
+          "turn": 4,
+          "user": "Đúng, mục tiêu là gộp performance test vào CI luôn."
+        },
+        {
+          "turn": 5,
+          "user": "Ý hay. Mình cũng đang rất quan tâm tới chủ đề observability cho test."
+        },
+        {
+          "turn": 6,
+          "user": "Mình sẽ thử. Mình cũng không thích dùng công cụ có UI nặng, thích CLI hơn."
+        },
+        {
+          "turn": 7,
+          "user": "Tốt. k6 có hỗ trợ export metrics ra Prometheus không?"
+        },
+        {
+          "turn": 8,
+          "user": "Vậy là đủ cho nhu cầu của mình."
+        },
+        {
+          "turn": 9,
+          "user": "Cảm ơn bạn nhé."
+        }
+      ],
+      "expected_short_term": {
+        "_expected": "KHÔNG có summary (9 turn, chưa đủ ngưỡng). T2 không bật.",
+        "global_session_summary": [],
+        "main_topics": [],
+        "instruction": "N/A"
+      },
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Minh",
+          "location": "Ho Chi Minh City",
+          "occupation": "QA engineer",
+          "organization": "Vulcan Labs",
+          "working_hours": "10:00-19:00",
+          "timezone": "Asia/Ho_Chi_Minh",
+          "pronouns": "",
+          "languages": [
+            "vi",
+            "en"
+          ],
+          "_unchanged": true,
+          "_version": 2,
+          "_content_text_expected": "User name: Minh\nUser pronouns: \nUser's location: Ho Chi Minh City\nUser's language: vi, en\nUser's occupation: QA engineer\nUser's organization: Vulcan Labs\nUser's working hours: 10:00-19:00 (Asia/Ho_Chi_Minh timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Python",
+            "Selenium",
+            "Postman",
+            "pytest",
+            "Playwright"
+          ],
+          "_unchanged": true,
+          "_version": 2,
+          "_note": "'rust' KHÔNG được thêm nếu ngưỡng 10 turn hoạt động đúng",
+          "_content_text_expected": "python, selenium, postman, pytest, playwright"
+        },
+        "preference": {
+          "interests": [
+            "CI/CD for testing",
+            "microservice architecture"
+          ],
+          "goals": [
+            "learn performance testing"
+          ],
+          "avoidances": [],
+          "_unchanged": true,
+          "_version": 3,
+          "_note": "'observability for testing' và 'CLI over heavy UI' KHÔNG được thêm",
+          "_content_text_expected": "User interests in: CI/CD for testing, microservice architecture\nUser current goals are: learn performance testing\nUser not like: \n"
+        },
+        "activities": [
+          {
+            "title": "E2E test suite for ChatSmith",
+            "status": "blocked",
+            "_occurrences": 5
+          },
+          {
+            "title": "Refactor CI pipeline",
+            "status": "completed",
+            "_occurrences": 1
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "project timeline risk"
+          },
+          {
+            "title": "flaky tests"
+          },
+          {
+            "title": "test data management"
+          }
+        ],
+        "behavior_pattern": [],
+        "_note": "TẤT CẢ phải giữ nguyên như sau C8. 'Migrate test suite sang k6' KHÔNG được xuất hiện trong activities.",
+        "_if_standalone_fresh_user": {
+          "meaning": "Chạy C9 một mình trên user MỚI — assert sạch hơn, khuyến nghị dùng cách này",
+          "user_profile": "RỖNG",
+          "capability": "RỖNG",
+          "preference": "RỖNG",
+          "activities": "[]",
+          "top_of_mind": "[]",
+          "behavior_pattern": "[]",
+          "note": "9 turn trên user mới -> sổ phải RỖNG HOÀN TOÀN. Bất kỳ block nào có data = BUG."
+        }
+      },
+      "must_not_contain": [],
+      "checkpoints": [],
+      "wait_after_minutes": 0,
+      "notes": "Nội dung GIỐNG HỆT conversation 10-turn ngay sau đó, chỉ khác số turn. So kết quả hai lần đọc lại: lần đầu KHÔNG có Rust, lần sau CÓ Rust. Đó là bằng chứng ngưỡng đúng là 10.",
+      "_old_seq": 9,
+      "triggers_extraction": false,
+      "wait_note": "Không trigger (<10 turn) -> chạy ngay, không cần chờ"
+    },
+    {
+      "seq": 10,
+      "group": "THRESHOLD",
+      "role": "verify",
+      "test_user": "user#1",
+      "conversation_id": "9d1e8ac8-0694-5a8d-a60d-7f3755347ade",
+      "title": "[NGƯỠNG-đọc] Hỏi lại sau conversation 9 turn",
+      "purpose": "Conversation ĐỌC, 3 turn nên KHÔNG trigger, không làm bẩn state. Bot phải KHÔNG nhớ gì từ C9 vì C9 chưa đủ ngưỡng.",
+      "writes_blocks": [],
+      "turn_count": 3,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Bạn còn nhớ mình biết dùng ngôn ngữ lập trình nào không?",
+          "verify": {
+            "must_not_contain": [
+              "Rust",
+              "rust"
+            ],
+            "recalls_from_conversation": 9,
+            "why": "C9 chỉ 9 turn -> Rust KHÔNG được ghi -> bot KHÔNG được nhớ. Bot nói Rust = ngưỡng nhỏ hơn 10, hoặc T2 đang bật.",
+            "expected_answer": "Bạn dùng Python, Selenium, Playwright, Postman và pytest.",
+            "expected_facts": [
+              "Python",
+              "Selenium"
+            ],
+            "note": "CONTROL VÀ ÂM TRONG MỘT CÂU. Bot PHẢI nói được Python/Selenium (từ C1-C4) -> chứng minh extraction sống và retrieval hoạt động. Bot KHÔNG được nói Rust (chỉ nhắc ở conversation 9-turn) -> chứng minh 9 turn không ghi. Cả hai vắng = extraction hỏng, test vô hiệu."
+          }
+        },
+        {
+          "turn": 2,
+          "user": "Mình có dự án nào đang làm không?",
+          "verify": {
+            "must_not_contain": [
+              "Migrate",
+              "k6"
+            ],
+            "recalls_from_conversation": 9,
+            "why": "Dự án k6 nhắc ở C9 nhưng chưa đủ ngưỡng -> không được nhớ.",
+            "expected_answer": "Bạn đang làm dự án E2E test suite cho ChatSmith, hiện đang bị chặn vì chưa có quyền truy cập staging.",
+            "expected_facts": [
+              "E2E test suite"
+            ],
+            "note": "CONTROL VÀ ÂM. E2E test suite PHẢI có (từ C2-C7). Dự án k6 KHÔNG được có (chỉ nhắc ở conversation 9-turn)."
+          }
+        },
+        {
+          "turn": 3,
+          "user": "Cảm ơn bạn."
+        }
+      ],
+      "expected_short_term": {
+        "_expected": "KHÔNG có summary (3 turn)"
+      },
+      "expected_long_term_after": {
+        "_expected": "SỔ VẪN RỖNG — conversation này chỉ đọc, không ghi",
+        "user_profile": "RỖNG",
+        "capability": "RỖNG",
+        "preference": "RỖNG",
+        "activities": [],
+        "top_of_mind": [],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [],
+      "checkpoints": [],
+      "wait_after_minutes": 0,
+      "notes": "Đây là nửa ÂM của cặp A/B. So với C14 (nửa DƯƠNG). Chỉ một mình C12 thì không chứng minh được gì — có thể extraction hỏng hoàn toàn.",
+      "_old_seq": 12,
+      "triggers_extraction": false,
+      "wait_note": "Không trigger (<10 turn) -> chạy ngay, không cần chờ"
+    },
+    {
+      "seq": 11,
+      "group": "THRESHOLD",
+      "role": "write",
+      "test_user": "user#1",
+      "conversation_id": "d50c0ad4-5cd2-5c65-91a7-5f30fb955d09",
+      "title": "[NGƯỠNG-ghi] 10 turn — cùng nội dung, thêm 1 turn",
+      "purpose": "Nội dung turn 1-9 GIỐNG HỆT conversation 9-turn trước đó, thêm turn 10 để vượt ngưỡng. Cùng user, so theo thời gian.",
+      "writes_blocks": [
+        "capability",
+        "preference",
+        "activities"
+      ],
+      "turn_count": 10,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Mình có tin mới: mình đã dùng Rust được hơn một năm rồi, khá thành thạo."
+        },
+        {
+          "turn": 2,
+          "user": "Mình viết tool sinh test data bằng Rust, nhanh hơn Python nhiều."
+        },
+        {
+          "turn": 3,
+          "user": "Mình cũng vừa nhận thêm dự án tên 'Migrate test suite sang k6', bắt đầu tháng sau."
+        },
+        {
+          "turn": 4,
+          "user": "Đúng, mục tiêu là gộp performance test vào CI luôn."
+        },
+        {
+          "turn": 5,
+          "user": "Ý hay. Mình cũng đang rất quan tâm tới chủ đề observability cho test."
+        },
+        {
+          "turn": 6,
+          "user": "Mình sẽ thử. Mình cũng không thích dùng công cụ có UI nặng, thích CLI hơn."
+        },
+        {
+          "turn": 7,
+          "user": "Tốt. k6 có hỗ trợ export metrics ra Prometheus không?"
+        },
+        {
+          "turn": 8,
+          "user": "Vậy là đủ cho nhu cầu của mình."
+        },
+        {
+          "turn": 9,
+          "user": "Cảm ơn bạn nhé."
+        },
+        {
+          "turn": 10,
+          "user": "Một câu cuối: k6 chạy trong Docker được không?"
+        }
+      ],
+      "expected_short_term": {
+        "_expected": "CÓ summary, phủ cả 10 turn"
+      },
+      "expected_long_term_after": {
+        "_expected": "Sổ = state cũ + thông tin mới. Đây là chứng cứ extraction vẫn sống.",
+        "user_profile": {
+          "preferred_name": "Minh",
+          "location": "Ho Chi Minh City",
+          "occupation": "QA engineer",
+          "organization": "Vulcan Labs",
+          "working_hours": "10:00-19:00",
+          "timezone": "Asia/Ho_Chi_Minh",
+          "pronouns": "",
+          "languages": [
+            "vi",
+            "en"
+          ],
+          "_unchanged": true,
+          "_version": 2,
+          "_content_text_expected": "User name: Minh\nUser pronouns: \nUser's location: Ho Chi Minh City\nUser's language: vi, en\nUser's occupation: QA engineer\nUser's organization: Vulcan Labs\nUser's working hours: 10:00-19:00 (Asia/Ho_Chi_Minh timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Python",
+            "Selenium",
+            "Postman",
+            "pytest",
+            "Playwright",
+            "Rust"
+          ],
+          "_version": 3,
+          "_note": "Rust ĐƯỢC THÊM. Các công cụ cũ PHẢI còn.",
+          "_content_text_expected": "python, selenium, postman, pytest, playwright, rust"
+        },
+        "preference": {
+          "interests": [
+            "CI/CD for testing",
+            "microservice architecture",
+            "observability for testing"
+          ],
+          "goals": [
+            "learn performance testing"
+          ],
+          "avoidances": [
+            "tools with heavy UI"
+          ],
+          "_version": 4,
+          "_content_text_expected": "User interests in: CI/CD for testing, microservice architecture, observability for testing\nUser current goals are: learn performance testing\nUser not like: tools with heavy UI\n"
+        },
+        "activities": [
+          {
+            "title": "E2E test suite for ChatSmith",
+            "status": "blocked",
+            "_occurrences": 5
+          },
+          {
+            "title": "Migrate test suite to k6",
+            "status": "planning",
+            "_occurrences": 1
+          },
+          {
+            "title": "Refactor CI pipeline",
+            "status": "completed",
+            "_occurrences": 1
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "observability for testing"
+          },
+          {
+            "title": "project timeline risk"
+          },
+          {
+            "title": "flaky tests"
+          }
+        ],
+        "behavior_pattern": [],
+        "_verify_at": "conversation ĐỌC ngay sau đó"
+      },
+      "must_not_contain": [],
+      "checkpoints": [],
+      "wait_after_minutes": 11,
+      "notes": "Turn 1-9 GIỐNG HỆT conversation 9-turn. Chỉ thêm turn 10. Lần đọc sau conversation này PHẢI có Rust. Không có -> extraction hỏng.",
+      "_old_seq": 13,
+      "triggers_extraction": true,
+      "wait_note": "Trigger -> đặt khoá 10 phút. PHẢI chờ >10 phút trước conversation TRIGGER kế tiếp. Conversation đọc (<10 turn) chạy được trong lúc chờ."
+    },
+    {
+      "seq": 12,
+      "group": "THRESHOLD",
+      "role": "verify",
+      "test_user": "user#1",
+      "conversation_id": "2266b38c-0fdc-5025-814d-c7963081af8b",
+      "title": "[NGƯỠNG-đọc] Hỏi lại sau conversation 10 turn",
+      "purpose": "Nửa DƯƠNG. Bot PHẢI nhớ được Rust — chứng cứ ngưỡng đúng là 10.",
+      "writes_blocks": [],
+      "turn_count": 3,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Bạn còn nhớ mình biết dùng ngôn ngữ lập trình nào không?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 13,
+            "why": "CHỨNG CỨ ĐỐI CHIẾU. Bot PHẢI nhớ Rust. Không nhớ -> extraction hỏng, và kết quả C12 không nói được gì về ngưỡng.",
+            "expected_answer": "Bạn dùng Python, Selenium, Playwright, Postman, pytest và Rust. Bạn đã dùng Rust hơn một năm để viết tool sinh test data.",
+            "expected_facts": [
+              "Rust",
+              "Python"
+            ],
+            "note": "Rust GIỜ PHẢI CÓ (conversation trước đủ 10 turn). Python/Selenium vẫn phải còn -> merge là set-union, không ghi đè. So với lần đọc trước: chỉ khác Rust."
+          }
+        },
+        {
+          "turn": 2,
+          "user": "Mình có dự án nào đang làm không?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 13,
+            "why": "Dự án k6 phải được nhớ.",
+            "expected_answer": "Bạn đang làm hai dự án: E2E test suite cho ChatSmith (đang bị chặn) và Migrate test suite sang k6 (bắt đầu tháng sau).",
+            "expected_facts": [
+              "k6",
+              "E2E test suite"
+            ],
+            "note": "Dự án k6 GIỜ PHẢI CÓ. Dự án cũ vẫn phải còn."
+          }
+        },
+        {
+          "turn": 3,
+          "user": "Cảm ơn bạn."
+        }
+      ],
+      "expected_short_term": {
+        "_expected": "KHÔNG có summary (3 turn)"
+      },
+      "expected_long_term_after": {
+        "_expected": "Giữ nguyên như sau C13 — conversation này chỉ đọc"
+      },
+      "must_not_contain": [],
+      "checkpoints": [],
+      "wait_after_minutes": 0,
+      "notes": "BẢNG ĐỌC CẶP A/B:\n  C12 không nhớ + C14 nhớ   -> ngưỡng ĐÚNG là 10. Kết luận vững.\n  C12 không nhớ + C14 KHÔNG -> extraction hỏng. Test vô hiệu, điều tra.\n  C12 nhớ                   -> ngưỡng NHỎ HƠN 10, hoặc T2 đang bật.",
+      "_old_seq": 14,
+      "triggers_extraction": false,
+      "wait_note": "Không trigger (<10 turn) -> chạy ngay, không cần chờ"
+    },
+    {
+      "seq": 13,
+      "group": "BOUNDARY",
+      "role": "write",
+      "test_user": "user#1",
+      "conversation_id": "ada4584a-3d92-5df8-a331-55f00212e209",
+      "title": "Thông tin mới chỉ xuất hiện ở turn cuối",
+      "purpose": "TEST BIÊN CÓ CONTROL. Turn 1 chứa CONTROL FACT (Jenkins). Turn 10 chứa BOUNDARY FACT (đổi tên tổ chức + Docker). So hai cái để biết turn cuối có được tính không.",
+      "writes_blocks": [
+        "user_profile",
+        "capability"
+      ],
+      "turn_count": 10,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Cho mình hỏi về CI/CD, làm sao giảm thời gian build? Bọn mình đang dùng Jenkins, mình đã dùng nó vài năm rồi."
+        },
+        {
+          "turn": 2,
+          "user": "Cache dependency cụ thể thế nào?"
+        },
+        {
+          "turn": 3,
+          "user": "Chạy song song thì chia theo tiêu chí gì?"
+        },
+        {
+          "turn": 4,
+          "user": "Có công cụ nào tự chia không?"
+        },
+        {
+          "turn": 5,
+          "user": "Còn build phần thay đổi thì sao?"
+        },
+        {
+          "turn": 6,
+          "user": "Nghe phức tạp cho dự án nhỏ."
+        },
+        {
+          "turn": 7,
+          "user": "Hiểu rồi. Còn cách nào giảm thời gian nữa không?"
+        },
+        {
+          "turn": 8,
+          "user": "Vậy PR thì chạy gì?"
+        },
+        {
+          "turn": 9,
+          "user": "Hợp lý, mình sẽ làm theo."
+        },
+        {
+          "turn": 10,
+          "user": "Sẽ đo. À nói mới nhớ, tổ chức của mình vừa đổi tên thành Vulcan Labs AI Division, và mình cũng đã dùng thành thạo Docker rồi."
+        }
+      ],
+      "expected_short_term": {
+        "global_session_summary": [
+          "[User] hỏi cách giảm thời gian build trong CI/CD",
+          "[Assistant] đề xuất cache dependency theo hash lock file, chạy job song song, build phần thay đổi",
+          "[User] thấy graph phụ thuộc phức tạp cho dự án nhỏ",
+          "[Assistant] xác nhận cache và song song là đủ cho repo nhỏ",
+          "[Assistant] khuyên tách test chậm ra job riêng, PR chỉ chạy smoke và unit test",
+          "[User] cho biết tổ chức đổi tên thành Vulcan Labs AI Division và đã dùng thành thạo Docker"
+        ],
+        "main_topics": [
+          {
+            "title": "Giảm thời gian build CI",
+            "bullets": [
+              "[User] muốn giảm thời gian build, đang dùng Jenkins vài năm",
+              "[Assistant] đề xuất cache dependency, chạy song song, tách test chậm",
+              "[User] quyết định áp dụng cache và song song, đo lại trước sau"
+            ]
+          },
+          {
+            "title": "Chiến lược chạy test theo nhánh",
+            "bullets": [
+              "[User] hỏi PR nên chạy gì",
+              "[Assistant] khuyên PR chạy smoke + unit, full E2E để nightly hoặc main"
+            ]
+          },
+          {
+            "title": "Cập nhật thông tin cá nhân",
+            "bullets": [
+              "[User] tổ chức đổi tên thành Vulcan Labs AI Division",
+              "[User] cho biết đã dùng thành thạo Docker"
+            ]
+          }
+        ],
+        "instruction": "No instruction found."
+      },
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Minh",
+          "location": "Ho Chi Minh City",
+          "occupation": "QA engineer",
+          "organization": "Vulcan Labs AI Division",
+          "working_hours": "10:00-19:00",
+          "timezone": "Asia/Ho_Chi_Minh",
+          "pronouns": "",
+          "languages": [
+            "vi",
+            "en"
+          ],
+          "_version": 3,
+          "_note": "organization = BOUNDARY FACT (chỉ nói ở turn 10). Có -> turn 10 được tính. Vắng -> turn cuối bị bỏ (off-by-one).",
+          "_content_text_expected": "User name: Minh\nUser pronouns: \nUser's location: Ho Chi Minh City\nUser's language: vi, en\nUser's occupation: QA engineer\nUser's organization: Vulcan Labs AI Division\nUser's working hours: 10:00-19:00 (Asia/Ho_Chi_Minh timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Python",
+            "Selenium",
+            "Postman",
+            "pytest",
+            "Playwright",
+            "Jenkins",
+            "Docker"
+          ],
+          "_version": 3,
+          "_note": "'jenkins' = CONTROL FACT (turn 1). 'docker' = BOUNDARY FACT (turn 10). pytest-split / Nx / Bazel là gợi ý của assistant, user CHƯA nói biết dùng -> KHÔNG được thêm.",
+          "_content_text_expected": "python, selenium, postman, pytest, playwright, jenkins, docker"
+        },
+        "preference": {
+          "_unchanged": true,
+          "_version": 3
+        },
+        "activities": [
+          {
+            "title": "E2E test suite for ChatSmith",
+            "status": "blocked",
+            "_occurrences": 5
+          },
+          {
+            "title": "Refactor CI pipeline",
+            "status": "completed",
+            "_occurrences": 1
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "project timeline risk"
+          },
+          {
+            "title": "flaky tests"
+          },
+          {
+            "title": "test data management"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [],
+      "checkpoints": [],
+      "wait_after_minutes": 11,
+      "notes": "BẢNG ĐỌC KẾT QUẢ:\n  jenkins CÓ + organization/docker CÓ   -> turn 10 được tính. ĐÚNG.\n  jenkins CÓ + organization/docker VẮNG -> turn cuối bị bỏ. LỖI OFF-BY-ONE.\n  jenkins VẮNG                          -> extraction không chạy. TEST VÔ HIỆU, điều tra trước khi kết luận gì.\nKhông có control fact thì trường hợp 2 và 3 cho cùng biểu hiện (sổ rỗng) và không phân biệt được.",
+      "_old_seq": 10,
+      "triggers_extraction": true,
+      "wait_note": "Trigger -> đặt khoá 10 phút. PHẢI chờ >10 phút trước conversation TRIGGER kế tiếp. Conversation đọc (<10 turn) chạy được trong lúc chờ."
+    },
+    {
+      "seq": 14,
+      "group": "BOUNDARY",
+      "role": "verify",
+      "test_user": "user#1",
+      "conversation_id": "3a21696a-b1bc-5e7d-9330-19ebed428820",
+      "title": "[BIÊN-đọc] Turn cuối có được tính?",
+      "purpose": "Conversation ĐỌC. So control fact (Jenkins, turn 1) với boundary fact (đổi tên tổ chức + Docker, turn 10) của conversation ghi ngay trước.",
+      "writes_blocks": [],
+      "turn_count": 3,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Tổ chức mình đang làm tên gì nhỉ?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 10,
+            "why": "BOUNDARY FACT — chỉ nói ở turn 10. Nhớ được -> turn cuối được tính.",
+            "expected_answer": "Bạn đang làm ở Vulcan Labs AI Division.",
+            "expected_facts": [
+              "Vulcan Labs AI Division"
+            ],
+            "note": "BOUNDARY FACT — chỉ nói ở turn 10 của C10. Nhớ được = turn cuối được tính."
+          }
+        },
+        {
+          "turn": 2,
+          "user": "Mình biết dùng những công cụ nào?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 10,
+            "why": "Jenkins = CONTROL (turn 1). Docker = BOUNDARY (turn 10). Jenkins có + Docker vắng -> off-by-one. Cả hai vắng -> extraction hỏng.",
+            "expected_answer": "Bạn dùng Python, Selenium, Playwright, pytest, Rust, Jenkins và Docker.",
+            "expected_facts": [
+              "Jenkins",
+              "Docker"
+            ],
+            "note": "Jenkins = CONTROL (turn 1). Docker = BOUNDARY (turn 10). Jenkins có + Docker vắng -> off-by-one. Cả hai vắng -> extraction hỏng."
+          }
+        },
+        {
+          "turn": 3,
+          "user": "Cảm ơn bạn."
+        }
+      ],
+      "expected_short_term": {
+        "_expected": "KHÔNG có summary (3 turn)"
+      },
+      "expected_long_term_after": {
+        "_expected": "Giữ nguyên như sau C10"
+      },
+      "must_not_contain": [],
+      "checkpoints": [],
+      "wait_after_minutes": 0,
+      "notes": "BẢNG ĐỌC:\n  Jenkins CÓ + organization/Docker CÓ   -> turn 10 được tính. ĐÚNG.\n  Jenkins CÓ + organization/Docker VẮNG -> LỖI OFF-BY-ONE, turn cuối bị bỏ.\n  Jenkins VẮNG                          -> extraction không chạy. TEST VÔ HIỆU.",
+      "_old_seq": 15,
+      "triggers_extraction": false,
+      "wait_note": "Không trigger (<10 turn) -> chạy ngay, không cần chờ"
+    },
+    {
+      "seq": 15,
+      "group": "DOUBLE",
+      "role": "write",
+      "test_user": "user#1",
+      "conversation_id": "c5880ada-24d5-55bf-8c33-98abf93bde32",
+      "title": "20 turn liên tục — trigger hai lần?",
+      "purpose": "TEST TƯƠNG TÁC NGƯỠNG × KHOÁ. Turn 1-10 chứa nhóm thông tin A, turn 11-20 chứa nhóm B. Nhóm B có được ghi không?",
+      "writes_blocks": [
+        "user_profile",
+        "capability",
+        "preference",
+        "activities"
+      ],
+      "turn_count": 20,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Mình muốn bàn về chiến lược test cho mobile app."
+        },
+        {
+          "turn": 2,
+          "user": "Mình đã dùng Appium được 6 tháng, khá ổn."
+        },
+        {
+          "turn": 3,
+          "user": "Cả hai. Mình vừa nhận dự án tên 'Mobile regression suite', bắt đầu ngay tuần này."
+        },
+        {
+          "turn": 4,
+          "user": "Đúng, mình sẽ cover luồng thanh toán trước."
+        },
+        {
+          "turn": 5,
+          "user": "Test trên thiết bị thật thì dùng gì?"
+        },
+        {
+          "turn": 6,
+          "user": "Chi phí cloud có đắt không?"
+        },
+        {
+          "turn": 7,
+          "user": "Mình sẽ đề xuất dùng cloud."
+        },
+        {
+          "turn": 8,
+          "user": "Ý hay. Flaky trên mobile có tệ hơn web không?"
+        },
+        {
+          "turn": 9,
+          "user": "Vậy phải xử lý sao?"
+        },
+        {
+          "turn": 10,
+          "user": "Mình ghi lại rồi, cảm ơn."
+        },
+        {
+          "turn": 11,
+          "user": "Quay lại chuyện khác: mình vừa được thăng chức thành Senior QA Engineer."
+        },
+        {
+          "turn": 12,
+          "user": "Đúng, giờ mình phụ trách cả mảng test strategy."
+        },
+        {
+          "turn": 13,
+          "user": "Mình cũng đã học xong Kubernetes, giờ dùng khá thành thạo."
+        },
+        {
+          "turn": 14,
+          "user": "Chính xác, mình định dùng nó để tạo môi trường test ephemeral."
+        },
+        {
+          "turn": 15,
+          "user": "Hay đấy. Mình cũng bắt đầu quan tâm tới chaos engineering."
+        },
+        {
+          "turn": 16,
+          "user": "Mình sẽ tìm hiểu thêm. Dự án Mobile regression suite đang chạy tốt."
+        },
+        {
+          "turn": 17,
+          "user": "Chưa cần. À mình cũng không thích họp dài quá 30 phút."
+        },
+        {
+          "turn": 18,
+          "user": "Cảm ơn. Ephemeral environment nên tồn tại bao lâu?"
+        },
+        {
+          "turn": 19,
+          "user": "Rõ rồi."
+        },
+        {
+          "turn": 20,
+          "user": "Để sau nhé, cảm ơn bạn."
+        }
+      ],
+      "expected_short_term": {
+        "_note": "Có thể sinh MỘT summary (10 turn đầu) hoặc HAI summary. Đếm số summary được tạo.",
+        "global_session_summary": [
+          "[User] bàn chiến lược test mobile, cho biết đã dùng Appium 6 tháng",
+          "[User] nhận dự án 'Mobile regression suite', ưu tiên luồng thanh toán",
+          "[Assistant] đề xuất cloud device farm, tắt animation để giảm flaky",
+          "(NHÓM B — chỉ có nếu trigger lần 2 chạy) [User] được thăng chức Senior QA Engineer, học xong Kubernetes, quan tâm chaos engineering, không thích họp quá 30 phút"
+        ],
+        "main_topics": [
+          {
+            "title": "Chiến lược test mobile",
+            "bullets": [
+              "[User] dùng Appium cho cả iOS và Android",
+              "[Assistant] đề xuất cloud device farm và cách giảm flaky trên mobile"
+            ]
+          },
+          {
+            "title": "Dự án Mobile regression suite",
+            "bullets": [
+              "[User] khởi động dự án, ưu tiên luồng thanh toán trước"
+            ]
+          }
+        ],
+        "instruction": "No instruction found."
+      },
+      "expected_long_term_after": {
+        "_CRITICAL": "Đây là phép thử quyết định. So kết quả với hai khả năng dưới đây.",
+        "_control_fact": "Fact A (turn 1-10: appium, dự án Mobile regression suite) là CONTROL. Fact A vắng -> extraction không chạy, test vô hiệu. Fact A có mà fact B vắng -> trigger chỉ chạy 1 lần, turn 11-20 MẤT.",
+        "_recommended_mode": "Chạy C11 một mình trên user MỚI. Turn 1-10 KHÔNG nhắc nghề nghiệp, turn 11 mới nói 'vừa được thăng chức thành Senior QA Engineer'. Nên: occupation RỖNG -> trigger 1 lần, turn 11-20 MẤT. occupation 'Senior QA Engineer' -> trigger 2 lần. Nhị phân sạch, không phụ thuộc state trước.",
+        "_scenario_A_trigger_2_lan": {
+          "meaning": "Khoá 10 phút KHÔNG chặn trigger trong cùng conversation",
+          "user_profile.occupation": "Senior QA Engineer  (đổi từ 'QA engineer')",
+          "capability": "thêm 'appium' VÀ 'kubernetes'",
+          "preference.interests": "thêm 'chaos engineering'",
+          "preference.avoidances": "thêm 'meetings longer than 30 minutes'",
+          "activities": "thêm 'Mobile regression suite'"
+        },
+        "_scenario_B_trigger_1_lan": {
+          "meaning": "KHOÁ CHẶN trigger lần 2 -> TOÀN BỘ turn 11-20 BỊ MẤT. Đây là BUG đáng báo.",
+          "user_profile.occupation": "vẫn là 'QA engineer'  (thăng chức KHÔNG được ghi)",
+          "capability": "chỉ thêm 'appium', KHÔNG có 'kubernetes'",
+          "preference": "không đổi",
+          "activities": "thêm 'Mobile regression suite'"
+        },
+        "user_profile": {
+          "_see": "_scenario_A / _scenario_B"
+        },
+        "capability": {
+          "_see": "_scenario_A / _scenario_B"
+        },
+        "preference": {
+          "_see": "_scenario_A / _scenario_B"
+        },
+        "activities": {
+          "_see": "_scenario_A / _scenario_B"
+        },
+        "top_of_mind": {
+          "_see": "_scenario_A / _scenario_B"
+        },
+        "behavior_pattern": []
+      },
+      "must_not_contain": [],
+      "checkpoints": [],
+      "wait_after_minutes": 0,
+      "notes": "Cách đọc kết quả rất đơn giản: kiểm occupation. 'Senior QA Engineer' -> trigger chạy 2 lần, khoá không chặn trong cùng conversation. vẫn 'QA engineer' -> khoá đã chặn, và mọi thông tin user nói sau turn 10 trong cùng conversation đều BỊ MẤT. Trường hợp thứ hai là lỗ hổng thật: user chat dài 30 turn chỉ được ghi 10 turn đầu.",
+      "_old_seq": 11,
+      "triggers_extraction": true,
+      "wait_note": "Trigger cuối -> chỉ cần POLL tới khi memory đổi, không cần cooldown"
+    },
+    {
+      "seq": 16,
+      "group": "DOUBLE",
+      "role": "verify",
+      "test_user": "user#1",
+      "conversation_id": "a202d6e6-ef0c-56ff-930b-636df61e87d9",
+      "title": "[TRIGGER-đọc] Trigger mấy lần?",
+      "purpose": "Conversation ĐỌC. Fact A (turn 1-10) là control, fact B (turn 11-20) là thứ cần kiểm.",
+      "writes_blocks": [],
+      "turn_count": 4,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Nghề của mình là gì nhỉ?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 11,
+            "why": "FACT B (turn 11). Nhớ -> trigger 2 lần. Không nhớ -> trigger 1 lần, turn 11-20 MẤT. Đây là field quyết định.",
+            "expected_answer": "Bạn là Senior QA Engineer.",
+            "expected_facts": [
+              "Senior QA Engineer"
+            ],
+            "note": "FACT B (turn 11 của C11). KỊCH BẢN B (trigger 1 lần): golden answer thay thế là 'Mình chưa có thông tin về nghề của bạn' — nghĩa là turn 11-20 BỊ MẤT. Đây là field quyết định."
+          }
+        },
+        {
+          "turn": 2,
+          "user": "Mình biết dùng những công cụ test nào?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 11,
+            "why": "Appium = FACT A = CONTROL (turn 2). Kubernetes = FACT B (turn 13). Appium có + Kubernetes vắng -> trigger 1 lần. Appium vắng -> extraction hỏng.",
+            "expected_answer": "Bạn dùng Appium cho cả iOS và Android, và đã học xong Kubernetes.",
+            "expected_facts": [
+              "Appium"
+            ],
+            "note": "Appium = FACT A = CONTROL. Kubernetes = FACT B. KỊCH BẢN B: chỉ có Appium, không có Kubernetes -> trigger 1 lần."
+          }
+        },
+        {
+          "turn": 3,
+          "user": "Mình có dự án nào đang làm không?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 11,
+            "why": "FACT A. Phải nhớ được — nếu không thì test vô hiệu.",
+            "expected_answer": "Bạn đang làm dự án Mobile regression suite, ưu tiên luồng thanh toán trước.",
+            "expected_facts": [
+              "Mobile regression suite"
+            ],
+            "note": "FACT A. Không nhớ -> extraction hỏng, cả test vô hiệu."
+          }
+        },
+        {
+          "turn": 4,
+          "user": "Cảm ơn bạn."
+        }
+      ],
+      "expected_short_term": {
+        "_expected": "KHÔNG có summary (4 turn)"
+      },
+      "expected_long_term_after": {
+        "_expected": "Giữ nguyên như sau C11"
+      },
+      "must_not_contain": [],
+      "checkpoints": [],
+      "wait_after_minutes": 0,
+      "notes": "BẢNG ĐỌC:\n  Appium CÓ + Senior QA/Kubernetes CÓ   -> trigger 2 lần. Khoá không chặn.\n  Appium CÓ + Senior QA/Kubernetes VẮNG -> trigger 1 LẦN. Turn 11-20 MẤT. BUG.\n  Appium VẮNG                           -> extraction không chạy. TEST VÔ HIỆU.",
+      "_old_seq": 16,
+      "triggers_extraction": false,
+      "wait_note": "Không trigger (<10 turn) -> chạy ngay, không cần chờ"
+    },
+    {
+      "seq": 17,
+      "group": "READ",
+      "role": "verify",
+      "test_user": "user#1",
+      "conversation_id": "c795a05f-cc8f-53f4-8bf0-2e254e66a774",
+      "title": "[ĐỌC] Chủ đề cũ và thói quen làm việc",
+      "purpose": "Bịt hai lỗ: top_of_mind chưa từng được đọc lại, và behavior_pattern chưa từng được hỏi. Conversation ĐỌC 4 turn nên không trigger.",
+      "writes_blocks": [],
+      "turn_count": 4,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Trước đây mình có nhắc tới vấn đề test hay fail ngẫu nhiên, bạn còn nhớ không?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": 3,
+            "why": "TOP_OF_MIND BỊ CHÔN. 'flaky tests' tạo ở seq 3, sau đó có thêm 'test data management' (seq 3) và 'project timeline risk' (seq 7) nên khả năng đã rơi khỏi Core LTM top-3. Nhớ được -> Extended LTM hoạt động. Không nhớ -> memory có trong DB mà không lấy ra được. BUG.",
+            "expected_answer": "Có, bạn từng gặp vấn đề flaky test — chạy 10 lần fail 3 lần, nguyên nhân là các test dùng chung account nên data không được reset.",
+            "expected_facts": [
+              "flaky"
+            ],
+            "note": "TOP_OF_MIND BỊ CHÔN. Đây là bài test Extended LTM. Nhớ được -> vector search hoạt động. Không nhớ -> block nằm trong DB mà retrieval không tới được."
+          }
+        },
+        {
+          "turn": 2,
+          "user": "Mình còn đang quan tâm chủ đề nào khác nữa không?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": "3,7",
+            "why": "Đọc rộng top_of_mind. Ghi lại bot kể được BAO NHIÊU chủ đề — so với số block thực có để biết top-3 hay nhiều hơn.",
+            "expected_answer": "Bạn cũng đang quan tâm tới test data management và rủi ro timeline của dự án.",
+            "expected_facts": [],
+            "note": "Không bắt buộc fact cụ thể — GHI LẠI bot kể được bao nhiêu chủ đề. Đúng 3 -> chỉ Core LTM top-3. Nhiều hơn 3 -> Extended LTM cũng được gọi."
+          }
+        },
+        {
+          "turn": 3,
+          "user": "Bạn thấy mình có thói quen làm việc nào lặp đi lặp lại không?",
+          "verify": {
+            "must_not_contain": [],
+            "recalls_from_conversation": "—",
+            "why": "BEHAVIOR_PATTERN — CASE ÂM. Trong 16 conversation trước, Minh KHÔNG hề có hành vi nào lặp >=3 lần xuyên ngữ cảnh. Nên block phải RỖNG và bot phải nói không biết. Bot khẳng định một thói quen cụ thể = hoặc block được tạo khi chưa đủ bằng chứng, hoặc bot bịa.",
+            "expected_answer": "Mình chưa có đủ dữ liệu để nhận ra thói quen làm việc lặp lại nào của bạn.",
+            "expected_facts": [],
+            "note": "BEHAVIOR_PATTERN CASE ÂM. Golden answer là 'chưa biết'. Doc 2.3 đòi ĐỦ CẢ 4: >=3 event độc lập, rải >=7-30 ngày, xuyên ngữ cảnh, chưa có ở block khác. Minh không thoả điều nào. Bot khẳng định một thói quen cụ thể (ví dụ 'bạn thường escalate khi bị chặn') = FAIL: hoặc block được tạo sớm, hoặc bot suy diễn từ summary chứ không từ memory."
+          }
+        },
+        {
+          "turn": 4,
+          "user": "Cảm ơn bạn."
+        }
+      ],
+      "expected_short_term": {
+        "_expected": "KHÔNG có summary (4 turn)"
+      },
+      "expected_long_term_after": {
+        "_expected": "Không đổi — conversation chỉ đọc"
+      },
+      "must_not_contain": [],
+      "checkpoints": [],
+      "wait_after_minutes": 0,
+      "notes": "Hai lỗ được bịt cùng lúc. Turn 1 là bài test Extended LTM đầu tiên của bộ này. Turn 3 là case âm cho behavior_pattern: KHÔNG có bằng chứng thì KHÔNG được có block.",
+      "_old_seq": 17,
+      "triggers_extraction": false,
+      "wait_note": "Không trigger (<10 turn) -> chạy ngay, không cần chờ"
+    }
+  ]
+}

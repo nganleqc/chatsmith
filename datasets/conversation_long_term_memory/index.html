@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Conversation Long-Term Memory</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+    --purple:      #667eea;
+    --purple-dark: #5a67d8;
+    --purple-soft: #ede9fe;
+    --green:       #48bb78;
+    --green-dark:  #38a169;
+    --green-soft:  #d1fae5;
+    --amber:       #ed8936;
+    --amber-dark:  #dd6b20;
+    --amber-soft:  #fef3c7;
+    --red:         #e53e3e;
+    --red-soft:    #fed7d7;
+    --blue-soft:   #ebf4ff;
+    --blue-text:   #2b6cb0;
+    --bg:          #f8fafc;
+    --border:      #e2e8f0;
+    --text:        #2d3748;
+    --text-muted:  #718096;
+    --text-sm:     #4a5568;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+.view { display: none; }
+.view.active { display: block; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 18px 20px 60px; }
+
+/* ── HEADER ──────────────────────────────────────────────── */
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 18px 20px 0;
+}
+.page-header-inner { max-width: 720px; margin: 0 auto; }
+.back-link {
+    color: rgba(255,255,255,0.82);
+    text-decoration: none;
+    font-size: 13px;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+.back-link:hover { color: white; }
+.page-header h1 { font-size: 1.45em; font-weight: 700; margin-bottom: 3px; }
+.page-header .subtitle { font-size: 12.5px; opacity: 0.85; line-height: 1.45; margin-bottom: 14px; }
+
+/* ── DATASET TABS ────────────────────────────────────────── */
+.tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 0;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+    flex: 0 0 auto;
+    background: rgba(255,255,255,0.14);
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: rgba(255,255,255,0.85);
+    padding: 9px 15px;
+    border-radius: 10px 10px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.18s;
+    font-family: inherit;
+}
+.tab:hover { background: rgba(255,255,255,0.24); color: white; }
+.tab.active { background: var(--bg); color: var(--purple-dark); border-bottom-color: var(--bg); }
+.tab .tab-count {
+    display: inline-block;
+    background: rgba(0,0,0,0.13);
+    border-radius: 9px;
+    padding: 0 6px;
+    font-size: 11px;
+    margin-left: 5px;
+}
+.tab.active .tab-count { background: var(--purple-soft); color: var(--purple-dark); }
+
+/* ── DATASET OVERVIEW ────────────────────────────────────── */
+.ds-head { margin-bottom: 16px; }
+.ds-title { font-size: 1.2em; font-weight: 700; margin-bottom: 4px; }
+.ds-file {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1px 7px;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+.ds-desc { font-size: 13.5px; color: var(--text-sm); line-height: 1.6; }
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    gap: 8px;
+    margin: 14px 0 4px;
+}
+.stat-box {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 11px;
+    padding: 10px 8px;
+    text-align: center;
+}
+.stat-num { font-size: 1.25em; font-weight: 700; color: var(--purple-dark); line-height: 1.2; }
+.stat-lbl { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+
+.run-progress {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin: 14px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.run-progress-bar { flex: 1; height: 8px; background: var(--border); border-radius: 5px; overflow: hidden; }
+.run-progress-fill { height: 100%; background: var(--green); border-radius: 5px; transition: width 0.3s; }
+.run-progress-txt { font-size: 12px; font-weight: 700; color: var(--text-sm); white-space: nowrap; }
+.reset-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+.reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* ── PANELS (collapsible) ────────────────────────────────── */
+.panel {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+.panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    user-select: none;
+}
+.panel-head:hover { background: #fafbfc; }
+.panel-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.panel-chev { font-size: 11px; color: var(--text-muted); transition: transform 0.2s; }
+.panel-chev.open { transform: rotate(180deg); }
+.panel-body { display: none; padding: 0 14px 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+.panel-body.open { display: block; }
+.panel.tone-red   { border-color: #fbb6b6; }
+.panel.tone-red   .panel-title { color: #9b2c2c; }
+.panel.tone-green { border-color: #9ae6b4; }
+.panel.tone-green .panel-title { color: #22543d; }
+.panel.tone-amber { border-color: #fbd38d; }
+.panel.tone-amber .panel-title { color: #7b341e; }
+
+/* ── GENERIC JSON RENDER ─────────────────────────────────── */
+.kv-group { display: flex; flex-direction: column; gap: 9px; }
+.kv { display: grid; grid-template-columns: minmax(110px, 32%) 1fr; gap: 10px; align-items: start; }
+.kv-key {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding-top: 2px;
+    word-break: break-word;
+}
+.kv-key-meta { color: #a0aec0; text-transform: none; font-style: italic; letter-spacing: 0; }
+.kv-val { font-size: 13px; color: var(--text); min-width: 0; }
+.v-str { white-space: pre-wrap; word-break: break-word; }
+.v-num { font-weight: 700; color: var(--purple-dark); font-family: ui-monospace, Menlo, monospace; }
+.v-null, .v-empty-list { color: #a0aec0; font-style: italic; font-size: 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+    background: var(--blue-soft);
+    color: var(--blue-text);
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 10px;
+    word-break: break-word;
+}
+.chip-yes { background: var(--green-soft); color: #065f46; }
+.chip-no  { background: #edf2f7; color: #4a5568; }
+.chip-bad { background: var(--red-soft); color: #7f1d1d; }
+.chip-good{ background: var(--green-soft); color: #065f46; }
+.list-cards { display: flex; flex-direction: column; gap: 8px; }
+.list-card {
+    background: #fafbfc;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 9px 11px;
+    position: relative;
+}
+.list-idx {
+    display: inline-block;
+    background: var(--purple);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 0 7px;
+    margin-bottom: 6px;
+}
+.bullets { margin: 0; padding-left: 18px; }
+.bullets li { font-size: 12.5px; line-height: 1.55; margin-bottom: 3px; }
+
+/* memory blocks */
+.block-card {
+    border: 1.5px solid var(--border);
+    border-radius: 11px;
+    padding: 11px 12px;
+    margin-bottom: 9px;
+    background: #fcfcfd;
+}
+.block-name {
+    font-size: 11.5px;
+    font-weight: 800;
+    font-family: ui-monospace, Menlo, monospace;
+    color: var(--purple-dark);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+.block-empty-tag {
+    background: #edf2f7;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 1px 7px;
+    font-family: inherit;
+    letter-spacing: 0.03em;
+}
+.block-card.is-empty { background: #f7fafc; border-style: dashed; }
+
+/* ── SEARCH + FILTER ─────────────────────────────────────── */
+.toolbar { margin-bottom: 12px; }
+.search-input {
+    width: 100%;
+    padding: 9px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-family: inherit;
+    background: white;
+    color: var(--text);
+    margin-bottom: 9px;
+}
+.search-input:focus { outline: none; border-color: var(--purple); }
+.filter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.filter-pill {
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: white;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+}
+.filter-pill:hover { border-color: var(--purple); color: var(--purple); }
+.filter-pill.active { background: var(--purple); border-color: var(--purple); color: white; }
+
+/* ── CONVERSATION LIST ───────────────────────────────────── */
+.section-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin: 20px 0 10px;
+}
+.conv-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 13px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.18s;
+}
+.conv-card:hover { border-color: var(--purple); box-shadow: 0 4px 16px rgba(102,126,234,0.12); transform: translateY(-1px); }
+.conv-card.done { border-color: var(--green); background: #f6fffa; }
+.conv-top { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
+.seq-badge {
+    background: var(--purple);
+    color: white;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+.conv-card.done .seq-badge { background: var(--green); }
+.conv-title { font-size: 14.5px; font-weight: 700; flex: 1; line-height: 1.35; }
+.done-toggle {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    width: 30px; height: 30px;
+    flex: 0 0 auto;
+    font-size: 14px;
+    cursor: pointer;
+    color: #cbd5e0;
+    line-height: 1;
+}
+.done-toggle:hover { border-color: var(--green); color: var(--green); }
+.conv-card.done .done-toggle { background: var(--green); border-color: var(--green); color: white; }
+.conv-purpose { font-size: 12.5px; color: var(--text-muted); margin-bottom: 9px; line-height: 1.5; }
+.conv-meta { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag { font-size: 10.5px; padding: 2px 8px; border-radius: 9px; font-weight: 700; }
+.tag-turns   { background: var(--blue-soft);  color: var(--blue-text); }
+.tag-trigger { background: var(--green-soft); color: #065f46; }
+.tag-read    { background: #edf2f7;           color: #4a5568; }
+.tag-verify  { background: var(--amber-soft); color: #92400e; }
+.tag-forbid  { background: var(--red-soft);   color: #7f1d1d; }
+.tag-cat     { background: var(--purple-soft);color: #4c1d95; }
+.tag-wait    { background: #fce7f3;           color: #831843; }
+
+.empty-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
+.empty-state .icon { font-size: 36px; margin-bottom: 10px; }
+
+/* ── RUNNER ──────────────────────────────────────────────── */
+.runner-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 14px 20px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+.runner-header-inner { max-width: 720px; margin: 0 auto; }
+.runner-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 9px; }
+.runner-back {
+    background: rgba(255,255,255,0.2);
+    border: none; color: white;
+    padding: 6px 13px; border-radius: 20px;
+    font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;
+    flex: 0 0 auto;
+}
+.runner-back:hover { background: rgba(255,255,255,0.32); }
+.runner-name { font-size: 12.5px; font-weight: 700; text-align: center; line-height: 1.3; flex: 1; min-width: 0; }
+.runner-name small { display: block; font-weight: 500; opacity: 0.75; font-size: 11px; }
+.step-counter { font-size: 12.5px; font-weight: 700; opacity: 0.92; flex: 0 0 auto; }
+.pbar { background: rgba(255,255,255,0.25); border-radius: 4px; height: 5px; overflow: hidden; }
+.pbar-fill { background: white; height: 100%; border-radius: 4px; transition: width 0.3s ease; }
+
+.msg-card {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.msg-card.is-verify { border-color: var(--amber); box-shadow: 0 4px 18px rgba(237,137,54,0.14); }
+.turn-label {
+    font-size: 10.5px; font-weight: 800; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 9px;
+}
+.verify-badge {
+    display: inline-block; background: var(--amber); color: white;
+    font-size: 10.5px; font-weight: 800; padding: 3px 10px;
+    border-radius: 20px; margin-bottom: 10px; letter-spacing: 0.03em;
+}
+.msg-text { font-size: 16px; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+
+.verify-box {
+    margin-top: 16px; padding-top: 14px; border-top: 1.5px dashed var(--border);
+    display: flex; flex-direction: column; gap: 11px;
+}
+.vb-label { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+.vb-label.green { color: var(--green-dark); }
+.vb-label.red   { color: var(--red); }
+.vb-label.grey  { color: var(--text-muted); }
+.expected-answer {
+    background: #f7fafc; border-left: 3px solid var(--purple);
+    padding: 9px 12px; border-radius: 0 8px 8px 0;
+    font-size: 13px; line-height: 1.55; color: var(--text-sm); white-space: pre-wrap;
+}
+.vb-note { font-size: 12.5px; color: var(--text-muted); line-height: 1.55; }
+
+.copy-btn {
+    width: 100%; background: var(--purple); color: white; border: none;
+    padding: 15px; border-radius: 13px; font-size: 15px; font-weight: 700;
+    cursor: pointer; font-family: inherit; transition: background 0.2s; min-height: 52px;
+}
+.copy-btn:hover { background: var(--purple-dark); }
+.copy-btn.is-verify-btn { background: var(--amber); }
+.copy-btn.is-verify-btn:hover { background: var(--amber-dark); }
+.copy-btn.copied { background: var(--green) !important; }
+.kbd-hint { text-align: center; font-size: 11.5px; color: var(--text-muted); margin-top: 8px; }
+
+.nav-row { display: flex; gap: 10px; margin: 16px 0 6px; }
+.nav-btn {
+    flex: 1; background: white; border: 1.5px solid var(--border); color: var(--text-sm);
+    padding: 12px; border-radius: 11px; font-size: 13.5px; font-weight: 700;
+    cursor: pointer; font-family: inherit; min-height: 46px;
+}
+.nav-btn:hover:not(:disabled) { border-color: var(--purple); color: var(--purple); }
+.nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.nav-btn.primary { background: var(--green); border-color: var(--green); color: white; }
+.nav-btn.primary:hover { background: var(--green-dark); border-color: var(--green-dark); }
+
+.wait-banner {
+    background: #fffaf0; border: 1.5px solid #fbd38d; border-radius: 12px;
+    padding: 12px 14px; margin-bottom: 12px; font-size: 12.5px; color: #7b341e; line-height: 1.55;
+}
+.wait-banner b { font-size: 13px; }
+
+/* ── TOAST / MODAL ───────────────────────────────────────── */
+.toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--text); color: white; padding: 11px 20px; border-radius: 24px;
+    font-size: 13px; font-weight: 600; opacity: 0; transition: all 0.28s; z-index: 100; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: none; align-items: flex-end; z-index: 200;
+}
+.modal-overlay.show { display: flex; }
+.sheet { background: white; width: 100%; border-radius: 18px 18px 0 0; padding: 22px 20px 28px; }
+.sheet-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.sheet-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
+.sheet-textarea {
+    width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 11px;
+    font-size: 14px; font-family: inherit; resize: none; margin-bottom: 12px;
+}
+.sheet-close {
+    width: 100%; background: var(--purple); color: white; border: none;
+    padding: 13px; border-radius: 11px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+
+.loading, .error-box { text-align: center; padding: 46px 20px; color: var(--text-muted); font-size: 14px; }
+.error-box {
+    background: #fff5f5; border: 1.5px solid #fbb6b6; border-radius: 12px;
+    color: #9b2c2c; text-align: left; padding: 16px 18px; font-size: 13px; line-height: 1.6;
+}
+.error-box code {
+    background: white; border: 1px solid var(--border); border-radius: 5px;
+    padding: 1px 6px; font-family: ui-monospace, Menlo, monospace; font-size: 12px;
+}
+
+@media (max-width: 480px) {
+    .kv { grid-template-columns: 1fr; gap: 3px; }
+    .msg-text { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LIST VIEW ══════════════════════════════════════════ -->
+<div id="list-view" class="view active">
+    <div class="page-header">
+        <div class="page-header-inner">
+            <a href="../../index.html" class="back-link">← Back to Index</a>
+            <h1 id="hd-title">Conversation Long-Term Memory</h1>
+            <p class="subtitle" id="hd-subtitle">Loading…</p>
+            <div class="tabs" id="tabs"></div>
+        </div>
+    </div>
+    <div class="wrap" id="list-body">
+        <div class="loading">Loading datasets…</div>
+    </div>
+</div>
+
+<!-- ══ RUNNER VIEW ════════════════════════════════════════ -->
+<div id="runner-view" class="view">
+    <div class="runner-header">
+        <div class="runner-header-inner">
+            <div class="runner-top">
+                <button class="runner-back" id="rn-back">← Back</button>
+                <span class="runner-name" id="rn-name"></span>
+                <span class="step-counter" id="rn-counter"></span>
+            </div>
+            <div class="pbar"><div class="pbar-fill" id="rn-progress"></div></div>
+        </div>
+    </div>
+    <div class="wrap" id="runner-body"></div>
+</div>
+
+<div class="modal-overlay" id="manual-modal">
+    <div class="sheet">
+        <div class="sheet-title">📋 Copy manually</div>
+        <div class="sheet-desc">Auto-copy is unavailable here. Select all and copy:</div>
+        <textarea class="sheet-textarea" id="manual-text" rows="5" readonly></textarea>
+        <button class="sheet-close" id="manual-close">Done</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   Conversation Long-Term Memory — multi-dataset test runner.
+
+   Adding a new dataset later:
+     1. drop <name>.json into this folder
+     2. append one entry to manifest.json
+   No change to this file is needed — the tab, overview, filters
+   and runner are all generated from whatever the JSON contains.
+   ════════════════════════════════════════════════════════════ */
+
+const FALLBACK_MANIFEST = {
+    title: 'Conversation Long-Term Memory',
+    subtitle: 'Cross-conversation memory trajectories.',
+    datasets: [
+        { id: 'trajectory', file: 'e2e_memory_trajectory.json',           label: 'E2E Trajectory', emoji: '🧭' },
+        { id: 'crud',       file: 'e2e_memory_crud_trajectory.json',      label: 'CRUD',           emoji: '🔁' },
+        { id: 'restraint',  file: 'e2e_memory_restraint_trajectory.json', label: 'Restraint',      emoji: '🛡️' }
+    ]
+};
+
+const PROGRESS_KEY = 'ltm_runner_progress_v1';
+
+/* Conversation keys rendered by a dedicated panel — everything
+   else falls through to the generic "Other fields" panel. */
+const HANDLED_CONV_KEYS = new Set([
+    'seq', 'title', 'purpose', 'notes', 'turns', 'turn_count',
+    'triggers_extraction', 'category', 'operations', 'writes_blocks',
+    'conversation_id', 'group', 'role', 'test_user', 'control_fact',
+    'expected_short_term', 'expected_short_term_topics',
+    'expected_long_term_after', 'must_not_contain', 'planted_false_facts',
+    'checkpoints', 'wait_after_minutes', 'wait_note', '_old_seq'
+]);
+
+/* Top-level keys shown in the dataset header instead of a panel. */
+const HANDLED_DS_KEYS = new Set(['dataset_name', 'version', 'description', 'stats', 'conversations']);
+
+const SECTION_EMOJI = {
+    test_user: '👤', rules: '📏', critical_constraints: '🚨', confirmed_rules: '✔️',
+    content_text_templates: '🧩', production_findings: '🐛', how_to_run: '▶️',
+    execution_plan: '🗺️', execution: '🗺️', failure_recovery: '🛟', smoke_subset: '💨',
+    gates: '🚦', crud_coverage: '🔁', categories: '🏷️', persona: '🎭',
+    design_principle: '🧠', planted_false_facts_all: '🚫', out_of_scope: '🚧',
+    why_this_matters: '💡', language: '🌐'
+};
+
+const MEMORY_BLOCK_ORDER = ['user_profile', 'capability', 'preference', 'activities', 'top_of_mind', 'behavior_pattern'];
+
+let MANIFEST = null;
+let DATASETS = {};      // id -> { meta, raw, error }
+let activeDs = null;
+let activeFilter = 'all';
+let searchTerm = '';
+let keyHandler = null;
+
+/* ── boot ────────────────────────────────────────────────── */
+(async function init() {
+    try {
+        MANIFEST = await fetchJson('./manifest.json');
+    } catch (e) {
+        MANIFEST = FALLBACK_MANIFEST;
+    }
+    document.getElementById('hd-title').textContent = MANIFEST.title || 'Conversation Long-Term Memory';
+    document.getElementById('hd-subtitle').textContent = MANIFEST.subtitle || '';
+
+    const list = MANIFEST.datasets || [];
+    await Promise.all(list.map(async meta => {
+        try {
+            DATASETS[meta.id] = { meta, raw: await fetchJson('./' + meta.file) };
+        } catch (e) {
+            DATASETS[meta.id] = { meta, raw: null, error: e.message || String(e) };
+        }
+    }));
+
+    renderTabs();
+    window.addEventListener('hashchange', router);
+    router();
+})();
+
+async function fetchJson(url) {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' for ' + url);
+    return res.json();
+}
+
+/* ── routing: #/<dsId>  |  #/<dsId>/<seq>/<step> ─────────── */
+function router() {
+    const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
+    const ids = (MANIFEST.datasets || []).map(d => d.id);
+    const dsId = ids.includes(parts[0]) ? parts[0] : ids[0];
+    if (!dsId) return;
+
+    if (dsId !== activeDs) { activeFilter = 'all'; searchTerm = ''; }
+    activeDs = dsId;
+    highlightTabs();
+
+    if (parts.length >= 2) {
+        const seq = parts[1];
+        const step = Math.max(0, parseInt(parts[2] || '0', 10) || 0);
+        renderRunner(dsId, seq, step);
+    } else {
+        showView('list-view');
+        removeKeyHandler();
+        renderDataset(dsId);
+    }
+}
+
+function showView(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id));
+    window.scrollTo(0, 0);
+}
+
+/* ── tabs ────────────────────────────────────────────────── */
+function renderTabs() {
+    const html = (MANIFEST.datasets || []).map(m => {
+        const ds = DATASETS[m.id];
+        const n = ds && ds.raw ? (ds.raw.conversations || []).length : 0;
+        const count = ds && ds.raw ? `<span class="tab-count">${n}</span>` : '';
+        return `<button class="tab" data-ds="${escAttr(m.id)}">${escHtml(m.emoji || '📁')} ${escHtml(m.label || m.id)}${count}</button>`;
+    }).join('');
+    const el = document.getElementById('tabs');
+    el.innerHTML = html;
+    el.querySelectorAll('.tab').forEach(b => {
+        b.onclick = () => { location.hash = '#/' + b.dataset.ds; };
+    });
+}
+
+function highlightTabs() {
+    document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.ds === activeDs));
+}
+
+/* ── dataset overview + conversation list ────────────────── */
+function renderDataset(dsId) {
+    const ds = DATASETS[dsId];
+    const body = document.getElementById('list-body');
+    if (!ds) { body.innerHTML = `<div class="error-box">Unknown dataset "${escHtml(dsId)}".</div>`; return; }
+    if (!ds.raw) {
+        body.innerHTML = `<div class="error-box">
+            <b>Could not load <code>${escHtml(ds.meta.file)}</code></b><br>${escHtml(ds.error || '')}
+            <br><br>If you opened this file directly from disk, the browser blocks <code>fetch()</code> on <code>file://</code>.
+            Serve the folder instead — <code>python3 -m http.server</code> — or use the GitHub Pages URL.
+        </div>`;
+        return;
+    }
+
+    const raw = ds.raw;
+    const convs = raw.conversations || [];
+    const prog = getProgress(dsId);
+    const doneCount = convs.filter(c => prog[String(c.seq)] && prog[String(c.seq)].done).length;
+    const pct = convs.length ? Math.round(doneCount / convs.length * 100) : 0;
+
+    const statsHtml = raw.stats ? `<div class="stat-grid">${
+        Object.entries(raw.stats)
+            .filter(([, v]) => typeof v === 'number')
+            .map(([k, v]) => `<div class="stat-box"><div class="stat-num">${v}</div><div class="stat-lbl">${escHtml(humanize(k))}</div></div>`)
+            .join('')
+    }</div>` : '';
+
+    const specPanels = Object.entries(raw)
+        .filter(([k]) => !HANDLED_DS_KEYS.has(k))
+        .map(([k, v]) => panel(SECTION_EMOJI[k] || '📄', humanize(k), renderVal(v), false))
+        .join('');
+
+    body.innerHTML = `
+        <div class="ds-head">
+            <div class="ds-title">${escHtml(ds.meta.emoji || '')} ${escHtml(raw.dataset_name || ds.meta.label || dsId)}${raw.version ? ` <span class="ds-file">v${escHtml(raw.version)}</span>` : ''}</div>
+            <div class="ds-file">${escHtml(ds.meta.file)}</div>
+            <div class="ds-desc">${escHtml(raw.description || ds.meta.summary || '')}</div>
+        </div>
+        ${statsHtml}
+        <div class="run-progress">
+            <div class="run-progress-txt">${doneCount}/${convs.length} run</div>
+            <div class="run-progress-bar"><div class="run-progress-fill" style="width:${pct}%"></div></div>
+            <button class="reset-btn" id="reset-prog">Reset</button>
+        </div>
+        <div class="section-label">Dataset spec</div>
+        ${specPanels || '<div class="empty-state">No extra spec fields.</div>'}
+        <div class="section-label">Conversations — run in seq order</div>
+        <div class="toolbar">
+            <input class="search-input" id="search" type="search" placeholder="Search title, purpose, or turn text…" value="${escAttr(searchTerm)}">
+            <div class="filter-pills" id="pills"></div>
+        </div>
+        <div id="conv-list"></div>
+    `;
+
+    document.getElementById('reset-prog').onclick = () => {
+        if (!confirm('Clear run progress for this dataset?')) return;
+        setProgress(dsId, {});
+        renderDataset(dsId);
+    };
+    const search = document.getElementById('search');
+    search.oninput = () => { searchTerm = search.value; renderConvList(dsId); };
+
+    bindPanels(body);
+    renderPills(dsId);
+    renderConvList(dsId);
+}
+
+function buildFilters(convs) {
+    const f = [{ id: 'all', label: 'All' }];
+    if (convs.some(c => c.triggers_extraction === true))  f.push({ id: 'trigger', label: '⚡ Triggers extraction' });
+    if (convs.some(c => c.triggers_extraction === false)) f.push({ id: 'read',    label: '👁 Read-only' });
+    if (convs.some(c => hasVerify(c)))                    f.push({ id: 'verify',  label: '✅ Has verify turns' });
+    if (convs.some(c => (c.must_not_contain || []).length)) f.push({ id: 'forbid', label: '⛔ must_not_contain' });
+    f.push({ id: 'todo', label: '○ Not run yet' });
+    const cats = [...new Set(convs.map(c => c.category).filter(Boolean))];
+    cats.forEach(c => f.push({ id: 'cat:' + c, label: '🏷 ' + c }));
+    return f;
+}
+
+function renderPills(dsId) {
+    const convs = DATASETS[dsId].raw.conversations || [];
+    const filters = buildFilters(convs);
+    const el = document.getElementById('pills');
+    el.innerHTML = filters.map(f =>
+        `<button class="filter-pill${f.id === activeFilter ? ' active' : ''}" data-f="${escAttr(f.id)}">${escHtml(f.label)}</button>`
+    ).join('');
+    el.querySelectorAll('.filter-pill').forEach(b => {
+        b.onclick = () => { activeFilter = b.dataset.f; renderPills(dsId); renderConvList(dsId); };
+    });
+}
+
+function matchesFilter(c, f, prog) {
+    if (f === 'all') return true;
+    if (f === 'trigger') return c.triggers_extraction === true;
+    if (f === 'read')    return c.triggers_extraction === false;
+    if (f === 'verify')  return hasVerify(c);
+    if (f === 'forbid')  return (c.must_not_contain || []).length > 0;
+    if (f === 'todo')    return !(prog[String(c.seq)] && prog[String(c.seq)].done);
+    if (f.startsWith('cat:')) return c.category === f.slice(4);
+    return true;
+}
+
+function matchesSearch(c, q) {
+    if (!q) return true;
+    const hay = [c.title, c.purpose, c.notes, c.category, (c.operations || []).join(' '),
+                 (c.turns || []).map(t => t.user).join(' ')].join(' ').toLowerCase();
+    return hay.includes(q.toLowerCase());
+}
+
+function renderConvList(dsId) {
+    const ds = DATASETS[dsId];
+    const convs = ds.raw.conversations || [];
+    const prog = getProgress(dsId);
+    const rows = convs.filter(c => matchesFilter(c, activeFilter, prog) && matchesSearch(c, searchTerm));
+    const el = document.getElementById('conv-list');
+    if (!el) return;
+
+    if (!rows.length) {
+        el.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>No conversation matches this filter.</p></div>`;
+        return;
+    }
+
+    el.innerHTML = rows.map(c => {
+        const done = !!(prog[String(c.seq)] && prog[String(c.seq)].done);
+        const nVerify = (c.turns || []).filter(t => t.verify).length;
+        const tags = [
+            `<span class="tag tag-turns">📋 ${c.turn_count != null ? c.turn_count : (c.turns || []).length} turns</span>`,
+            c.triggers_extraction === true  ? `<span class="tag tag-trigger">⚡ triggers extraction</span>` : '',
+            c.triggers_extraction === false ? `<span class="tag tag-read">👁 read-only</span>` : '',
+            nVerify ? `<span class="tag tag-verify">✅ ${nVerify} verify</span>` : '',
+            (c.must_not_contain || []).length ? `<span class="tag tag-forbid">⛔ ${c.must_not_contain.length} forbidden</span>` : '',
+            c.category ? `<span class="tag tag-cat">🏷 ${escHtml(c.category)}</span>` : '',
+            (c.operations || []).length ? `<span class="tag tag-cat">🔁 ${c.operations.length} ops</span>` : '',
+            c.wait_after_minutes ? `<span class="tag tag-wait">⏱ wait ${c.wait_after_minutes}m</span>` : ''
+        ].filter(Boolean).join('');
+
+        return `<div class="conv-card${done ? ' done' : ''}" data-seq="${escAttr(c.seq)}">
+            <div class="conv-top">
+                <span class="seq-badge">SEQ ${escHtml(c.seq)}</span>
+                <span class="conv-title">${escHtml(c.title || '(untitled)')}</span>
+                <button class="done-toggle" data-toggle="${escAttr(c.seq)}" title="Mark as run">${done ? '✓' : '○'}</button>
+            </div>
+            ${c.purpose ? `<div class="conv-purpose">${escHtml(c.purpose)}</div>` : ''}
+            <div class="conv-meta">${tags}</div>
+        </div>`;
+    }).join('');
+
+    el.querySelectorAll('.conv-card').forEach(card => {
+        card.onclick = e => {
+            if (e.target.closest('[data-toggle]')) return;
+            const seq = card.dataset.seq;
+            const p = getProgress(dsId)[seq];
+            location.hash = `#/${dsId}/${seq}/${p && p.lastStep ? p.lastStep : 0}`;
+        };
+    });
+    el.querySelectorAll('[data-toggle]').forEach(btn => {
+        btn.onclick = e => {
+            e.stopPropagation();
+            const seq = btn.dataset.toggle;
+            const p = getProgress(dsId);
+            p[seq] = Object.assign({}, p[seq], { done: !(p[seq] && p[seq].done) });
+            setProgress(dsId, p);
+            renderDataset(dsId);
+        };
+    });
+}
+
+/* ── runner ──────────────────────────────────────────────── */
+function renderRunner(dsId, seq, step) {
+    const ds = DATASETS[dsId];
+    if (!ds || !ds.raw) { location.hash = '#/' + dsId; return; }
+    const conv = (ds.raw.conversations || []).find(c => String(c.seq) === String(seq));
+    if (!conv) { location.hash = '#/' + dsId; return; }
+
+    const turns = conv.turns || [];
+    const total = turns.length;
+    step = Math.min(Math.max(step, 0), Math.max(total - 1, 0));
+
+    const p = getProgress(dsId);
+    p[String(seq)] = Object.assign({}, p[String(seq)], { lastStep: step });
+    setProgress(dsId, p);
+
+    showView('runner-view');
+    document.getElementById('rn-back').onclick = () => { location.hash = '#/' + dsId; };
+    document.getElementById('rn-name').innerHTML =
+        `${escHtml(conv.title || '')}<small>${escHtml(ds.meta.label || dsId)} · seq ${escHtml(conv.seq)}</small>`;
+    document.getElementById('rn-counter').textContent = total ? `${step + 1}/${total}` : '0/0';
+    document.getElementById('rn-progress').style.width = total ? `${Math.round((step + 1) / total * 100)}%` : '0%';
+
+    const turn = turns[step] || {};
+    const isVerify = !!turn.verify;
+    const isLast = step === total - 1;
+
+    const cardHtml = `
+        <div class="msg-card${isVerify ? ' is-verify' : ''}">
+            ${isVerify
+                ? `<div class="verify-badge">✅ VERIFY TURN ${turn.turn != null ? turn.turn : step + 1}</div>`
+                : `<div class="turn-label">Turn ${turn.turn != null ? turn.turn : step + 1}</div>`}
+            <div class="msg-text">${escHtml(turn.user != null ? turn.user : '(no user message on this turn)')}</div>
+            ${isVerify ? renderVerify(turn.verify) : ''}
+        </div>`;
+
+    const copyHtml = `
+        <button class="copy-btn${isVerify ? ' is-verify-btn' : ''}" id="copy-btn">📋&nbsp; Copy this turn</button>
+        <div class="kbd-hint">Space / Enter to copy &nbsp;·&nbsp; ← → to navigate</div>`;
+
+    const navHtml = `
+        <div class="nav-row">
+            <button class="nav-btn" id="prev-btn" ${step === 0 ? 'disabled' : ''}>← Prev</button>
+            ${isLast
+                ? `<button class="nav-btn primary" id="finish-btn">✓ Mark conversation run</button>`
+                : `<button class="nav-btn" id="next-btn">Next →</button>`}
+        </div>`;
+
+    const waitHtml = (isLast && conv.wait_after_minutes)
+        ? `<div class="wait-banner"><b>⏱ Wait ${conv.wait_after_minutes} minutes before the next conversation.</b>
+           ${conv.wait_note ? '<br>' + escHtml(conv.wait_note) : ''}</div>`
+        : '';
+
+    document.getElementById('runner-body').innerHTML =
+        cardHtml + copyHtml + navHtml + waitHtml + renderConvPanels(conv, turns);
+
+    document.getElementById('copy-btn').onclick = e => handleCopy(turn.user || '', e.currentTarget);
+    const prev = document.getElementById('prev-btn');
+    if (prev) prev.onclick = () => goStep(dsId, seq, step - 1);
+    const next = document.getElementById('next-btn');
+    if (next) next.onclick = () => goStep(dsId, seq, step + 1);
+    const finish = document.getElementById('finish-btn');
+    if (finish) finish.onclick = () => {
+        const pr = getProgress(dsId);
+        pr[String(seq)] = Object.assign({}, pr[String(seq)], { done: true });
+        setProgress(dsId, pr);
+        showToast('✓ Marked as run');
+        location.hash = '#/' + dsId;
+    };
+    const copyAll = document.getElementById('copy-all-btn');
+    if (copyAll) copyAll.onclick = e =>
+        handleCopy(turns.map(t => t.user).filter(Boolean).join('\n\n'), e.currentTarget);
+
+    bindPanels(document.getElementById('runner-body'));
+    setupKeyboard(dsId, seq, step, total);
+}
+
+function goStep(dsId, seq, step) { location.hash = `#/${dsId}/${seq}/${step}`; }
+
+function renderVerify(v) {
+    const parts = [];
+    if (v.expected_answer)
+        parts.push(`<div><div class="vb-label grey">💬 Expected answer (shape, not exact wording)</div>
+            <div class="expected-answer">${escHtml(v.expected_answer)}</div></div>`);
+    if ((v.expected_facts || []).length)
+        parts.push(`<div><div class="vb-label green">✅ Must contain</div>
+            <div class="chips">${v.expected_facts.map(f => `<span class="chip chip-good">${escHtml(f)}</span>`).join('')}</div></div>`);
+    if ((v.must_not_contain || []).length)
+        parts.push(`<div><div class="vb-label red">⛔ Must NOT contain</div>
+            <div class="chips">${v.must_not_contain.map(f => `<span class="chip chip-bad">${escHtml(f)}</span>`).join('')}</div></div>`);
+    if (v.recalls_from_conversation != null)
+        parts.push(`<div class="vb-note">↩︎ Recalls from conversation <b>seq ${escHtml(v.recalls_from_conversation)}</b></div>`);
+    if (v.why)  parts.push(`<div class="vb-note"><b>Why:</b> ${escHtml(v.why)}</div>`);
+    if (v.note) parts.push(`<div class="vb-note"><b>Note:</b> ${escHtml(v.note)}</div>`);
+
+    const known = new Set(['expected_answer', 'expected_facts', 'must_not_contain', 'recalls_from_conversation', 'why', 'note']);
+    const extra = Object.entries(v).filter(([k]) => !known.has(k));
+    if (extra.length) parts.push(renderVal(Object.fromEntries(extra)));
+
+    return `<div class="verify-box">${parts.join('')}</div>`;
+}
+
+function renderConvPanels(conv, turns) {
+    const out = [];
+
+    /* metadata */
+    const metaKeys = ['purpose', 'notes', 'category', 'operations', 'writes_blocks',
+                      'group', 'role', 'test_user', 'control_fact', 'conversation_id',
+                      'turn_count', 'triggers_extraction', 'wait_after_minutes', 'wait_note'];
+    const meta = pick(conv, metaKeys);
+    if (Object.keys(meta).length) out.push(panel('📌', 'Conversation info', renderVal(meta), true));
+
+    /* all turns at a glance */
+    out.push(panel('💬', `All ${turns.length} turns`, `
+        <button class="nav-btn" id="copy-all-btn" style="margin-bottom:10px">📋 Copy all turns</button>
+        <div class="list-cards">${turns.map((t, i) => `
+            <div class="list-card">
+                <span class="list-idx">T${t.turn != null ? t.turn : i + 1}${t.verify ? ' ✅' : ''}</span>
+                <div class="v-str">${escHtml(t.user || '')}</div>
+            </div>`).join('')}</div>`, false));
+
+    if (conv.expected_short_term)
+        out.push(panel('🧾', 'Expected short-term (this conversation)', renderVal(conv.expected_short_term), false));
+    if (conv.expected_short_term_topics)
+        out.push(panel('🧾', 'Expected short-term topics', renderVal(conv.expected_short_term_topics), false));
+
+    if (conv.expected_long_term_after)
+        out.push(panel('🗄️', 'Expected long-term AFTER this conversation (cumulative)',
+            renderMemoryBlocks(conv.expected_long_term_after), false));
+
+    if ((conv.must_not_contain || []).length)
+        out.push(panel('⛔', `must_not_contain (${conv.must_not_contain.length})`,
+            `<div class="chips">${conv.must_not_contain.map(s => `<span class="chip chip-bad">${escHtml(s)}</span>`).join('')}</div>`,
+            false, 'tone-red'));
+
+    if ((conv.planted_false_facts || []).length)
+        out.push(panel('🚫', `Planted false facts (${conv.planted_false_facts.length})`,
+            `<div class="chips">${conv.planted_false_facts.map(s => `<span class="chip chip-bad">${escHtml(s)}</span>`).join('')}</div>`,
+            false, 'tone-red'));
+
+    if ((conv.checkpoints || []).length)
+        out.push(panel('🎯', `Checkpoints (${conv.checkpoints.length})`, renderVal(conv.checkpoints), false, 'tone-amber'));
+
+    const rest = Object.entries(conv).filter(([k]) => !HANDLED_CONV_KEYS.has(k));
+    if (rest.length) out.push(panel('📄', 'Other fields', renderVal(Object.fromEntries(rest)), false));
+
+    return `<div class="section-label">Conversation spec</div>` + out.join('');
+}
+
+function renderMemoryBlocks(blocks) {
+    const names = [...new Set([...MEMORY_BLOCK_ORDER, ...Object.keys(blocks)])].filter(n => n in blocks);
+    return names.map(name => {
+        const v = blocks[name];
+        const empty = v == null
+            || (Array.isArray(v) && v.length === 0)
+            || (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0);
+        return `<div class="block-card${empty ? ' is-empty' : ''}">
+            <div class="block-name">${escHtml(name)}${empty ? '<span class="block-empty-tag">MUST BE EMPTY</span>' : ''}</div>
+            ${empty ? '<div class="v-empty-list">∅ no entry expected — an empty block is itself an assertion</div>' : renderVal(v)}
+        </div>`;
+    }).join('');
+}
+
+/* ── generic JSON renderer ───────────────────────────────── */
+function renderVal(v) {
+    if (v === null || v === undefined) return '<span class="v-null">—</span>';
+    if (typeof v === 'boolean') return `<span class="chip ${v ? 'chip-yes' : 'chip-no'}">${v}</span>`;
+    if (typeof v === 'number') return `<span class="v-num">${v}</span>`;
+    if (typeof v === 'string') return v.trim() ? `<span class="v-str">${escHtml(v)}</span>` : '<span class="v-null">(empty)</span>';
+
+    if (Array.isArray(v)) {
+        if (!v.length) return '<span class="v-empty-list">∅ empty</span>';
+        if (v.every(x => typeof x === 'string' || typeof x === 'number')) {
+            const long = v.some(x => typeof x === 'string' && x.length > 60);
+            return long
+                ? `<ul class="bullets">${v.map(x => `<li>${escHtml(String(x))}</li>`).join('')}</ul>`
+                : `<div class="chips">${v.map(x => `<span class="chip">${escHtml(String(x))}</span>`).join('')}</div>`;
+        }
+        return `<div class="list-cards">${v.map((x, i) =>
+            `<div class="list-card"><span class="list-idx">${i + 1}</span>${renderVal(x)}</div>`).join('')}</div>`;
+    }
+
+    const entries = Object.entries(v);
+    if (!entries.length) return '<span class="v-empty-list">∅ empty</span>';
+    return `<div class="kv-group">${entries.map(([k, val]) => `
+        <div class="kv">
+            <div class="kv-key${k.startsWith('_') ? ' kv-key-meta' : ''}">${escHtml(humanize(k))}</div>
+            <div class="kv-val">${renderVal(val)}</div>
+        </div>`).join('')}</div>`;
+}
+
+/* ── panels ──────────────────────────────────────────────── */
+let panelSeq = 0;
+function panel(emoji, title, bodyHtml, open, toneClass) {
+    const id = 'pnl-' + (++panelSeq);
+    return `<div class="panel ${toneClass || ''}">
+        <div class="panel-head" data-target="${id}">
+            <span class="panel-title">${emoji} ${escHtml(title)}</span>
+            <span class="panel-chev${open ? ' open' : ''}" data-chev="${id}">▼</span>
+        </div>
+        <div class="panel-body${open ? ' open' : ''}" id="${id}">${bodyHtml}</div>
+    </div>`;
+}
+
+function bindPanels(root) {
+    root.querySelectorAll('.panel-head').forEach(head => {
+        head.onclick = () => {
+            const id = head.dataset.target;
+            const body = document.getElementById(id);
+            const chev = root.querySelector(`[data-chev="${id}"]`);
+            const isOpen = body.classList.toggle('open');
+            if (chev) chev.classList.toggle('open', isOpen);
+        };
+    });
+}
+
+/* ── keyboard ────────────────────────────────────────────── */
+function setupKeyboard(dsId, seq, step, total) {
+    removeKeyHandler();
+    keyHandler = e => {
+        if (document.getElementById('manual-modal').classList.contains('show')) return;
+        if (/^(INPUT|TEXTAREA)$/.test((e.target.tagName || ''))) return;
+        if (e.key === 'ArrowLeft' && step > 0) { e.preventDefault(); goStep(dsId, seq, step - 1); }
+        else if (e.key === 'ArrowRight' && step < total - 1) { e.preventDefault(); goStep(dsId, seq, step + 1); }
+        else if (e.key === ' ' || e.key === 'Enter') {
+            e.preventDefault();
+            const btn = document.getElementById('copy-btn');
+            if (btn) btn.click();
+        }
+    };
+    document.addEventListener('keydown', keyHandler);
+}
+function removeKeyHandler() {
+    if (keyHandler) { document.removeEventListener('keydown', keyHandler); keyHandler = null; }
+}
+
+/* ── copy ────────────────────────────────────────────────── */
+function handleCopy(text, btn) {
+    if (!text) { showToast('Nothing to copy'); return; }
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => flashCopied(btn), () => fallbackCopy(text, btn));
+    } else {
+        fallbackCopy(text, btn);
+    }
+}
+function fallbackCopy(text, btn) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    if (ok) flashCopied(btn); else showManualCopy(text);
+}
+function flashCopied(btn) {
+    showToast('✓ Copied');
+    if (!btn) return;
+    const prev = btn.innerHTML;
+    btn.innerHTML = '✓&nbsp; Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = prev; btn.classList.remove('copied'); }, 1300);
+}
+function showManualCopy(text) {
+    document.getElementById('manual-text').value = text;
+    document.getElementById('manual-modal').classList.add('show');
+}
+document.getElementById('manual-close').onclick = () => document.getElementById('manual-modal').classList.remove('show');
+document.getElementById('manual-modal').onclick = e => {
+    if (e.target.id === 'manual-modal') e.target.classList.remove('show');
+};
+
+/* ── progress (localStorage) ─────────────────────────────── */
+function allProgress() {
+    try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); } catch (e) { return {}; }
+}
+function getProgress(dsId) { return allProgress()[dsId] || {}; }
+function setProgress(dsId, val) {
+    const all = allProgress();
+    all[dsId] = val;
+    try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(all)); } catch (e) { /* private mode */ }
+}
+
+/* ── helpers ─────────────────────────────────────────────── */
+function hasVerify(c) { return (c.turns || []).some(t => t.verify); }
+function pick(obj, keys) {
+    const out = {};
+    keys.forEach(k => { if (obj[k] !== undefined && obj[k] !== null && obj[k] !== '') out[k] = obj[k]; });
+    return out;
+}
+function humanize(k) {
+    const s = String(k).replace(/^_+/, '').replace(/_/g, ' ').trim();
+    return s ? s.charAt(0).toUpperCase() + s.slice(1) : String(k);
+}
+function escHtml(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function escAttr(s) { return escHtml(s); }
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 1600);
+}
+</script>
+</body>
+</html>

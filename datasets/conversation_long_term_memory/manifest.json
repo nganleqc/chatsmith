@@ -1,0 +1,28 @@
+{
+  "_how_to_add": "Drop the new *.json trajectory file into this folder, then append ONE entry below. The UI reads this manifest at runtime — no HTML/JS changes needed, no duplicated tab.",
+  "title": "Conversation Long-Term Memory",
+  "subtitle": "Cross-conversation memory trajectories. Each tab is one JSON dataset; run its conversations in seq order on a single fresh user.",
+  "datasets": [
+    {
+      "id": "trajectory",
+      "file": "e2e_memory_trajectory.json",
+      "label": "E2E Trajectory",
+      "emoji": "🧭",
+      "summary": "Baseline short-term + long-term accumulation. 17 conversations on one new user, Vietnamese persona (Minh)."
+    },
+    {
+      "id": "crud",
+      "file": "e2e_memory_crud_trajectory.json",
+      "label": "CRUD",
+      "emoji": "🔁",
+      "summary": "CREATE / UPDATE / REMOVE coverage per memory block, with 7 evaluation gates. English persona (Sarah)."
+    },
+    {
+      "id": "restraint",
+      "file": "e2e_memory_restraint_trajectory.json",
+      "label": "Restraint",
+      "emoji": "🛡️",
+      "summary": "What must NOT be written: negation, third-party, hypothetical, roleplay, prompt injection, code-switching. Persona Daniel."
+    }
+  ]
+}

@@ -3,6 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Generation — Quality Report</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 28px 0;
+        }
+        .header-top { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+        .header h1 { font-size: 1.6em; font-weight: 700; }
+        .header p { font-size: 0.85em; opacity: 0.85; }
+
+        /* ── Date tabs (pill row) ── */
+        .date-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-bottom: 0;
+        }
+        .date-pill {
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            transition: all 0.2s;
+            margin-bottom: 14px;
+        }
+        .date-pill:hover { background: rgba(255,255,255,0.35); }
+        .date-pill.active { background: white; color: #667eea; }
+
+        /* ── Time sub-tabs ── */
+        .time-tabs-bar {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0 28px;
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+        }
+        .time-tab {
+            padding: 12px 18px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            cursor: pointer;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .time-tab:hover { color: #667eea; background: #f8f9ff; }
+        .time-tab.active { color: #667eea; border-bottom-color: #667eea; }
+
+        /* ── Run metadata bar ── */
+        .meta-bar {
+            background: white;
+            padding: 14px 28px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+        }
+        .meta-item { display: flex; flex-direction: column; gap: 3px; }
+        .meta-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #94a3b8;
+        }
+        .meta-value { font-size: 13px; color: #1e293b; font-weight: 500; }
+        .meta-value.mono { font-family: 'Courier New', monospace; font-size: 12px; }
+
+        /* ── Filter bar ── */
+        .filter-bar {
+            background: white;
+            padding: 12px 28px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-select {
+            padding: 7px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #374151;
+            background: white;
+            cursor: pointer;
+            min-width: 130px;
+        }
+        .filter-select:focus { outline: none; border-color: #667eea; }
+        .search-input {
+            padding: 7px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #374151;
+            background: white;
+            min-width: 200px;
+            flex: 1;
+        }
+        .search-input:focus { outline: none; border-color: #667eea; }
+        .result-count {
+            margin-left: auto;
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* ── Results grid ── */
+        .results-wrapper { padding: 20px 28px; }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+            gap: 20px;
+        }
+
+        /* ── Result card ── */
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e8edf3;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .result-card:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Images area */
+        .card-images {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            background: #f8fafc;
+        }
+        .img-section { position: relative; }
+        .img-label {
+            position: absolute;
+            top: 8px; left: 8px;
+            background: rgba(0,0,0,0.55);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 10px;
+            z-index: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .card-img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .card-img:hover { opacity: 0.9; }
+        .img-placeholder {
+            width: 100%;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 12px;
+            background: #f1f5f9;
+        }
+        .img-section:first-child .card-img { border-right: 1px solid #e2e8f0; }
+
+        /* Card meta */
+        .card-meta { padding: 14px 16px; }
+        .card-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+        .badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 12px;
+        }
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-failed  { background: #fee2e2; color: #991b1b; }
+        .badge-pending { background: #fef9c3; color: #854d0e; }
+        .badge-model   { background: #f3e8ff; color: #6d28d9; }
+        .badge-style   { background: #dbeafe; color: #1d4ed8; }
+
+        .card-id {
+            font-size: 12px;
+            color: #94a3b8;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .card-times {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .card-times span b { color: #374151; }
+
+        /* ── Loading / Error ── */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #64748b;
+            font-size: 16px;
+        }
+        .loading .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .error-box {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin: 20px 28px;
+            color: #c53030;
+        }
+        .error-box code {
+            background: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        /* ── Image modal ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-img {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 10px;
+            object-fit: contain;
+            cursor: default;
+        }
+        .modal-close {
+            position: absolute;
+            top: 16px; right: 24px;
+            color: white;
+            font-size: 36px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        @media (max-width: 700px) {
+            .results-grid { grid-template-columns: 1fr; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .meta-bar { gap: 14px; }
+            .results-wrapper { padding: 16px; }
     <title>Image generation — quality report</title>
     <style>
         * {
@@ -409,6 +702,328 @@
     </style>
 </head>
 <body>
+<!-- Header + Date tabs -->
+<div class="header">
+    <div class="header-top">
+        <h1>🎨 Image Generation Report</h1>
+        <p>Request vs response images, per style and model.</p>
+    </div>
+    <div class="date-tabs" id="dateTabs"></div>
+</div>
+
+<!-- Time sub-tabs -->
+<div class="time-tabs-bar" id="timeTabs"></div>
+
+<!-- Run metadata -->
+<div class="meta-bar" id="metaBar"></div>
+
+<!-- Filter bar -->
+<div class="filter-bar" id="filterBar" style="display:none">
+    <select id="styleFilter" class="filter-select"><option value="all">All styles</option></select>
+    <select id="statusFilter" class="filter-select">
+        <option value="all">All statuses</option>
+        <option value="done">Done</option>
+        <option value="failed">Failed</option>
+    </select>
+    <input type="text" id="searchInput" class="search-input" placeholder="Search by style, model, generation ID…">
+    <span class="result-count" id="resultCount"></span>
+</div>
+
+<!-- Results -->
+<div class="results-wrapper">
+    <div id="mainContent">
+        <div class="loading">
+            <div class="spinner"></div>
+            Discovering report files…
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+    <span class="modal-close" id="modalClose">&times;</span>
+    <img class="modal-img" id="modalImg" src="" alt="">
+</div>
+
+<script>
+class ReportViewer {
+    constructor() {
+        this.dateGroups   = [];   // [{folder, label, files:[{name,path,timeLabel}]}]
+        this.activeDateIdx = 0;
+        this.activeRunIdx  = 0;
+        this.currentResults = [];
+        this.filteredResults = [];
+        this.styleSet = new Set();
+        this.init();
+    }
+
+    async init() {
+        try {
+            await this.discoverFiles();
+            if (this.dateGroups.length === 0) {
+                document.getElementById('mainContent').innerHTML =
+                    '<div class="error-box">No result folders found in <code>results/</code>.</div>';
+                return;
+            }
+            this.renderDateTabs();
+            this.setupFilters();
+            this.setupModal();
+            this.selectDate(0);
+        } catch (err) {
+            document.getElementById('mainContent').innerHTML = `
+                <div class="error-box">
+                    <b>Cannot load report files.</b><br><br>
+                    Serve via HTTP server:<br>
+                    <code>python3 -m http.server 8080</code><br>
+                    then open <code>http://localhost:8080</code><br><br>
+                    <small>${err.message}</small>
+                </div>`;
+        }
+    }
+
+    /* ── Auto-discovery ── */
+    async discoverFiles() {
+        const html  = await fetch('results/').then(r => r.text());
+        const doc   = new DOMParser().parseFromString(html, 'text/html');
+
+        const dateFolders = [...doc.querySelectorAll('a[href]')]
+            .map(a => a.getAttribute('href').replace(/\/$/, ''))
+            .filter(n => /^\d{2}_\d{2}_\d{4}$/.test(n))
+            .sort((a, b) => this._folderToDate(b) - this._folderToDate(a)); // newest first
+
+        for (const folder of dateFolders) {
+            const fHtml = await fetch(`results/${folder}/`).then(r => r.text());
+            const fDoc  = new DOMParser().parseFromString(fHtml, 'text/html');
+
+            const files = [...fDoc.querySelectorAll('a[href]')]
+                .map(a => a.getAttribute('href').replace(/\/$/, ''))
+                .filter(n => /^image_generation_run_\d{6}\.json$/.test(n))
+                .sort((a, b) => this._fileTime(b).localeCompare(this._fileTime(a)))
+                .map(name => ({
+                    name,
+                    path: `results/${folder}/${name}`,
+                    timeLabel: this._formatTime(this._fileTime(name))
+                }));
+
+            if (files.length > 0) {
+                const [d, m, y] = folder.split('_');
+                this.dateGroups.push({ folder, label: `${y}-${m}-${d}`, files });
+            }
+        }
+    }
+
+    _folderToDate(folder) {
+        const [d, m, y] = folder.split('_');
+        return new Date(+y, +m - 1, +d);
+    }
+    _fileTime(name) { return name.match(/(\d{6})\.json$/)?.[1] || '000000'; }
+    _formatTime(t)  {
+        if (!t || t.length !== 6) return t;
+        return `${t.slice(0,2)}:${t.slice(2,4)}:${t.slice(4,6)}`;
+    }
+
+    /* ── Date tabs ── */
+    renderDateTabs() {
+        const bar = document.getElementById('dateTabs');
+        bar.innerHTML = '';
+        this.dateGroups.forEach((g, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'date-pill' + (i === 0 ? ' active' : '');
+            btn.textContent = g.label;
+            btn.onclick = () => this.selectDate(i);
+            bar.appendChild(btn);
+        });
+    }
+
+    selectDate(idx) {
+        this.activeDateIdx = idx;
+        this.activeRunIdx  = 0;
+        document.querySelectorAll('.date-pill').forEach((b, i) =>
+            b.classList.toggle('active', i === idx));
+        this.renderTimeTabs();
+        this.selectRun(0);
+    }
+
+    /* ── Time sub-tabs ── */
+    renderTimeTabs() {
+        const bar   = document.getElementById('timeTabs');
+        const files = this.dateGroups[this.activeDateIdx].files;
+        bar.innerHTML = '';
+        files.forEach((f, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'time-tab' + (i === 0 ? ' active' : '');
+            btn.textContent = f.timeLabel;
+            btn.onclick = () => this.selectRun(i);
+            bar.appendChild(btn);
+        });
+    }
+
+    async selectRun(idx) {
+        this.activeRunIdx = idx;
+        document.querySelectorAll('.time-tab').forEach((b, i) =>
+            b.classList.toggle('active', i === idx));
+
+        const file = this.dateGroups[this.activeDateIdx].files[idx];
+        document.getElementById('mainContent').innerHTML =
+            '<div class="loading"><div class="spinner"></div>Loading…</div>';
+
+        const data = await fetch(file.path).then(r => r.json());
+        this.currentResults = (Array.isArray(data) ? data : [data])
+            .map(item => item.result).filter(Boolean);
+
+        // collect styles
+        this.styleSet.clear();
+        this.currentResults.forEach(r => { if (r.style) this.styleSet.add(r.style); });
+        this.refreshStyleFilter();
+
+        this.renderMetaBar(file);
+        this.applyFilters();
+        document.getElementById('filterBar').style.display = 'flex';
+    }
+
+    /* ── Meta bar ── */
+    renderMetaBar(file) {
+        const results = this.currentResults;
+        const done    = results.filter(r => r.status === 'done').length;
+        const models  = [...new Set(results.map(r => r.model).filter(Boolean))];
+        const env     = results[0]?.image_response_url?.includes('stg-') ? 'staging' : 'production';
+
+        document.getElementById('metaBar').innerHTML = `
+            <div class="meta-item">
+                <div class="meta-label">Environment</div>
+                <div class="meta-value">${env}</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Model(s)</div>
+                <div class="meta-value">${models.join(', ') || 'N/A'}</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Summary</div>
+                <div class="meta-value">${done}/${results.length} completed</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Run file</div>
+                <div class="meta-value mono">${file.name}</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Timestamp</div>
+                <div class="meta-value mono">${results[0]?.created_at || '—'}</div>
+            </div>`;
+    }
+
+    /* ── Filters ── */
+    setupFilters() {
+        document.getElementById('styleFilter').addEventListener('change',  () => this.applyFilters());
+        document.getElementById('statusFilter').addEventListener('change', () => this.applyFilters());
+        document.getElementById('searchInput').addEventListener('input',   () => this.applyFilters());
+    }
+
+    refreshStyleFilter() {
+        const sel = document.getElementById('styleFilter');
+        const cur = sel.value;
+        sel.innerHTML = '<option value="all">All styles</option>';
+        [...this.styleSet].sort().forEach(s => {
+            const o = document.createElement('option');
+            o.value = o.textContent = s;
+            if (s === cur) o.selected = true;
+            sel.appendChild(o);
+        });
+    }
+
+    applyFilters() {
+        const style  = document.getElementById('styleFilter').value;
+        const status = document.getElementById('statusFilter').value;
+        const q      = document.getElementById('searchInput').value.toLowerCase();
+
+        this.filteredResults = this.currentResults.filter(r => {
+            if (style  !== 'all' && r.style  !== style)  return false;
+            if (status !== 'all' && r.status !== status) return false;
+            if (q && !`${r.style} ${r.model} ${r.generation_id}`.toLowerCase().includes(q)) return false;
+            return true;
+        });
+
+        document.getElementById('resultCount').textContent =
+            `${this.filteredResults.length} result${this.filteredResults.length !== 1 ? 's' : ''}`;
+        this.renderGrid();
+    }
+
+    /* ── Grid ── */
+    renderGrid() {
+        const content = document.getElementById('mainContent');
+        if (this.filteredResults.length === 0) {
+            content.innerHTML = '<div class="no-results">No results match the current filters.</div>';
+            return;
+        }
+
+        const grid = document.createElement('div');
+        grid.className = 'results-grid';
+        this.filteredResults.forEach(r => grid.appendChild(this.buildCard(r)));
+        content.innerHTML = '';
+        content.appendChild(grid);
+    }
+
+    buildCard(r) {
+        const card = document.createElement('div');
+        card.className = 'result-card';
+
+        const duration = this._duration(r.created_at, r.done_at);
+        const statusClass = r.status === 'done' ? 'badge-success'
+                          : r.status === 'failed' ? 'badge-failed' : 'badge-pending';
+
+        card.innerHTML = `
+            <div class="card-images">
+                <div class="img-section">
+                    <span class="img-label">Request</span>
+                    ${r.image_request_url
+                        ? `<img class="card-img" src="${r.image_request_url}" alt="Request"
+                               onclick="viewer.openModal('${r.image_request_url}')">`
+                        : '<div class="img-placeholder">No image</div>'}
+                </div>
+                <div class="img-section">
+                    <span class="img-label">Response</span>
+                    ${r.image_response_url
+                        ? `<img class="card-img" src="${r.image_response_url}" alt="Response"
+                               onclick="viewer.openModal('${r.image_response_url}')">`
+                        : '<div class="img-placeholder">No image</div>'}
+                </div>
+            </div>
+            <div class="card-meta">
+                <div class="card-badges">
+                    <span class="badge ${statusClass}">${r.status || 'unknown'}</span>
+                    ${r.model ? `<span class="badge badge-model">${r.model}</span>` : ''}
+                    ${r.style ? `<span class="badge badge-style">${r.style}</span>` : ''}
+                </div>
+                <div class="card-id" title="${r.generation_id || ''}">${r.generation_id || '—'}</div>
+                <div class="card-times">
+                    <span><b>Created:</b> ${r.created_at || '—'}</span>
+                    <span><b>Duration:</b> ${duration}</span>
+                </div>
+            </div>`;
+        return card;
+    }
+
+    _duration(a, b) {
+        if (!a || !b) return '—';
+        const ms = new Date(b.replace(' ', 'T')) - new Date(a.replace(' ', 'T'));
+        if (isNaN(ms)) return '—';
+        return `${Math.round(ms / 1000)}s`;
+    }
+
+    /* ── Modal ── */
+    setupModal() {
+        const modal = document.getElementById('modal');
+        document.getElementById('modalClose').onclick = () => modal.classList.remove('open');
+        modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+    }
+
+    openModal(src) {
+        document.getElementById('modalImg').src = src;
+        document.getElementById('modal').classList.add('open');
+    }
+}
+
+const viewer = new ReportViewer();
+</script>
     <div class="container">
         <div class="header">
             <h1>🎨 Image generation report</h1>

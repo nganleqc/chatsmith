@@ -1,0 +1,773 @@
+[
+  {
+    "result": {
+      "generation_id": "5d8cea84-8842-4f34-8aa7-a4fbe6a693e6",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tfgtb4ev9c73d6ok10.jpg"
+      ],
+      "style": "one_piece",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T08:55:54.514225619Z",
+      "done_at": "2026-05-06T08:57:23.142954012Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tg4sr4ev9c73d6ok70.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "5d8cea84-8842-4f34-8aa7-a4fbe6a693e6",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "81d2897d-0b30-4121-9d7f-536849b837ef",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tll134ev9c73d6okt0.jpg"
+      ],
+      "style": "annotated_photo",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T15:13:12.213232478Z",
+      "done_at": "2026-05-06T15:14:44.928469821Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tllp17dllc73bsb3tg.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "81d2897d-0b30-4121-9d7f-536849b837ef",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "a4230f53-75c1-45d6-b5c0-37d76a705602",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tlo434ev9c73d6oktg.jpg"
+      ],
+      "style": "hair_stylist",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T15:24:17.339251049Z",
+      "done_at": "2026-05-06T15:26:15.544602512Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tlr5p7dllc73bsb3ug.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "a4230f53-75c1-45d6-b5c0-37d76a705602",
+      "context_json": null,
+      "prompt": "Add a rose"
+    }
+  },
+  {
+    "result": {
+      "generation_id": "112f4536-4d38-4fb6-a236-e5ea143e9cab",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tll134ev9c73d6okt0.jpg",
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tmdn17dllc73bsb3vg.jpg"
+      ],
+      "style": "cinematic_burst",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T16:05:51.819473832Z",
+      "done_at": "2026-05-06T16:07:41.431079841Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tmejb4ev9c73d6okug.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "112f4536-4d38-4fb6-a236-e5ea143e9cab",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "7b81da13-b2b7-4387-a793-36188cd56383",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7thbor4ev9c73d6oklg.jpg",
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7thbqb4ev9c73d6okm0.jpg",
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7thbrh7dllc73bsb3og.jpg",
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7thbsp7dllc73bsb3p0.jpg"
+      ],
+      "style": "cinematic_burst",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T10:20:39.004481489Z",
+      "done_at": "2026-05-06T10:22:02.786801675Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7thcij4ev9c73d6okmg.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "7b81da13-b2b7-4387-a793-36188cd56383",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "93e85437-ee13-457d-a24b-d4d5f5b75e40",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tgvvj4ev9c73d6okf0.jpg",
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7th2bp7dllc73bsb3lg.jpg",
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7th2eh7dllc73bsb3m0.jpg",
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7th2fb4ev9c73d6okgg.jpg"
+      ],
+      "style": "cinematic_burst",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T10:00:33.471835662Z",
+      "done_at": "2026-05-06T10:02:16.024999993Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7th39r4ev9c73d6okh0.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "93e85437-ee13-457d-a24b-d4d5f5b75e40",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "3c3e4bab-6af6-4757-b4d0-24e67155a57e",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tb97qie38s7390bkcg.jpg"
+      ],
+      "style": "physical_analyst",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T04:11:32.168882370Z",
+      "done_at": "2026-05-06T04:12:54.878252315Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tbvhlg9lgc73ej0oug.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "3c3e4bab-6af6-4757-b4d0-24e67155a57e",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "1a84f452-62e6-4257-b06e-95b8f88a7f2c",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tb97qie38s7390bkcg.jpg"
+      ],
+      "style": "color_analysis",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T04:13:27.119733127Z",
+      "done_at": "2026-05-06T04:15:28.638050507Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tc0o2ie38s7390bke0.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "1a84f452-62e6-4257-b06e-95b8f88a7f2c",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "42ed8c0c-6cd8-466c-be11-204678e17009",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7ti1qp7dllc73bsb3sg.jpg"
+      ],
+      "style": "outfit_suggestion",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T14:28:50.516624596Z",
+      "done_at": "2026-05-06T14:32:33.952163577Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tl2097dllc73bsb3t0.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "42ed8c0c-6cd8-466c-be11-204678e17009",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "304c2aa2-d9ee-4e9b-881d-906fa13feb8c",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tm4rh7dllc73bsb3v0.jpg"
+      ],
+      "style": "travel_poster",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T15:46:57.077841398Z",
+      "done_at": "2026-05-06T15:48:54.562635142Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tm5pj4ev9c73d6oku0.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "304c2aa2-d9ee-4e9b-881d-906fa13feb8c",
+      "context_json": null,
+      "prompt": "Binh Dinh Viet Nam"
+    }
+  },
+  {
+    "result": {
+      "generation_id": "5b45bc7a-d777-4b84-ac80-df1023ea9b67",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7ti1qp7dllc73bsb3sg.jpg"
+      ],
+      "style": "travel_poster",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T11:09:12.137158114Z",
+      "done_at": "2026-05-06T11:11:03.360788899Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7ti3hr4ev9c73d6oksg.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "5b45bc7a-d777-4b84-ac80-df1023ea9b67",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "e51966c0-20a1-4ebf-aba1-d355a7c7ef9c",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7ti1qp7dllc73bsb3sg.jpg"
+      ],
+      "style": "cctv_portrait",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T11:07:28.795628127Z",
+      "done_at": "2026-05-06T11:08:51.025757871Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7ti2gj4ev9c73d6okrg.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "e51966c0-20a1-4ebf-aba1-d355a7c7ef9c",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "033ef96c-d8df-4d42-9846-f782657c231a",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tll134ev9c73d6okt0.jpg"
+      ],
+      "style": "caricature_6",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T16:38:10.948094445Z",
+      "done_at": "2026-05-06T16:40:25.971925295Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tmtu97dllc73bsb420.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "033ef96c-d8df-4d42-9846-f782657c231a",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "faed9e19-20f8-4923-a998-ad066535c0da",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tll134ev9c73d6okt0.jpg"
+      ],
+      "style": "caricature_5",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T16:36:18.385440657Z",
+      "done_at": "2026-05-06T16:38:00.817920259Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tmsq34ev9c73d6ol10.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "faed9e19-20f8-4923-a998-ad066535c0da",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "1549c0b8-af89-4510-a55d-c2083adf3e0f",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tll134ev9c73d6okt0.jpg"
+      ],
+      "style": "caricature_2",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T16:32:20.989296053Z",
+      "done_at": "2026-05-06T16:33:49.444478842Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tmqr97dllc73bsb41g.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "1549c0b8-af89-4510-a55d-c2083adf3e0f",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "13fbc37e-f7a1-44a3-9976-e189a52c5f4c",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tll134ev9c73d6okt0.jpg"
+      ],
+      "style": "caricature_1",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T16:27:38.664961056Z",
+      "done_at": "2026-05-06T16:28:43.808960180Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tmoer4ev9c73d6ol00.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "13fbc37e-f7a1-44a3-9976-e189a52c5f4c",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "4ba284a0-6ae9-4000-9d80-709ce54e8557",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tmnoh7dllc73bsb40g.jpg"
+      ],
+      "style": "caricature_4",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T16:27:17.612162357Z",
+      "done_at": "2026-05-06T16:28:40.975628066Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tmoe17dllc73bsb410.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "4ba284a0-6ae9-4000-9d80-709ce54e8557",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "39ecbd47-ee2a-444c-8ab4-010a9eb623b9",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tmlqh7dllc73bsb400.jpg"
+      ],
+      "style": "caricature_3",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T16:26:21.569762454Z",
+      "done_at": "2026-05-06T16:28:20.030856278Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tmo8r4ev9c73d6okvg.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "39ecbd47-ee2a-444c-8ab4-010a9eb623b9",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "7e00b972-8fba-4c6b-85e4-40a019ce4b7e",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tmlqh7dllc73bsb400.jpg"
+      ],
+      "style": "cartoon_transform",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T16:23:10.750267613Z",
+      "done_at": "2026-05-06T16:24:44.717137854Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tmmj34ev9c73d6okv0.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "7e00b972-8fba-4c6b-85e4-40a019ce4b7e",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "c3f48125-7a63-42a7-ad9b-95f77c9777f5",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tll134ev9c73d6okt0.jpg"
+      ],
+      "style": "funny_couple_cartoon",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T16:34:40.167204362Z",
+      "done_at": "2026-05-06T16:35:59.066799946Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tmrrj4ev9c73d6ol0g.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "c3f48125-7a63-42a7-ad9b-95f77c9777f5",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "2855a69a-0cd4-4125-aeb8-da3c2905a7b4",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tll134ev9c73d6okt0.jpg"
+      ],
+      "style": "rick_and_morty",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-07T00:23:57.861604731Z",
+      "done_at": "2026-05-07T00:25:51.228229995Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260507/d7tto3p7dllc73bsb43g.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "2855a69a-0cd4-4125-aeb8-da3c2905a7b4",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "d1b41112-7e6a-4c72-b647-2d2dfb0e4715",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tmtpb4ev9c73d6ol1g.jpg"
+      ],
+      "style": "ghibli",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T16:40:07.394071446Z",
+      "done_at": "2026-05-06T16:41:28.711603061Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tmue34ev9c73d6ol20.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "d1b41112-7e6a-4c72-b647-2d2dfb0e4715",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "4a78547b-4ee7-46c8-a54e-83acfccf39a1",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tfgtb4ev9c73d6ok10.jpg"
+      ],
+      "style": "ghibli",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T08:58:03.001765123Z",
+      "done_at": "2026-05-06T09:00:08.152096143Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tg6634ev9c73d6ok7g.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "4a78547b-4ee7-46c8-a54e-83acfccf39a1",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "2fcabe2a-b094-4064-9509-50b7cf090a99",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tfgtb4ev9c73d6ok10.jpg"
+      ],
+      "style": "dragon_ball",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T08:48:14.539157218Z",
+      "done_at": "2026-05-06T08:49:37.082185520Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tg1817dllc73bsb3d0.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "2fcabe2a-b094-4064-9509-50b7cf090a99",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "347022f4-b8f3-47e0-a167-e11037604bb4",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tfgtb4ev9c73d6ok10.jpg"
+      ],
+      "style": "naruto",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T08:50:31.340505362Z",
+      "done_at": "2026-05-06T08:52:12.664497878Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tg2f34ev9c73d6ok60.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "347022f4-b8f3-47e0-a167-e11037604bb4",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "704d4379-eb56-4157-a513-15bbecab1dc3",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tn01h7dllc73bsb42g.jpg"
+      ],
+      "style": "attack_on_titan",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T16:47:06.537972674Z",
+      "done_at": "2026-05-06T16:48:12.554731962Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tn1j34ev9c73d6ol30.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "704d4379-eb56-4157-a513-15bbecab1dc3",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "4f7cdad8-2cd1-4ef8-91f5-1f81d902a7ce",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tn01h7dllc73bsb42g.jpg"
+      ],
+      "style": "bleach",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T16:44:56.960582225Z",
+      "done_at": "2026-05-06T16:46:07.178679441Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tn0jr4ev9c73d6ol2g.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "4f7cdad8-2cd1-4ef8-91f5-1f81d902a7ce",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "5d8cea84-8842-4f34-8aa7-a4fbe6a693e6",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tfgtb4ev9c73d6ok10.jpg"
+      ],
+      "style": "one_piece",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T08:55:54.514225619Z",
+      "done_at": "2026-05-06T08:57:23.142954012Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tg4sr4ev9c73d6ok70.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "5d8cea84-8842-4f34-8aa7-a4fbe6a693e6",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "fbab49fb-74a8-4a93-89bd-aac74e1d2120",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tfgtb4ev9c73d6ok10.jpg"
+      ],
+      "style": "demon_slayer",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T08:24:11.818876372Z",
+      "done_at": "2026-05-06T08:26:15.263204063Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tfm9r4ev9c73d6ok2g.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "fbab49fb-74a8-4a93-89bd-aac74e1d2120",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "e001627a-f702-42b6-b12c-dd574c72e462",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tfgtb4ev9c73d6ok10.jpg"
+      ],
+      "style": "doraemon",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T08:20:24.449490597Z",
+      "done_at": "2026-05-06T08:21:56.470080950Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tfk934ev9c73d6ok1g.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "e001627a-f702-42b6-b12c-dd574c72e462",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "f2fe3e94-cc8f-4447-b534-78d1ff7c6502",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tfgtb4ev9c73d6ok10.jpg"
+      ],
+      "style": "sailor_moon",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T08:14:55.679616139Z",
+      "done_at": "2026-05-06T08:16:29.996607898Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tfhn97dllc73bsb38g.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "f2fe3e94-cc8f-4447-b534-78d1ff7c6502",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "7898012d-560f-46b2-8cac-70adbf83081a",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tf79p7dllc73bsb37g.jpg"
+      ],
+      "style": "the_simpson",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T07:55:08.223334138Z",
+      "done_at": "2026-05-06T07:56:42.853807233Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tf8ej4ev9c73d6ok00.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "7898012d-560f-46b2-8cac-70adbf83081a",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "d9311902-e4a8-41d8-b722-c6fc407da0eb",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tc31iie38s7390bkfg.jpg"
+      ],
+      "style": "south_park",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T05:01:28.575507394Z",
+      "done_at": "2026-05-06T05:02:40.271985630Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tcms17dllc73bsb33g.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "d9311902-e4a8-41d8-b722-c6fc407da0eb",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "45756455-0d22-4178-95db-38f6ac2662ff",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tc31iie38s7390bkfg.jpg"
+      ],
+      "style": "anime",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T04:38:36.098760120Z",
+      "done_at": "2026-05-06T04:39:43.853803439Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tcc3rm6lds73edms90.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "45756455-0d22-4178-95db-38f6ac2662ff",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "7a785102-efd1-4696-8b1f-fdf58d54e3ce",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tc31iie38s7390bkfg.jpg"
+      ],
+      "style": "manga",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T04:36:40.724975816Z",
+      "done_at": "2026-05-06T04:38:28.115705604Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tcbgolmsfc73c0qg60.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "7a785102-efd1-4696-8b1f-fdf58d54e3ce",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "52a447a7-93c7-433a-8e70-7d079752bab2",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tc31iie38s7390bkfg.jpg"
+      ],
+      "style": "genshin_impact",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T04:35:14.621008946Z",
+      "done_at": "2026-05-06T04:36:30.637967265Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tcajjm6lds73edms8g.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "52a447a7-93c7-433a-8e70-7d079752bab2",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "b87dd14a-4a9f-440c-8bed-62b2e25984f1",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260506/d7tc31iie38s7390bkfg.jpg"
+      ],
+      "style": "disney",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-06T04:33:21.888369030Z",
+      "done_at": "2026-05-06T04:35:05.099294966Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260506/d7tc9u0lmsfc73c0qg5g.jpg",
+      "state": "completed",
+      "model": "gpt-image-2",
+      "client_message_id": "b87dd14a-4a9f-440c-8bed-62b2e25984f1",
+      "context_json": null,
+      "prompt": ""
+    }
+  },
+  {
+    "result": {
+      "generation_id": "57486b53-fa69-4821-b82f-dc1ea4c1072d",
+      "image_request_urls": [
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260507/d7tuaer4ev9c73d6ol5g.jpg",
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260507/d7tuag17dllc73bsb460.jpg",
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260507/d7tuagp7dllc73bsb46g.jpg",
+        "https://stg-static.vulcanlabs.co/smith-nexus/images/20260507/d7tuahh7dllc73bsb470.jpg"
+      ],
+      "style": "custom",
+      "status": "done",
+      "error_code": "",
+      "error_message": "",
+      "created_at": "2026-05-07T01:05:24.357574991Z",
+      "done_at": "2026-05-07T01:09:51.826055256Z",
+      "image_response_url": "https://stg-static.vulcanlabs.co/smith-nexus/image-generations/20260507/d7tucnp7dllc73bsb47g.jpg",
+      "state": "completed",
+      "model": "gpt-image-1.5",
+      "client_message_id": "57486b53-fa69-4821-b82f-dc1ea4c1072d",
+      "context_json": null,
+      "prompt": "Add all to viet nam image"
+    }
+  }
+
+]

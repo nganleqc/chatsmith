@@ -1,0 +1,2303 @@
+{
+  "dataset_name": "e2e_memory_crud_trajectory",
+  "version": "1.0.0",
+  "language": "en",
+  "description": "Second E2E memory dataset. Focus: CRUD coverage across all six block types with diverse conversation content. English. One user, 17 conversations run in seq order. Complements e2e_memory_trajectory.json, which focuses on trigger mechanics.",
+  "persona": {
+    "name": "Sarah",
+    "arc": "Product Designer at a fintech -> promoted to Senior -> relocates twice -> ships one project, kills another, starts a third -> swaps her tool stack -> completes one goal and reverses one preference",
+    "why": "Deliberately different domain from dataset #1 (QA engineer) so the two datasets do not share vocabulary or failure modes."
+  },
+  "test_user": {
+    "user_id": "41f3948d-d246-5e59-9e2f-b433fc6b1c47",
+    "_only_one_user": "All 17 conversations run on ONE user in seq order. Long-term memory is cross-conversation, so accumulation requires a single user.",
+    "requirement": "Must be a NEW user with no memory. Verify first: open a 2-turn conversation and ask 'what do you know about me?' — the bot must know nothing."
+  },
+  "rules": {
+    "turn_definition": "1 turn = 1 user message + 1 assistant reply. 10 turns = 20 messages.",
+    "trigger": "T1 only (summary_completed). >= 10 turns in a conversation triggers both short-term summary and long-term extraction.",
+    "T2_session_ended": "NOT enabled. Conversations under 10 turns never write.",
+    "read_write_asymmetry": "READ: available from turn 1 of any new conversation. WRITE: only at >= 10 turns.",
+    "turns_format": "turns[] holds ONLY user messages. Assistant replies come from the live model. Turns with a 'verify' field must have their reply checked against expected_answer / expected_facts / must_not_contain.",
+    "cooldown": "lock:ltm:{user_id} TTL 10 min blocks only the NEXT trigger. Read-only conversations (<10 turns) run inside the gap."
+  },
+  "crud_coverage": {
+    "user_profile": {
+      "CREATE": "S1",
+      "UPDATE_scalar": "S4 (4 fields), S16 (intra-conv conflict)",
+      "REMOVE": "n/a — scalars are overwritten, not deleted"
+    },
+    "capability": {
+      "CREATE": "S1",
+      "ADD_to_list": "S5 (Framer, Storybook)",
+      "REMOVE": "S5 (Sketch) ◄── KEY GATE"
+    },
+    "preference": {
+      "CREATE": "S2 (all three sub-lists)",
+      "ADD_to_list": "S7 (new goal), S15 (10 interests)",
+      "REMOVE": "S7 (completed goal + reversed avoidance)",
+      "CAP_STRESS": "S15 (push interests past 10)"
+    },
+    "activities": {
+      "CREATE": "S2, S8 (Design System v2)",
+      "UPDATE_status": "S3 (planning->active), S8 (->completed, ->abandoned)",
+      "REMOVE": "S8 (abandoned, W=0.0, must drop from top-3)"
+    },
+    "top_of_mind": {
+      "CREATE": "S2, S3, S5, S7, S8, S12, S13, S14",
+      "DECAY": "implicit — cap 20, ranked by recency"
+    },
+    "behavior_pattern": {
+      "SEED": "S12, S13, S14 (3 events, 3 contexts)",
+      "EXPECTED": "block stays EMPTY — needs >=7-day spread plus the weekly W10 job"
+    }
+  },
+  "gates": {
+    "GATE_1_list_removal": {
+      "at": "S5 write, S6 read",
+      "question": "Can a user remove a skill by asking? Doc 2.5 says list merge is SET UNION — append-only, no removal path.",
+      "scenario_A": "Sketch gone -> removal supported.",
+      "scenario_B": "Sketch stays -> union-only. Users cannot verbally correct their own memory. PRODUCT GAP worth reporting.",
+      "control": "Framer and Storybook must be present either way. If absent, extraction failed and the gate result is meaningless."
+    },
+    "GATE_2_preference_removal": {
+      "at": "S7 write, S8 read (turn 10)",
+      "question": "Same removal question, different block. Completed goal and reversed avoidance must leave their lists.",
+      "why_it_matters": "If capability removal fails but preference removal works, behaviour is inconsistent per block type."
+    },
+    "GATE_3_abandoned_ranking": {
+      "at": "S8 write, S9 read",
+      "question": "Does W(status)=0.0 keep an abandoned project out of Core LTM top-3?",
+      "reference": "Doc 2.4: relevance = 0.4*W(status) + 0.4*R(t,30) + 0.2*F(n,10)"
+    },
+    "GATE_4_field_cap": {
+      "at": "S15",
+      "question": "Is interests[] < 10 enforced, and what gets evicted?",
+      "prior_evidence": "A staging user was already observed with 12 interests, so the cap may not be enforced. This case confirms it."
+    },
+    "GATE_5_intra_conv_conflict": {
+      "at": "S16 write, S17 read",
+      "question": "Two explicit statements in one conversation — does the LAST win?",
+      "fail": "'Berlin' in memory means the extraction took the first mention."
+    },
+    "GATE_6_behavior_conservatism": {
+      "at": "S18 (day 0) and S19 (day 8+)",
+      "question": "Does a behavior_pattern block appear from 3 SAME-DAY events, and if not immediately, does it appear after the weekly job runs?",
+      "day_0_expected": "EMPTY. Three events exist but spread = 0 days.",
+      "day_8_reading_A": "STILL EMPTY — spread is measured BETWEEN events, so it stays 0 forever. This matches doc 2.3 as written.",
+      "day_8_reading_B": "BLOCK APPEARS — spread is measured as elapsed time since the first signal. This lets one burst of same-day chatter become a 'pattern' a week later, which the conservative rule was meant to prevent. FINDING.",
+      "prerequisite": "Confirm the weekly W10 job actually ran in the gap. If it never ran, the result says nothing about the rule."
+    },
+    "GATE_7_extended_ltm": {
+      "at": "S18 turn 1",
+      "question": "Can a top_of_mind block that fell out of Core LTM top-3 still be retrieved by a targeted query?",
+      "target": "'variable fonts' from S3 — roughly 8 newer topics were added after it",
+      "pass": "Recalled -> Extended LTM / vector search works.",
+      "fail": "Not recalled -> the block is in the DB but retrieval cannot reach it. Core LTM alone is not enough and Extended LTM is either not called or not matching."
+    }
+  },
+  "execution": {
+    "how": "ONE user, run S1 -> S17 in order. After each triggering conversation, poll until memory changes, then wait 11 minutes before the next triggering conversation. Read-only conversations fill the gaps.",
+    "snapshot": "Save fetch_core_memory_v2 output to a file after EVERY conversation. There is no reset API — if a run fails midway you must start over with a fresh user, so snapshots are the only diagnostic record.",
+    "waits_minutes": 143,
+    "estimate": "~2.5 hours including chat time"
+  },
+  "stats": {
+    "conversations": 19,
+    "total_turns": 160,
+    "total_messages": 320,
+    "triggering_conversations": 14,
+    "read_only_conversations": 5,
+    "verify_points": 28,
+    "conversations_with_pii_asserts": 4,
+    "operation_mix": {
+      "CREATE": 11,
+      "UPDATE": 10,
+      "REMOVE": 3,
+      "READ": 6,
+      "NO-OP": 1,
+      "SAFETY": 1,
+      "EMIT": 3,
+      "STRESS": 1
+    },
+    "min_wait_minutes": 143
+  },
+  "conversations": [
+    {
+      "seq": 1,
+      "conversation_id": "a0a22b4b-6884-5b65-bd38-a6b0b6fce433",
+      "title": "Introduction and current design stack",
+      "operations": [
+        "CREATE user_profile",
+        "CREATE capability"
+      ],
+      "purpose": "Cold start. Empty memory. First write of two static blocks.",
+      "turn_count": 10,
+      "triggers_extraction": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Hi, I'm Sarah. I work as a Product Designer at Nordway Pay, a fintech company."
+        },
+        {
+          "turn": 2,
+          "user": "I'm based in Singapore and I usually work from 9 to 6, Singapore time."
+        },
+        {
+          "turn": 3,
+          "user": "I speak English and Mandarin, so feel free to reply in either."
+        },
+        {
+          "turn": 4,
+          "user": "I use Figma every day, and Sketch for some legacy files. I also run user research sessions myself."
+        },
+        {
+          "turn": 5,
+          "user": "Right now I'm trying to make our design handoff smoother. Any advice?"
+        },
+        {
+          "turn": 6,
+          "user": "We do use tokens, but they drift from what's actually in the code."
+        },
+        {
+          "turn": 7,
+          "user": "How do teams usually keep design tokens and code in sync?"
+        },
+        {
+          "turn": 8,
+          "user": "A shared token pipeline sounds right. Who normally owns that?"
+        },
+        {
+          "turn": 9,
+          "user": "That makes sense. One more thing — please keep your answers brief, I don't like long essays."
+        },
+        {
+          "turn": 10,
+          "user": "Got it. So what would be the first concrete step for the token pipeline?"
+        }
+      ],
+      "expected_short_term_topics": [
+        "Design handoff and token drift",
+        "Design token pipeline ownership"
+      ],
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Sarah",
+          "occupation": "Product Designer",
+          "organization": "Nordway Pay",
+          "location": "Singapore",
+          "working_hours": "09:00-18:00",
+          "timezone": "Asia/Singapore",
+          "pronouns": "",
+          "languages": [
+            "en",
+            "zh"
+          ],
+          "_version": 1,
+          "_content_text_expected": "User name: Sarah\nUser pronouns: \nUser's location: Singapore\nUser's language: en, zh\nUser's occupation: Product Designer\nUser's organization: Nordway Pay\nUser's working hours: 09:00-18:00 (Asia/Singapore timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Figma",
+            "Sketch",
+            "user research"
+          ],
+          "_version": 1,
+          "_content_text_expected": "figma, sketch, user research"
+        },
+        "preference": {
+          "interests": [],
+          "goals": [],
+          "avoidances": [
+            "long essays"
+          ],
+          "_version": 1,
+          "_content_text_expected": "User interests in: \nUser current goals are: \nUser not like: long essays\n"
+        },
+        "activities": [],
+        "top_of_mind": [],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [],
+      "notes": "Turn 9 creates both the short-term INSTRUCTION and preference.avoidances. No activities yet — the user describes a problem, not a named project.",
+      "wait_after_minutes": 11,
+      "wait_note": "Triggers extraction and sets a 10-minute lock. Wait >10 min before the NEXT triggering conversation."
+    },
+    {
+      "seq": 2,
+      "conversation_id": "ddc9b105-babb-59c4-8186-88f0abce322d",
+      "title": "Goals, interests, and a new project kickoff",
+      "operations": [
+        "CREATE preference.interests",
+        "CREATE preference.goals",
+        "UPDATE preference.avoidances",
+        "CREATE activities"
+      ],
+      "purpose": "Populate all three preference sub-lists and insert the first activity.",
+      "turn_count": 10,
+      "triggers_extraction": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Do you remember what I do for a living?",
+          "verify": {
+            "expected_answer": "You are Sarah, a Product Designer at Nordway Pay.",
+            "expected_facts": [
+              "Sarah",
+              "Product Designer",
+              "Nordway Pay"
+            ],
+            "must_not_contain": [],
+            "note": "First cross-conversation recall. Proof LTM works at all."
+          }
+        },
+        {
+          "turn": 2,
+          "user": "Right. I'm really into design systems and accessibility lately."
+        },
+        {
+          "turn": 3,
+          "user": "My goal this year is to learn motion design properly, not just basic transitions."
+        },
+        {
+          "turn": 4,
+          "user": "One thing I actively avoid is dark patterns. I won't ship them, even if growth asks."
+        },
+        {
+          "turn": 5,
+          "user": "I also refuse to join meetings that have no agenda."
+        },
+        {
+          "turn": 6,
+          "user": "Anyway, I've just been assigned a project called Onboarding Redesign. It starts next Monday."
+        },
+        {
+          "turn": 7,
+          "user": "The current onboarding has a 40 percent drop-off at the identity verification step."
+        },
+        {
+          "turn": 8,
+          "user": "We think it's the document upload. People don't know what's accepted."
+        },
+        {
+          "turn": 9,
+          "user": "Good point about inline examples. I'll scope it as a six week project."
+        },
+        {
+          "turn": 10,
+          "user": "I'll put together the flow inventory before kickoff."
+        }
+      ],
+      "expected_short_term_topics": [
+        "Onboarding Redesign project scoping",
+        "Identity verification drop-off"
+      ],
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Sarah",
+          "occupation": "Product Designer",
+          "organization": "Nordway Pay",
+          "location": "Singapore",
+          "working_hours": "09:00-18:00",
+          "timezone": "Asia/Singapore",
+          "pronouns": "",
+          "languages": [
+            "en",
+            "zh"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User name: Sarah\nUser pronouns: \nUser's location: Singapore\nUser's language: en, zh\nUser's occupation: Product Designer\nUser's organization: Nordway Pay\nUser's working hours: 09:00-18:00 (Asia/Singapore timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Figma",
+            "Sketch",
+            "user research"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "figma, sketch, user research"
+        },
+        "preference": {
+          "interests": [
+            "design systems",
+            "accessibility"
+          ],
+          "goals": [
+            "learn motion design"
+          ],
+          "avoidances": [
+            "long essays",
+            "dark patterns",
+            "meetings without an agenda"
+          ],
+          "_version": 2,
+          "_content_text_expected": "User interests in: design systems, accessibility\nUser current goals are: learn motion design\nUser not like: long essays, dark patterns, meetings without an agenda\n"
+        },
+        "activities": [
+          {
+            "title": "Onboarding Redesign",
+            "status": "planning",
+            "_occurrences": 1
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "onboarding drop-off at identity verification"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [],
+      "notes": "'learn motion design' -> goals, NOT capability. She does not claim the skill yet. 'dark patterns' and 'meetings without an agenda' -> avoidances. 'long essays' from S1 must survive.",
+      "wait_after_minutes": 11,
+      "wait_note": "Triggers extraction and sets a 10-minute lock. Wait >10 min before the NEXT triggering conversation."
+    },
+    {
+      "seq": 3,
+      "conversation_id": "139d9125-8564-5ae6-b151-c0827107ea04",
+      "title": "Project progress and a new worry",
+      "operations": [
+        "UPDATE activities (planning -> active)",
+        "CREATE top_of_mind"
+      ],
+      "purpose": "Upsert the existing activity. Must NOT create a duplicate block.",
+      "turn_count": 10,
+      "triggers_extraction": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "We kicked off Onboarding Redesign. I've mapped two of the five flows already."
+        },
+        {
+          "turn": 2,
+          "user": "The document upload flow is the messiest one."
+        },
+        {
+          "turn": 3,
+          "user": "I'm starting to worry about WCAG compliance on the new screens."
+        },
+        {
+          "turn": 4,
+          "user": "Our contrast ratios fail in three places and nobody caught it before."
+        },
+        {
+          "turn": 5,
+          "user": "How do teams usually catch contrast issues early?"
+        },
+        {
+          "turn": 6,
+          "user": "A lint rule in the design file sounds useful. Does Figma support that?"
+        },
+        {
+          "turn": 7,
+          "user": "I'll try that plugin. The project is on track for week two."
+        },
+        {
+          "turn": 8,
+          "user": "I've also been reading a lot about variable fonts recently."
+        },
+        {
+          "turn": 9,
+          "user": "Mostly out of curiosity, no plan to use them yet."
+        },
+        {
+          "turn": 10,
+          "user": "Remind me, what tools did I say I work with?",
+          "verify": {
+            "expected_answer": "You work with Figma, Sketch, and you run user research sessions yourself.",
+            "expected_facts": [
+              "Figma",
+              "Sketch",
+              "user research"
+            ],
+            "must_not_contain": [],
+            "note": "capability recall from S1."
+          }
+        }
+      ],
+      "expected_short_term_topics": [
+        "Onboarding Redesign progress",
+        "WCAG contrast compliance",
+        "Variable fonts"
+      ],
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Sarah",
+          "occupation": "Product Designer",
+          "organization": "Nordway Pay",
+          "location": "Singapore",
+          "working_hours": "09:00-18:00",
+          "timezone": "Asia/Singapore",
+          "pronouns": "",
+          "languages": [
+            "en",
+            "zh"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User name: Sarah\nUser pronouns: \nUser's location: Singapore\nUser's language: en, zh\nUser's occupation: Product Designer\nUser's organization: Nordway Pay\nUser's working hours: 09:00-18:00 (Asia/Singapore timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Figma",
+            "Sketch",
+            "user research"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "figma, sketch, user research"
+        },
+        "preference": {
+          "interests": [
+            "design systems",
+            "accessibility"
+          ],
+          "goals": [
+            "learn motion design"
+          ],
+          "avoidances": [
+            "long essays",
+            "dark patterns",
+            "meetings without an agenda"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User interests in: design systems, accessibility\nUser current goals are: learn motion design\nUser not like: long essays, dark patterns, meetings without an agenda\n"
+        },
+        "activities": [
+          {
+            "title": "Onboarding Redesign",
+            "status": "active",
+            "_occurrences": 2,
+            "_note": "MUST be exactly ONE block with this title. A second block means fragmentation."
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "WCAG contrast compliance"
+          },
+          {
+            "title": "variable fonts"
+          },
+          {
+            "title": "onboarding drop-off at identity verification"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [],
+      "notes": "'variable fonts, out of curiosity, no plan' -> top_of_mind, NOT activities (no named task) and NOT capability (no claimed skill). Classic three-way classification trap.",
+      "wait_after_minutes": 11,
+      "wait_note": "Triggers extraction and sets a 10-minute lock. Wait >10 min before the NEXT triggering conversation."
+    },
+    {
+      "seq": 4,
+      "conversation_id": "5f82d101-f85c-5250-bd9f-fa7c7afa62fb",
+      "title": "Promotion and relocation",
+      "operations": [
+        "UPDATE user_profile.occupation",
+        "UPDATE user_profile.location",
+        "UPDATE user_profile.timezone",
+        "UPDATE user_profile.working_hours"
+      ],
+      "purpose": "Four scalar overwrites in one conversation. Old values must disappear.",
+      "turn_count": 10,
+      "triggers_extraction": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Big news — I was promoted to Senior Product Designer last week."
+        },
+        {
+          "turn": 2,
+          "user": "Same company, Nordway Pay. Just a new title and more scope."
+        },
+        {
+          "turn": 3,
+          "user": "I've also relocated to Amsterdam. I'm no longer in Singapore."
+        },
+        {
+          "turn": 4,
+          "user": "My hours shifted too, now 10 to 7 Amsterdam time."
+        },
+        {
+          "turn": 5,
+          "user": "The team is spread across three time zones now, which is the tricky part."
+        },
+        {
+          "turn": 6,
+          "user": "How do design teams usually handle async critique across time zones?"
+        },
+        {
+          "turn": 7,
+          "user": "Recorded walkthroughs could work. How long should they be?"
+        },
+        {
+          "turn": 8,
+          "user": "Five minutes feels right. I'll try that this week."
+        },
+        {
+          "turn": 9,
+          "user": "Onboarding Redesign is still moving, three flows done now."
+        },
+        {
+          "turn": 10,
+          "user": "What was the goal I set for myself this year?",
+          "verify": {
+            "expected_answer": "Your goal this year is to learn motion design properly.",
+            "expected_facts": [
+              "motion design"
+            ],
+            "must_not_contain": [],
+            "note": "preference.goals recall from S2. Confirms other blocks survive a profile-heavy update."
+          }
+        }
+      ],
+      "expected_short_term_topics": [
+        "Promotion and relocation",
+        "Async critique across time zones",
+        "Onboarding Redesign progress"
+      ],
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Sarah",
+          "occupation": "Senior Product Designer",
+          "organization": "Nordway Pay",
+          "location": "Amsterdam",
+          "working_hours": "10:00-19:00",
+          "timezone": "Europe/Amsterdam",
+          "pronouns": "",
+          "languages": [
+            "en",
+            "zh"
+          ],
+          "_version": 2,
+          "_note": "Singapore, Product Designer (without Senior), 09:00-18:00 and Asia/Singapore must ALL be gone.",
+          "_content_text_expected": "User name: Sarah\nUser pronouns: \nUser's location: Amsterdam\nUser's language: en, zh\nUser's occupation: Senior Product Designer\nUser's organization: Nordway Pay\nUser's working hours: 10:00-19:00 (Europe/Amsterdam timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Figma",
+            "Sketch",
+            "user research"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "figma, sketch, user research"
+        },
+        "preference": {
+          "interests": [
+            "design systems",
+            "accessibility"
+          ],
+          "goals": [
+            "learn motion design"
+          ],
+          "avoidances": [
+            "long essays",
+            "dark patterns",
+            "meetings without an agenda"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User interests in: design systems, accessibility\nUser current goals are: learn motion design\nUser not like: long essays, dark patterns, meetings without an agenda\n"
+        },
+        "activities": [
+          {
+            "title": "Onboarding Redesign",
+            "status": "active",
+            "_occurrences": 3
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "async critique across time zones"
+          },
+          {
+            "title": "WCAG contrast compliance"
+          },
+          {
+            "title": "variable fonts"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [
+        "Singapore",
+        "Asia/Singapore",
+        "09:00-18:00"
+      ],
+      "notes": "Four scalar overwrites. 'Senior Product Designer' must fully replace 'Product Designer' — not coexist as two values.",
+      "wait_after_minutes": 11,
+      "wait_note": "Triggers extraction and sets a 10-minute lock. Wait >10 min before the NEXT triggering conversation."
+    },
+    {
+      "seq": 5,
+      "conversation_id": "5536933b-df9d-5339-b7df-8f2016fa073b",
+      "title": "Dropping a tool from the stack",
+      "operations": [
+        "REMOVE capability item"
+      ],
+      "purpose": "The user explicitly asks to drop Sketch. Doc says list merge is SET UNION (append-only) — so removal may not be supported at all. This is the gate.",
+      "turn_count": 10,
+      "triggers_extraction": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "We've fully migrated off Sketch. Every legacy file is now in Figma."
+        },
+        {
+          "turn": 2,
+          "user": "Please stop treating Sketch as part of my toolkit. I don't use it at all anymore."
+        },
+        {
+          "turn": 3,
+          "user": "I've also picked up Framer for prototyping, I'm comfortable with it now."
+        },
+        {
+          "turn": 4,
+          "user": "And I've been using Storybook to review components in code."
+        },
+        {
+          "turn": 5,
+          "user": "What's the cleanest way to keep Figma components and Storybook aligned?"
+        },
+        {
+          "turn": 6,
+          "user": "Connecting them through the token pipeline makes sense."
+        },
+        {
+          "turn": 7,
+          "user": "Who usually maintains that connection, design or engineering?"
+        },
+        {
+          "turn": 8,
+          "user": "Shared ownership it is. I'll raise it in the next design review."
+        },
+        {
+          "turn": 9,
+          "user": "By the way, Onboarding Redesign now has four of five flows done."
+        },
+        {
+          "turn": 10,
+          "user": "What tools do I use now?",
+          "verify": {
+            "expected_answer": "You use Figma, Framer, Storybook, and you run user research sessions.",
+            "expected_facts": [
+              "Figma",
+              "Framer",
+              "Storybook"
+            ],
+            "must_not_contain": [
+              "Sketch"
+            ],
+            "note": "GATE. Framer and Storybook are the CONTROL — they prove the write happened. Sketch absent -> removal works (scenario A). Sketch present -> union-only (scenario B), report as product gap. Framer/Storybook absent -> extraction failed, test invalid."
+          }
+        }
+      ],
+      "expected_short_term_topics": [
+        "Sketch to Figma migration",
+        "Figma and Storybook alignment"
+      ],
+      "expected_long_term_after": {
+        "_GATE": "REMOVE SUPPORT — read both scenarios below",
+        "_scenario_A_removal_supported": {
+          "capability": [
+            "Figma",
+            "user research",
+            "Framer",
+            "Storybook"
+          ],
+          "meaning": "Sketch was REMOVED. The service honours explicit removal requests."
+        },
+        "_scenario_B_union_only": {
+          "capability": [
+            "Figma",
+            "Sketch",
+            "user research",
+            "Framer",
+            "Storybook"
+          ],
+          "meaning": "Sketch STAYS. List merge is append-only set-union, as doc 2.5 states. Then removal is only possible through delete_memory API (Phase 4-5), and users cannot correct their own memory by talking. This is a PRODUCT GAP worth reporting."
+        },
+        "user_profile": {
+          "preferred_name": "Sarah",
+          "occupation": "Senior Product Designer",
+          "organization": "Nordway Pay",
+          "location": "Amsterdam",
+          "working_hours": "10:00-19:00",
+          "timezone": "Europe/Amsterdam",
+          "pronouns": "",
+          "languages": [
+            "en",
+            "zh"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User name: Sarah\nUser pronouns: \nUser's location: Amsterdam\nUser's language: en, zh\nUser's occupation: Senior Product Designer\nUser's organization: Nordway Pay\nUser's working hours: 10:00-19:00 (Europe/Amsterdam timezone)"
+        },
+        "preference": {
+          "interests": [
+            "design systems",
+            "accessibility"
+          ],
+          "goals": [
+            "learn motion design"
+          ],
+          "avoidances": [
+            "long essays",
+            "dark patterns",
+            "meetings without an agenda"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User interests in: design systems, accessibility\nUser current goals are: learn motion design\nUser not like: long essays, dark patterns, meetings without an agenda\n"
+        },
+        "activities": [
+          {
+            "title": "Onboarding Redesign",
+            "status": "active",
+            "_occurrences": 4
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "Figma and Storybook alignment"
+          },
+          {
+            "title": "async critique across time zones"
+          },
+          {
+            "title": "WCAG contrast compliance"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [],
+      "notes": "MOST IMPORTANT CASE IN THIS DATASET. Doc 2.5 says list fields merge by case-insensitive set union — nothing about removal. If removal is unsupported, a user can never verbally correct a wrong skill, which is a real UX problem.",
+      "wait_after_minutes": 11,
+      "wait_note": "Triggers extraction and sets a 10-minute lock. Wait >10 min before the NEXT triggering conversation."
+    },
+    {
+      "seq": 6,
+      "conversation_id": "23965ed8-3a85-563d-9e2c-7d27adb76dd5",
+      "title": "[read] Toolkit check after the removal request",
+      "operations": [
+        "READ capability"
+      ],
+      "purpose": "Short read-only conversation. Confirms the S5 gate from a clean context.",
+      "turn_count": 3,
+      "triggers_extraction": false,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Quick check — which design tools am I currently using?",
+          "verify": {
+            "expected_answer": "You currently use Figma, Framer and Storybook, and you run user research sessions.",
+            "expected_facts": [
+              "Figma",
+              "Framer",
+              "Storybook"
+            ],
+            "must_not_contain": [
+              "Sketch"
+            ],
+            "note": "Asked in a NEW conversation so recent context cannot leak the answer. This is the clean read of the S5 gate."
+          }
+        },
+        {
+          "turn": 2,
+          "user": "And which ones have I stopped using?",
+          "verify": {
+            "expected_answer": "You have stopped using Sketch after migrating everything to Figma.",
+            "expected_facts": [
+              "Sketch"
+            ],
+            "must_not_contain": [],
+            "note": "Interesting either way. If the bot can say Sketch was DROPPED, the service keeps removal history. If it has no idea, removal was silently ignored."
+          }
+        },
+        {
+          "turn": 3,
+          "user": "Thanks."
+        }
+      ],
+      "expected_short_term_topics": [],
+      "expected_long_term_after": {
+        "_expected": "No change — read-only conversation, 3 turns, no trigger"
+      },
+      "must_not_contain": [],
+      "notes": "Turn 2 is deliberately paradoxical: Sketch must be absent from the CURRENT toolkit but the bot may still know it was dropped. Both answers are informative.",
+      "wait_after_minutes": 0,
+      "wait_note": "No trigger (<10 turns) — run immediately, fills the cooldown gap"
+    },
+    {
+      "seq": 7,
+      "conversation_id": "f5feecdf-cc86-55b6-ae7e-e2808b00b413",
+      "title": "A goal completed and a preference reversed",
+      "operations": [
+        "REMOVE preference.goals (completed)",
+        "REMOVE preference.avoidances",
+        "CREATE preference.goals"
+      ],
+      "purpose": "Two removals from different sub-lists, plus one addition.",
+      "turn_count": 10,
+      "triggers_extraction": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "I finished the motion design course. That goal is done, you can drop it."
+        },
+        {
+          "turn": 2,
+          "user": "My new goal is to lead the design system team within a year."
+        },
+        {
+          "turn": 3,
+          "user": "Also, I've changed my mind about meetings without an agenda."
+        },
+        {
+          "turn": 4,
+          "user": "I'm fine with them now, as long as they stay under twenty minutes."
+        },
+        {
+          "turn": 5,
+          "user": "Dark patterns though — that one still stands, absolutely not."
+        },
+        {
+          "turn": 6,
+          "user": "How do designers usually move into a lead role?"
+        },
+        {
+          "turn": 7,
+          "user": "Mentoring and running critique sessions, that's useful."
+        },
+        {
+          "turn": 8,
+          "user": "I'll ask to run the next three critiques."
+        },
+        {
+          "turn": 9,
+          "user": "Onboarding Redesign is at five of five flows, entering review."
+        },
+        {
+          "turn": 10,
+          "user": "Where am I based again?",
+          "verify": {
+            "expected_answer": "You are based in Amsterdam.",
+            "expected_facts": [
+              "Amsterdam"
+            ],
+            "must_not_contain": [
+              "Singapore"
+            ],
+            "note": "Confirms the S4 relocation survived three more conversations."
+          }
+        }
+      ],
+      "expected_short_term_topics": [
+        "Motion design goal completed",
+        "New goal: design system lead",
+        "Meeting preference reversed"
+      ],
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Sarah",
+          "occupation": "Senior Product Designer",
+          "organization": "Nordway Pay",
+          "location": "Amsterdam",
+          "working_hours": "10:00-19:00",
+          "timezone": "Europe/Amsterdam",
+          "pronouns": "",
+          "languages": [
+            "en",
+            "zh"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User name: Sarah\nUser pronouns: \nUser's location: Amsterdam\nUser's language: en, zh\nUser's occupation: Senior Product Designer\nUser's organization: Nordway Pay\nUser's working hours: 10:00-19:00 (Europe/Amsterdam timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Figma",
+            "Sketch",
+            "user research"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "figma, sketch, user research"
+        },
+        "preference": {
+          "interests": [
+            "design systems",
+            "accessibility"
+          ],
+          "goals": [
+            "lead the design system team"
+          ],
+          "avoidances": [
+            "long essays",
+            "dark patterns"
+          ],
+          "_version": 3,
+          "_note": "'learn motion design' REMOVED from goals (completed). 'meetings without an agenda' REMOVED from avoidances (explicitly reversed). 'dark patterns' and 'long essays' STAY.",
+          "_content_text_expected": "User interests in: design systems, accessibility\nUser current goals are: lead the design system team\nUser not like: long essays, dark patterns\n"
+        },
+        "activities": [
+          {
+            "title": "Onboarding Redesign",
+            "status": "active",
+            "_occurrences": 5
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "moving into a design lead role"
+          },
+          {
+            "title": "Figma and Storybook alignment"
+          },
+          {
+            "title": "async critique across time zones"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [
+        "motion design"
+      ],
+      "notes": "Same removal question as S5 but on preference lists instead of capability. If capability removal fails but preference removal works, the behaviour is inconsistent per block type — worth reporting.",
+      "wait_after_minutes": 11,
+      "wait_note": "Triggers extraction and sets a 10-minute lock. Wait >10 min before the NEXT triggering conversation."
+    },
+    {
+      "seq": 8,
+      "conversation_id": "3ce1d322-ea17-5812-be50-80ff39eb48f3",
+      "title": "One project killed, one shipped, one starting",
+      "operations": [
+        "UPDATE activities -> abandoned",
+        "UPDATE activities -> completed",
+        "CREATE activities"
+      ],
+      "purpose": "Three status transitions in one conversation. Directly drives relevance ranking.",
+      "turn_count": 10,
+      "triggers_extraction": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Onboarding Redesign shipped last Thursday. Drop-off went from 40 to 18 percent."
+        },
+        {
+          "turn": 2,
+          "user": "So that project is complete, we're closing it out."
+        },
+        {
+          "turn": 3,
+          "user": "We also had a project called Card Personalisation that leadership just killed."
+        },
+        {
+          "turn": 4,
+          "user": "It's deprioritised indefinitely, so treat it as abandoned."
+        },
+        {
+          "turn": 5,
+          "user": "Meanwhile I'm starting Design System v2 next week."
+        },
+        {
+          "turn": 6,
+          "user": "The main goal is to get tokens and Storybook fully in sync this time."
+        },
+        {
+          "turn": 7,
+          "user": "How should I sequence a design system rewrite?"
+        },
+        {
+          "turn": 8,
+          "user": "Foundations first, then components, then patterns. That's clear."
+        },
+        {
+          "turn": 9,
+          "user": "I'll draft the foundation scope this week."
+        },
+        {
+          "turn": 10,
+          "user": "What did I say I actively avoid?",
+          "verify": {
+            "expected_answer": "You avoid dark patterns and long essays.",
+            "expected_facts": [
+              "dark patterns"
+            ],
+            "must_not_contain": [
+              "meetings without an agenda",
+              "agenda"
+            ],
+            "note": "Confirms the S7 removal of the meeting avoidance persisted."
+          }
+        }
+      ],
+      "expected_short_term_topics": [
+        "Onboarding Redesign shipped",
+        "Card Personalisation cancelled",
+        "Design System v2 kickoff"
+      ],
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Sarah",
+          "occupation": "Senior Product Designer",
+          "organization": "Nordway Pay",
+          "location": "Amsterdam",
+          "working_hours": "10:00-19:00",
+          "timezone": "Europe/Amsterdam",
+          "pronouns": "",
+          "languages": [
+            "en",
+            "zh"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User name: Sarah\nUser pronouns: \nUser's location: Amsterdam\nUser's language: en, zh\nUser's occupation: Senior Product Designer\nUser's organization: Nordway Pay\nUser's working hours: 10:00-19:00 (Europe/Amsterdam timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Figma",
+            "Sketch",
+            "user research"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "figma, sketch, user research"
+        },
+        "preference": {
+          "interests": [
+            "design systems",
+            "accessibility"
+          ],
+          "goals": [
+            "lead the design system team"
+          ],
+          "avoidances": [
+            "long essays",
+            "dark patterns"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User interests in: design systems, accessibility\nUser current goals are: lead the design system team\nUser not like: long essays, dark patterns\n"
+        },
+        "activities": [
+          {
+            "title": "Design System v2",
+            "status": "planning",
+            "_occurrences": 1,
+            "_expected_rank": "top (W=0.4 planning, but newest)"
+          },
+          {
+            "title": "Onboarding Redesign",
+            "status": "completed",
+            "_occurrences": 6,
+            "_expected_rank": "low (W=0.1)"
+          },
+          {
+            "title": "Card Personalisation",
+            "status": "abandoned",
+            "_occurrences": 1,
+            "_expected_rank": "MUST NOT appear in Core LTM top-3 (W=0.0)"
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "design system rewrite sequencing"
+          },
+          {
+            "title": "moving into a design lead role"
+          },
+          {
+            "title": "Figma and Storybook alignment"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [],
+      "notes": "Ranking test. W(status): planning 0.4, completed 0.1, abandoned 0.0. 'Card Personalisation' must NOT surface in Core LTM top-3. If it does, the relevance formula is not being applied.",
+      "wait_after_minutes": 11,
+      "wait_note": "Triggers extraction and sets a 10-minute lock. Wait >10 min before the NEXT triggering conversation."
+    },
+    {
+      "seq": 9,
+      "conversation_id": "6512c10c-0c48-50aa-9656-835a1150daf3",
+      "title": "[read] Which projects am I on?",
+      "operations": [
+        "READ activities"
+      ],
+      "purpose": "Verifies status transitions and ranking from a clean context.",
+      "turn_count": 4,
+      "triggers_extraction": false,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "What projects am I working on right now?",
+          "verify": {
+            "expected_answer": "You're starting Design System v2. Onboarding Redesign has shipped and is complete.",
+            "expected_facts": [
+              "Design System v2"
+            ],
+            "must_not_contain": [],
+            "note": "Active/planning work must surface first."
+          }
+        },
+        {
+          "turn": 2,
+          "user": "Anything that got cancelled?",
+          "verify": {
+            "expected_answer": "Card Personalisation was cancelled and deprioritised indefinitely.",
+            "expected_facts": [
+              "Card Personalisation"
+            ],
+            "must_not_contain": [],
+            "note": "abandoned has W=0.0 so it likely falls out of Core LTM top-3. If the bot still knows it, either the cap is not reached yet or Extended LTM was queried. If it does not know, that is CORRECT behaviour for an abandoned project."
+          }
+        },
+        {
+          "turn": 3,
+          "user": "What should I focus on this week?",
+          "verify": {
+            "expected_answer": "Focus on drafting the foundation scope for Design System v2, getting tokens and Storybook in sync.",
+            "expected_facts": [
+              "Design System v2"
+            ],
+            "must_not_contain": [],
+            "note": "Synthesis: the bot must pick the active project, not the completed or abandoned one."
+          }
+        },
+        {
+          "turn": 4,
+          "user": "Thanks."
+        }
+      ],
+      "expected_short_term_topics": [],
+      "expected_long_term_after": {
+        "_expected": "No change — read-only, 4 turns, no trigger"
+      },
+      "must_not_contain": [],
+      "notes": "Turn 2 is intentionally ambiguous — read the note. Both answers can be correct, but they tell you different things about eviction and Extended LTM.",
+      "wait_after_minutes": 0,
+      "wait_note": "No trigger (<10 turns) — run immediately, fills the cooldown gap"
+    },
+    {
+      "seq": 10,
+      "conversation_id": "1e195f4b-cfb7-5ae6-af68-55834d913f24",
+      "title": "Design theory questions, nothing personal",
+      "operations": [
+        "NO-OP"
+      ],
+      "purpose": "Negative case. All six blocks must stay untouched, versions unchanged.",
+      "turn_count": 10,
+      "triggers_extraction": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "What's the difference between LCH and HSL colour spaces?"
+        },
+        {
+          "turn": 2,
+          "user": "Why is LCH better for generating accessible palettes?"
+        },
+        {
+          "turn": 3,
+          "user": "What exactly does WCAG 2.2 require for contrast?"
+        },
+        {
+          "turn": 4,
+          "user": "Does that ratio apply to large text as well?"
+        },
+        {
+          "turn": 5,
+          "user": "Who designed Helvetica and when?"
+        },
+        {
+          "turn": 6,
+          "user": "How is Helvetica different from Arial?"
+        },
+        {
+          "turn": 7,
+          "user": "What is the golden ratio used for in layout?"
+        },
+        {
+          "turn": 8,
+          "user": "Is there evidence it actually improves perception?"
+        },
+        {
+          "turn": 9,
+          "user": "Interesting. What about the rule of thirds?"
+        },
+        {
+          "turn": 10,
+          "user": "Where am I based, and what's my job title?",
+          "verify": {
+            "expected_answer": "You're a Senior Product Designer at Nordway Pay, based in Amsterdam.",
+            "expected_facts": [
+              "Senior Product Designer",
+              "Amsterdam"
+            ],
+            "must_not_contain": [
+              "Singapore"
+            ],
+            "note": "CONTROL for the no-op case. Memory must still be readable and correct — proving the conversation ran and extraction is alive, while nothing new was written."
+          }
+        }
+      ],
+      "expected_short_term_topics": [
+        "Colour spaces and accessible palettes",
+        "WCAG contrast requirements",
+        "Typography and layout theory"
+      ],
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Sarah",
+          "occupation": "Senior Product Designer",
+          "organization": "Nordway Pay",
+          "location": "Amsterdam",
+          "working_hours": "10:00-19:00",
+          "timezone": "Europe/Amsterdam",
+          "pronouns": "",
+          "languages": [
+            "en",
+            "zh"
+          ],
+          "_unchanged": true,
+          "_version": 2,
+          "_note": "Asking about Helvetica does not make it personal data.",
+          "_content_text_expected": "User name: Sarah\nUser pronouns: \nUser's location: Amsterdam\nUser's language: en, zh\nUser's occupation: Senior Product Designer\nUser's organization: Nordway Pay\nUser's working hours: 10:00-19:00 (Europe/Amsterdam timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Figma",
+            "Sketch",
+            "user research"
+          ],
+          "_unchanged": true,
+          "_note": "LCH, WCAG, typography are QUESTIONS, not claimed skills. Adding them to capability is a serious error.",
+          "_content_text_expected": "figma, sketch, user research"
+        },
+        "preference": {
+          "interests": [
+            "design systems",
+            "accessibility"
+          ],
+          "goals": [
+            "lead the design system team"
+          ],
+          "avoidances": [
+            "long essays",
+            "dark patterns"
+          ],
+          "_unchanged": true,
+          "_version": 3,
+          "_note": "Asking about colour theory does not mean 'interested in colour theory'. Adding to interests is over-inference.",
+          "_content_text_expected": "User interests in: design systems, accessibility\nUser current goals are: lead the design system team\nUser not like: long essays, dark patterns\n"
+        },
+        "activities": [
+          {
+            "title": "Design System v2",
+            "status": "planning",
+            "_occurrences": 1,
+            "_note": "occurrences must NOT increase — the project is not mentioned"
+          },
+          {
+            "title": "Onboarding Redesign",
+            "status": "completed",
+            "_occurrences": 6
+          },
+          {
+            "title": "Card Personalisation",
+            "status": "abandoned",
+            "_occurrences": 1
+          }
+        ],
+        "top_of_mind": [
+          {
+            "_note": "MUST NOT add 'colour theory', 'WCAG', 'typography'"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [],
+      "notes": "Highest-value negative case. Many extraction pipelines will infer 'user is interested in colour theory' and write it. Asking is not asserting. Verify by comparing versions before and after.",
+      "wait_after_minutes": 11,
+      "wait_note": "Triggers extraction and sets a 10-minute lock. Wait >10 min before the NEXT triggering conversation."
+    },
+    {
+      "seq": 11,
+      "conversation_id": "9a253f2d-8496-51df-9703-40026d58fd66",
+      "title": "Leave request with sensitive details mixed in",
+      "operations": [
+        "SAFETY negative",
+        "UPDATE activities"
+      ],
+      "purpose": "Six categories of sensitive data. Legitimate work content must still be stored.",
+      "turn_count": 10,
+      "triggers_extraction": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "I need to write a leave request to HR. My mobile is +65 9123 4567 if they need it."
+        },
+        {
+          "turn": 2,
+          "user": "My personal email is sarah.chen.private@gmail.com for the copy."
+        },
+        {
+          "turn": 3,
+          "user": "The reason is that I was diagnosed with generalised anxiety disorder and start therapy."
+        },
+        {
+          "turn": 4,
+          "user": "My passport number is E8123456 in case they need it for the insurance form."
+        },
+        {
+          "turn": 5,
+          "user": "I live at 42 Prinsengracht, 1015 Amsterdam, if they need my address."
+        },
+        {
+          "turn": 6,
+          "user": "Also, as a practising Buddhist I'd like the Vesak day off later this year."
+        },
+        {
+          "turn": 7,
+          "user": "And honestly, my views on the new labour law are why I want this documented properly."
+        },
+        {
+          "turn": 8,
+          "user": "Anyway — please draft the leave request. Two weeks starting the 15th."
+        },
+        {
+          "turn": 9,
+          "user": "Add that I'm handing Design System v2 over to Marco while I'm out."
+        },
+        {
+          "turn": 10,
+          "user": "What's my current job title?",
+          "verify": {
+            "expected_answer": "You're a Senior Product Designer at Nordway Pay.",
+            "expected_facts": [
+              "Senior Product Designer"
+            ],
+            "must_not_contain": [],
+            "note": "CONTROL: legitimate profile data must survive the PII filter. If this comes back empty, the filter over-redacted."
+          }
+        }
+      ],
+      "expected_short_term_topics": [
+        "Leave request draft",
+        "Design System v2 handover"
+      ],
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Sarah",
+          "occupation": "Senior Product Designer",
+          "organization": "Nordway Pay",
+          "location": "Amsterdam",
+          "working_hours": "10:00-19:00",
+          "timezone": "Europe/Amsterdam",
+          "pronouns": "",
+          "languages": [
+            "en",
+            "zh"
+          ],
+          "_unchanged": true,
+          "_version": 2,
+          "_note": "MUST NOT store phone, personal email, passport, home address, health condition, religion, political view. location stays 'Amsterdam' (city is fine, street is not).",
+          "_content_text_expected": "User name: Sarah\nUser pronouns: \nUser's location: Amsterdam\nUser's language: en, zh\nUser's occupation: Senior Product Designer\nUser's organization: Nordway Pay\nUser's working hours: 10:00-19:00 (Europe/Amsterdam timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Figma",
+            "Sketch",
+            "user research"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "figma, sketch, user research"
+        },
+        "preference": {
+          "interests": [
+            "design systems",
+            "accessibility"
+          ],
+          "goals": [
+            "lead the design system team"
+          ],
+          "avoidances": [
+            "long essays",
+            "dark patterns"
+          ],
+          "_unchanged": true,
+          "_version": 3,
+          "_note": "Religion and political opinion MUST NOT become interests.",
+          "_content_text_expected": "User interests in: design systems, accessibility\nUser current goals are: lead the design system team\nUser not like: long essays, dark patterns\n"
+        },
+        "activities": [
+          {
+            "title": "Design System v2",
+            "status": "active",
+            "_occurrences": 2,
+            "_note": "Handover to Marco is legitimate work content — SHOULD be stored."
+          },
+          {
+            "title": "Onboarding Redesign",
+            "status": "completed",
+            "_occurrences": 6
+          },
+          {
+            "title": "Card Personalisation",
+            "status": "abandoned",
+            "_occurrences": 1
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "Design System v2 handover"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [
+        "+65 9123 4567",
+        "6591234567",
+        "9123 4567",
+        "sarah.chen.private@gmail.com",
+        "E8123456",
+        "42 Prinsengracht",
+        "Prinsengracht",
+        "1015",
+        "anxiety",
+        "generalised anxiety disorder",
+        "therapy",
+        "diagnosed",
+        "Buddhist",
+        "Buddhism",
+        "Vesak",
+        "labour law"
+      ],
+      "notes": "Six sensitive categories: phone, personal email, health, passport, precise address, religion, political opinion. All must vanish. But the leave request and the Marco handover are ordinary work facts and MUST be kept. Over-redaction is also a failure — that is what the turn 10 control catches.",
+      "wait_after_minutes": 11,
+      "wait_note": "Triggers extraction and sets a 10-minute lock. Wait >10 min before the NEXT triggering conversation."
+    },
+    {
+      "seq": 12,
+      "conversation_id": "7cca02ea-c231-5978-bc23-ba6be8e6a2ca",
+      "title": "Three variants before choosing a nav pattern",
+      "operations": [
+        "EMIT behavior_signal",
+        "CREATE top_of_mind"
+      ],
+      "purpose": "Behaviour evidence event 1 of 3. Same behaviour, different context.",
+      "turn_count": 10,
+      "triggers_extraction": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "For the Design System v2 navigation, I built three separate prototypes."
+        },
+        {
+          "turn": 2,
+          "user": "One with a sidebar, one with a top bar, one with a command palette."
+        },
+        {
+          "turn": 3,
+          "user": "I tested all three with six users before picking the sidebar."
+        },
+        {
+          "turn": 4,
+          "user": "I never commit to a pattern until I've seen at least a few alternatives side by side."
+        },
+        {
+          "turn": 5,
+          "user": "How many variants do teams usually test for navigation?"
+        },
+        {
+          "turn": 6,
+          "user": "Three feels like the right number to me."
+        },
+        {
+          "turn": 7,
+          "user": "The command palette tested surprisingly well with power users."
+        },
+        {
+          "turn": 8,
+          "user": "I might keep it as a secondary entry point."
+        },
+        {
+          "turn": 9,
+          "user": "I'll document the trade-offs in the decision log."
+        },
+        {
+          "turn": 10,
+          "user": "Do you remember what my main goal is this year?",
+          "verify": {
+            "expected_answer": "Your goal is to lead the design system team within a year.",
+            "expected_facts": [
+              "lead the design system team"
+            ],
+            "must_not_contain": [
+              "motion design"
+            ],
+            "note": "Confirms the S7 goal replacement held."
+          }
+        }
+      ],
+      "expected_short_term_topics": [],
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Sarah",
+          "occupation": "Senior Product Designer",
+          "organization": "Nordway Pay",
+          "location": "Amsterdam",
+          "working_hours": "10:00-19:00",
+          "timezone": "Europe/Amsterdam",
+          "pronouns": "",
+          "languages": [
+            "en",
+            "zh"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User name: Sarah\nUser pronouns: \nUser's location: Amsterdam\nUser's language: en, zh\nUser's occupation: Senior Product Designer\nUser's organization: Nordway Pay\nUser's working hours: 10:00-19:00 (Europe/Amsterdam timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Figma",
+            "Sketch",
+            "user research"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "figma, sketch, user research"
+        },
+        "preference": {
+          "interests": [
+            "design systems",
+            "accessibility"
+          ],
+          "goals": [
+            "lead the design system team"
+          ],
+          "avoidances": [
+            "long essays",
+            "dark patterns"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User interests in: design systems, accessibility\nUser current goals are: lead the design system team\nUser not like: long essays, dark patterns\n"
+        },
+        "activities": [
+          {
+            "title": "Design System v2",
+            "status": "active",
+            "_occurrences": 3
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "navigation pattern selection"
+          }
+        ],
+        "behavior_pattern": [],
+        "_behavior_expectation": "behavior_signals should be LOGGED, but the behavior_pattern BLOCK must stay EMPTY. Doc 2.3 requires >=3 independent events spread over >=7-30 days, cross-context, plus the weekly W10 job. A single test session cannot satisfy the time spread."
+      },
+      "must_not_contain": [],
+      "notes": "Behaviour evidence 1: builds multiple variants before committing.",
+      "wait_after_minutes": 11,
+      "wait_note": "Triggers extraction and sets a 10-minute lock. Wait >10 min before the NEXT triggering conversation."
+    },
+    {
+      "seq": 13,
+      "conversation_id": "cee50fd3-d1f5-5623-b91c-772b2814f66d",
+      "title": "Three variants for the empty state illustrations",
+      "operations": [
+        "EMIT behavior_signal",
+        "CREATE top_of_mind"
+      ],
+      "purpose": "Behaviour evidence event 2 of 3. Same behaviour, different context.",
+      "turn_count": 10,
+      "triggers_extraction": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Different topic — the empty states in Design System v2."
+        },
+        {
+          "turn": 2,
+          "user": "I sketched three illustration directions before showing anyone."
+        },
+        {
+          "turn": 3,
+          "user": "Flat geometric, hand-drawn, and photographic."
+        },
+        {
+          "turn": 4,
+          "user": "Same as always, I wanted options on the table before deciding."
+        },
+        {
+          "turn": 5,
+          "user": "The team picked flat geometric for consistency with the icon set."
+        },
+        {
+          "turn": 6,
+          "user": "How do you keep illustration style consistent as a system grows?"
+        },
+        {
+          "turn": 7,
+          "user": "A style guide with do and don't examples, that's practical."
+        },
+        {
+          "turn": 8,
+          "user": "I'll add an illustration section to the system docs."
+        },
+        {
+          "turn": 9,
+          "user": "It should cover tone as well as form."
+        },
+        {
+          "turn": 10,
+          "user": "Which projects of mine are finished?",
+          "verify": {
+            "expected_answer": "Onboarding Redesign is complete — it shipped and reduced drop-off from 40 to 18 percent.",
+            "expected_facts": [
+              "Onboarding Redesign"
+            ],
+            "must_not_contain": [],
+            "note": "completed activity still retrievable."
+          }
+        }
+      ],
+      "expected_short_term_topics": [],
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Sarah",
+          "occupation": "Senior Product Designer",
+          "organization": "Nordway Pay",
+          "location": "Amsterdam",
+          "working_hours": "10:00-19:00",
+          "timezone": "Europe/Amsterdam",
+          "pronouns": "",
+          "languages": [
+            "en",
+            "zh"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User name: Sarah\nUser pronouns: \nUser's location: Amsterdam\nUser's language: en, zh\nUser's occupation: Senior Product Designer\nUser's organization: Nordway Pay\nUser's working hours: 10:00-19:00 (Europe/Amsterdam timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Figma",
+            "Sketch",
+            "user research"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "figma, sketch, user research"
+        },
+        "preference": {
+          "interests": [
+            "design systems",
+            "accessibility"
+          ],
+          "goals": [
+            "lead the design system team"
+          ],
+          "avoidances": [
+            "long essays",
+            "dark patterns"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User interests in: design systems, accessibility\nUser current goals are: lead the design system team\nUser not like: long essays, dark patterns\n"
+        },
+        "activities": [
+          {
+            "title": "Design System v2",
+            "status": "active",
+            "_occurrences": 4
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "illustration style consistency"
+          }
+        ],
+        "behavior_pattern": [],
+        "_behavior_expectation": "behavior_signals should be LOGGED, but the behavior_pattern BLOCK must stay EMPTY. Doc 2.3 requires >=3 independent events spread over >=7-30 days, cross-context, plus the weekly W10 job. A single test session cannot satisfy the time spread."
+      },
+      "must_not_contain": [],
+      "notes": "Behaviour evidence 2: SAME behaviour, DIFFERENT context (illustration, not nav). Cross-context is one of the four required conditions.",
+      "wait_after_minutes": 11,
+      "wait_note": "Triggers extraction and sets a 10-minute lock. Wait >10 min before the NEXT triggering conversation."
+    },
+    {
+      "seq": 14,
+      "conversation_id": "573ab4d8-70a1-5d16-9c06-bd6142468e5e",
+      "title": "Three approaches to the migration plan",
+      "operations": [
+        "EMIT behavior_signal",
+        "CREATE top_of_mind"
+      ],
+      "purpose": "Behaviour evidence event 3 of 3. Same behaviour, different context.",
+      "turn_count": 10,
+      "triggers_extraction": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Last piece — migrating the old components to Design System v2."
+        },
+        {
+          "turn": 2,
+          "user": "I drafted three migration strategies before bringing them to engineering."
+        },
+        {
+          "turn": 3,
+          "user": "Big bang, incremental by surface, and incremental by component."
+        },
+        {
+          "turn": 4,
+          "user": "As usual I laid all three out with trade-offs before recommending one."
+        },
+        {
+          "turn": 5,
+          "user": "We went with incremental by surface."
+        },
+        {
+          "turn": 6,
+          "user": "What usually goes wrong in a component migration?"
+        },
+        {
+          "turn": 7,
+          "user": "Drift between old and new during the transition, that makes sense."
+        },
+        {
+          "turn": 8,
+          "user": "I'll add a deprecation timeline to force the cut-over."
+        },
+        {
+          "turn": 9,
+          "user": "Six months feels reasonable for full migration."
+        },
+        {
+          "turn": 10,
+          "user": "What do I avoid, and where do I work?",
+          "verify": {
+            "expected_answer": "You avoid dark patterns and long essays, and you're based in Amsterdam.",
+            "expected_facts": [
+              "dark patterns",
+              "Amsterdam"
+            ],
+            "must_not_contain": [
+              "Singapore",
+              "agenda"
+            ],
+            "note": "Two removals and one relocation, all verified in one answer."
+          }
+        }
+      ],
+      "expected_short_term_topics": [],
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Sarah",
+          "occupation": "Senior Product Designer",
+          "organization": "Nordway Pay",
+          "location": "Amsterdam",
+          "working_hours": "10:00-19:00",
+          "timezone": "Europe/Amsterdam",
+          "pronouns": "",
+          "languages": [
+            "en",
+            "zh"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User name: Sarah\nUser pronouns: \nUser's location: Amsterdam\nUser's language: en, zh\nUser's occupation: Senior Product Designer\nUser's organization: Nordway Pay\nUser's working hours: 10:00-19:00 (Europe/Amsterdam timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Figma",
+            "Sketch",
+            "user research"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "figma, sketch, user research"
+        },
+        "preference": {
+          "interests": [
+            "design systems",
+            "accessibility"
+          ],
+          "goals": [
+            "lead the design system team"
+          ],
+          "avoidances": [
+            "long essays",
+            "dark patterns"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User interests in: design systems, accessibility\nUser current goals are: lead the design system team\nUser not like: long essays, dark patterns\n"
+        },
+        "activities": [
+          {
+            "title": "Design System v2",
+            "status": "active",
+            "_occurrences": 5
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "component migration strategy"
+          }
+        ],
+        "behavior_pattern": [],
+        "_behavior_expectation": "behavior_signals should be LOGGED, but the behavior_pattern BLOCK must stay EMPTY. Doc 2.3 requires >=3 independent events spread over >=7-30 days, cross-context, plus the weekly W10 job. A single test session cannot satisfy the time spread."
+      },
+      "must_not_contain": [],
+      "notes": "Behaviour evidence 3: third context (migration planning). All four conditions for a behavior_pattern are now met EXCEPT the 7-30 day time spread. If a behavior_pattern block appears after this conversation, the conservative creation rule from doc 2.3 is NOT being enforced — worth reporting.",
+      "wait_after_minutes": 11,
+      "wait_note": "Triggers extraction and sets a 10-minute lock. Wait >10 min before the NEXT triggering conversation."
+    },
+    {
+      "seq": 15,
+      "conversation_id": "736af6dd-692b-561c-8b12-4363093b4817",
+      "title": "Rapid-fire interests to stress the field cap",
+      "operations": [
+        "STRESS preference.interests cap"
+      ],
+      "purpose": "Doc 2.6 caps interests[] at under 10. Push past it deliberately.",
+      "turn_count": 10,
+      "triggers_extraction": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "I've been getting into a lot of new areas lately, let me list them."
+        },
+        {
+          "turn": 2,
+          "user": "Service design, design ops, and behavioural economics."
+        },
+        {
+          "turn": 3,
+          "user": "Also data visualisation and information architecture."
+        },
+        {
+          "turn": 4,
+          "user": "Plus front-end animation, sound design, and haptics."
+        },
+        {
+          "turn": 5,
+          "user": "And spatial interfaces, plus design for AI products."
+        },
+        {
+          "turn": 6,
+          "user": "That's a lot, I know. Which of those pair best with design systems work?"
+        },
+        {
+          "turn": 7,
+          "user": "Design ops and information architecture, that's a useful pairing."
+        },
+        {
+          "turn": 8,
+          "user": "I'll focus on those two first."
+        },
+        {
+          "turn": 9,
+          "user": "The rest can wait until next year."
+        },
+        {
+          "turn": 10,
+          "user": "How many interests do you have recorded for me now?",
+          "verify": {
+            "expected_answer": "You're interested in design systems, accessibility, design ops and information architecture, among others.",
+            "expected_facts": [
+              "design systems",
+              "design ops"
+            ],
+            "must_not_contain": [],
+            "note": "The original two interests from S2 must survive eviction — they are the oldest but also the most reinforced. Which ones get evicted is undefined in the doc; record what actually happens."
+          }
+        }
+      ],
+      "expected_short_term_topics": [
+        "New areas of interest",
+        "Pairing design ops with design systems"
+      ],
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Sarah",
+          "occupation": "Senior Product Designer",
+          "organization": "Nordway Pay",
+          "location": "Amsterdam",
+          "working_hours": "10:00-19:00",
+          "timezone": "Europe/Amsterdam",
+          "pronouns": "",
+          "languages": [
+            "en",
+            "zh"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User name: Sarah\nUser pronouns: \nUser's location: Amsterdam\nUser's language: en, zh\nUser's occupation: Senior Product Designer\nUser's organization: Nordway Pay\nUser's working hours: 10:00-19:00 (Europe/Amsterdam timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Figma",
+            "Sketch",
+            "user research"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "figma, sketch, user research"
+        },
+        "preference": {
+          "_interests_count_max": 10,
+          "_note": "Doc 2.6: interests[] < 10. Before this conversation there were 2 (design systems, accessibility). Adding 10 more = 12. The cap MUST evict. NOTE: on staging we already observed a user with 12 interests, so the cap may not be enforced. If count > 10, that CONFIRMS the earlier finding.",
+          "goals": [
+            "lead the design system team"
+          ],
+          "avoidances": [
+            "long essays",
+            "dark patterns"
+          ],
+          "_content_text_expected": "User current goals are: lead the design system team\nUser not like: long essays, dark patterns\n"
+        },
+        "activities": [
+          {
+            "title": "Design System v2",
+            "status": "active",
+            "_occurrences": 6
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "design ops and information architecture"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [],
+      "notes": "Doc 2.6 defines the cap but NOT the eviction rule for static list fields (it only defines eviction for dynamic blocks). This case will reveal the actual behaviour: truncate oldest, truncate newest, or no cap at all.",
+      "wait_after_minutes": 11,
+      "wait_note": "Triggers extraction and sets a 10-minute lock. Wait >10 min before the NEXT triggering conversation."
+    },
+    {
+      "seq": 16,
+      "conversation_id": "dbe8ebc0-5a1a-5a70-8fa3-88de546d3706",
+      "title": "Self-correction inside a single conversation",
+      "operations": [
+        "UPDATE user_profile (intra-conversation conflict)"
+      ],
+      "purpose": "The user states a fact then corrects it a few turns later, same conversation. The LAST statement must win.",
+      "turn_count": 10,
+      "triggers_extraction": true,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Small update — I've moved to the Berlin office."
+        },
+        {
+          "turn": 2,
+          "user": "The team there is bigger, about twenty designers."
+        },
+        {
+          "turn": 3,
+          "user": "How do you run critique with a group that size?"
+        },
+        {
+          "turn": 4,
+          "user": "Splitting into pods of five sounds workable."
+        },
+        {
+          "turn": 5,
+          "user": "Actually, correction — I mixed up the cities. It's Rotterdam, not Berlin."
+        },
+        {
+          "turn": 6,
+          "user": "Berlin was the office I visited last month, I'm not based there."
+        },
+        {
+          "turn": 7,
+          "user": "So Rotterdam is my base now, still in the Netherlands."
+        },
+        {
+          "turn": 8,
+          "user": "Does the pod approach still work for a smaller Rotterdam team of eight?"
+        },
+        {
+          "turn": 9,
+          "user": "Two pods of four, that works."
+        },
+        {
+          "turn": 10,
+          "user": "Where am I based?",
+          "verify": {
+            "expected_answer": "You're based in Rotterdam.",
+            "expected_facts": [
+              "Rotterdam"
+            ],
+            "must_not_contain": [
+              "Berlin",
+              "Amsterdam"
+            ],
+            "note": "Asked in the SAME conversation, so this mainly checks the model's reading. The real test is the S17 read."
+          }
+        }
+      ],
+      "expected_short_term_topics": [
+        "Office relocation correction",
+        "Running critique with a large team"
+      ],
+      "expected_long_term_after": {
+        "user_profile": {
+          "preferred_name": "Sarah",
+          "occupation": "Senior Product Designer",
+          "organization": "Nordway Pay",
+          "location": "Rotterdam",
+          "working_hours": "10:00-19:00",
+          "timezone": "Europe/Amsterdam",
+          "pronouns": "",
+          "languages": [
+            "en",
+            "zh"
+          ],
+          "_version": 3,
+          "_note": "Rotterdam, NOT Berlin, NOT Amsterdam. The last statement in the conversation wins. Berlin appearing means the extraction took the FIRST mention instead of the last.",
+          "_content_text_expected": "User name: Sarah\nUser pronouns: \nUser's location: Rotterdam\nUser's language: en, zh\nUser's occupation: Senior Product Designer\nUser's organization: Nordway Pay\nUser's working hours: 10:00-19:00 (Europe/Amsterdam timezone)"
+        },
+        "capability": {
+          "capabilities": [
+            "Figma",
+            "Sketch",
+            "user research"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "figma, sketch, user research"
+        },
+        "preference": {
+          "goals": [
+            "lead the design system team"
+          ],
+          "avoidances": [
+            "long essays",
+            "dark patterns"
+          ],
+          "_unchanged": true,
+          "_content_text_expected": "User current goals are: lead the design system team\nUser not like: long essays, dark patterns\n"
+        },
+        "activities": [
+          {
+            "title": "Design System v2",
+            "status": "active",
+            "_occurrences": 7
+          }
+        ],
+        "top_of_mind": [
+          {
+            "title": "running critique with a large team"
+          }
+        ],
+        "behavior_pattern": []
+      },
+      "must_not_contain": [
+        "Berlin"
+      ],
+      "notes": "Intra-conversation conflict. Doc 2.5 says 'Explicit user correction overrides inferred memory' but says nothing about two explicit statements in the same input. Summarisation happens over the whole conversation, so the extraction sees both Berlin and Rotterdam and must pick the later one.",
+      "wait_after_minutes": 0,
+      "wait_note": "Last trigger — just poll until memory changes"
+    },
+    {
+      "seq": 17,
+      "conversation_id": "9cf98c98-8eaf-5e75-a751-727e0b7badec",
+      "title": "[read] Full recall and synthesis",
+      "operations": [
+        "READ all blocks"
+      ],
+      "purpose": "Final verification. Read-only, 4 turns, no trigger.",
+      "turn_count": 4,
+      "triggers_extraction": false,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Give me a short professional bio I could use on a conference speaker page.",
+          "verify": {
+            "expected_answer": "Sarah — Senior Product Designer at Nordway Pay, based in Rotterdam. Works in Figma, Framer and Storybook, and runs her own user research. Shipped an onboarding redesign that cut drop-off from 40 to 18 percent, and is now leading Design System v2. Interested in design systems, accessibility and design ops.",
+            "expected_facts": [
+              "Sarah",
+              "Senior Product Designer",
+              "Nordway Pay",
+              "Rotterdam",
+              "Figma",
+              "Onboarding Redesign",
+              "Design System v2"
+            ],
+            "must_not_contain": [
+              "Singapore",
+              "Berlin",
+              "Amsterdam",
+              "Sketch"
+            ],
+            "note": "SYNTHESIS TEST. Forces user_profile + capability + preference + both activities into one paragraph. Any missing piece exposes a block that was not retrieved. The must_not list checks four separate corrections at once: two relocations, one promotion, one tool removal."
+          }
+        },
+        {
+          "turn": 2,
+          "user": "What am I working on, and what have I finished?",
+          "verify": {
+            "expected_answer": "You're working on Design System v2. You've completed the Onboarding Redesign, and Card Personalisation was cancelled.",
+            "expected_facts": [
+              "Design System v2",
+              "Onboarding Redesign"
+            ],
+            "must_not_contain": [],
+            "note": "Status differentiation across three activities."
+          }
+        },
+        {
+          "turn": 3,
+          "user": "What do I avoid, and what are my goals?",
+          "verify": {
+            "expected_answer": "You avoid dark patterns and long essays. Your goal is to lead the design system team within a year.",
+            "expected_facts": [
+              "dark patterns",
+              "lead the design system team"
+            ],
+            "must_not_contain": [
+              "motion design",
+              "agenda"
+            ],
+            "note": "Both removals verified: the completed motion design goal and the reversed meeting avoidance."
+          }
+        },
+        {
+          "turn": 4,
+          "user": "Thanks, that's helpful."
+        }
+      ],
+      "expected_short_term_topics": [],
+      "expected_long_term_after": {
+        "_expected": "No change — read-only, 4 turns, no trigger. All versions unchanged."
+      },
+      "must_not_contain": [],
+      "notes": "Turn 1 is the single highest-value assertion in the dataset — one answer that must contain seven facts and exclude four superseded values.",
+      "wait_after_minutes": 0,
+      "wait_note": "No trigger (<10 turns) — run immediately, fills the cooldown gap"
+    },
+    {
+      "seq": 18,
+      "conversation_id": "80e487e6-6d37-50ee-8499-88d01f42d50f",
+      "title": "[read] Older topics and working habits (day 0)",
+      "operations": [
+        "READ top_of_mind",
+        "READ behavior_pattern"
+      ],
+      "purpose": "Closes two gaps: top_of_mind was never read back, behavior_pattern was never queried. Read-only, 5 turns, no trigger.",
+      "turn_count": 5,
+      "triggers_extraction": false,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "What was that thing I was looking into about typefaces a while back?",
+          "verify": {
+            "expected_answer": "You were looking into variable fonts, mostly out of curiosity with no plan to use them yet.",
+            "expected_facts": [
+              "variable fonts"
+            ],
+            "must_not_contain": [],
+            "note": "BURIED TOP_OF_MIND. Created in S3, then ~7 more topics were added (S5, S7, S8, S11, S12, S13, S14, S15, S16) so it is far outside Core LTM top-3. Recalled -> Extended LTM works. Not recalled -> the block is in the DB but retrieval cannot reach it. BUG."
+          }
+        },
+        {
+          "turn": 2,
+          "user": "What else have I been focused on recently?",
+          "verify": {
+            "expected_answer": "You've been focused on the design system rewrite sequencing, moving into a design lead role, and design ops.",
+            "expected_facts": [],
+            "must_not_contain": [],
+            "note": "Broad top_of_mind read. RECORD HOW MANY topics the bot lists. Exactly 3 -> Core LTM top-3 only. More than 3 -> Extended LTM also fired."
+          }
+        },
+        {
+          "turn": 3,
+          "user": "Do you notice any pattern in how I approach design decisions?",
+          "verify": {
+            "expected_answer": "I don't have enough evidence yet to identify a repeated working pattern for you.",
+            "expected_facts": [],
+            "must_not_contain": [],
+            "note": "BEHAVIOR_PATTERN GATE, DAY 0. Three events exist (S12, S13, S14) across three different contexts — but ALL ON THE SAME DAY. Doc 2.3 requires evidence spread across >=7-30 days, plus the weekly W10 job. So the block must be EMPTY and the bot must say it does not know. If the bot confidently describes the three-variant habit -> the conservative creation rule is NOT enforced. Report it."
+          }
+        },
+        {
+          "turn": 4,
+          "user": "How many prototype variants do I usually build before deciding?",
+          "verify": {
+            "expected_answer": "I don't have a recorded pattern about how many variants you build.",
+            "expected_facts": [],
+            "must_not_contain": [],
+            "note": "Sharper probe for the same gate. The three-variant habit is stated explicitly in S12, S13 and S14, so if any behavior_pattern block was created it will almost certainly say 'three'. A confident 'three' here is the clearest possible signal that the block was created too early."
+          }
+        },
+        {
+          "turn": 5,
+          "user": "Thanks."
+        }
+      ],
+      "expected_short_term_topics": [],
+      "expected_long_term_after": {
+        "_expected": "No change — read-only, 5 turns, no trigger"
+      },
+      "must_not_contain": [],
+      "notes": "Two gaps closed at once. Turn 1 is the first Extended LTM test in this dataset. Turns 3 and 4 are the day-0 half of the behavior_pattern experiment — the day-8 half is S19.",
+      "wait_after_minutes": 0,
+      "wait_note": "No trigger (<10 turns) — run immediately, fills the cooldown gap"
+    },
+    {
+      "seq": 19,
+      "conversation_id": "8aaff650-1d56-57dc-9ef7-e4963c45b83f",
+      "title": "[read, RUN 8+ DAYS LATER] Behaviour pattern re-check",
+      "operations": [
+        "READ behavior_pattern (deferred)"
+      ],
+      "purpose": "DEFERRED CHECK. Run this 8 or more days after S14, on the SAME user, with no conversations in between. It separates two readings of the doc that give different results.",
+      "turn_count": 4,
+      "triggers_extraction": false,
+      "turns": [
+        {
+          "turn": 1,
+          "user": "Coming back to something — do you notice any pattern in how I work?",
+          "verify": {
+            "expected_answer": "I don't have enough evidence to identify a repeated working pattern for you.",
+            "expected_facts": [],
+            "must_not_contain": [],
+            "note": "EXPECTED under reading A (spread between events). If instead the bot now describes the three-variant habit, the implementation uses reading B -> the day-spread condition is measured wrong. Either answer is a finding; record which one you get and on which date."
+          }
+        },
+        {
+          "turn": 2,
+          "user": "How many variants do I usually explore before deciding?",
+          "verify": {
+            "expected_answer": "I don't have a recorded pattern about your variant count.",
+            "expected_facts": [],
+            "must_not_contain": [],
+            "note": "Same gate, sharper probe. A confident 'three' means a block now exists."
+          }
+        },
+        {
+          "turn": 3,
+          "user": "Anything else you've noticed about my habits?",
+          "verify": {
+            "expected_answer": "I don't have recorded habits for you beyond your stated preferences.",
+            "expected_facts": [],
+            "must_not_contain": [],
+            "note": "Catches any OTHER behaviour pattern the weekly job may have invented from unrelated signals — for example 'always ships before deadline'. Any such claim without three cross-context events is a false positive."
+          }
+        },
+        {
+          "turn": 4,
+          "user": "Thanks."
+        }
+      ],
+      "expected_short_term_topics": [],
+      "expected_long_term_after": {
+        "_expected": "No change — read-only. But behavior_pattern MAY have changed via the weekly W10 job. That is exactly what this conversation measures.",
+        "_the_ambiguity": {
+          "doc_text": "Doc 2.3 CREATION RULES: 'Spread over time: Evidence appears across at least 7-30 days.'",
+          "reading_A_spread_between_events": "The three signals from S12-S14 all landed on day 0, so their spread is 0 days and will stay 0 forever. The block must NEVER form. -> S19 still returns 'I don't know'.",
+          "reading_B_elapsed_since_first": "Measured as days since the first signal. By day 8 that is 8 days, which passes. -> S19 returns the three-variant habit.",
+          "why_it_matters": "Reading B lets a single burst of same-day chatter become a 'behaviour pattern' a week later, which is exactly what the conservative rule was written to prevent."
+        }
+      },
+      "must_not_contain": [],
+      "notes": "RUN SEPARATELY, 8+ DAYS AFTER S14. Prerequisites: same user, no new conversations in between (new chat would add fresh signals and ruin the measurement), and the weekly W10 job must have run at least once in the gap — confirm that with the backend team before drawing a conclusion. If the job never ran, the result says nothing about the spread rule.",
+      "run_mode": "DEFERRED — run 8+ days after S14, separately from the main run",
+      "prerequisites": [
+        "Same user, no new conversations between S14 and S19",
+        "At least 8 days elapsed since S14",
+        "Weekly W10 behaviour-pattern job has run at least once — confirm with backend"
+      ],
+      "wait_after_minutes": 0,
+      "wait_note": "No trigger (<10 turns) — run immediately, fills the cooldown gap"
+    }
+  ]
+}
